@@ -12,7 +12,7 @@
       >
       <span>{{ title }}</span>
     </div>
-    Card Content X
+    Card Content
 
     <template #footer>
       <div class="flex gap-x-4 border-t border-gray-200 pt-2 footer">
