@@ -84,6 +84,7 @@ const setActiveTab = async (index) => {
 };
 
 onMounted(() => {
+console.log('rr')
   const currentRoute = useRoute();
   const index = tabs.findIndex((tab) => tab.path === currentRoute.path);
   if (index !== -1) {
