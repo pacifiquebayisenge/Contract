@@ -60,13 +60,42 @@ export default defineNuxtConfig({
     },
 
     workbox: {
-      globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
+      navigateFallback: '/',
+      navigateFallbackAllowlist: [/^\/$/],
+      runtimeCaching: [
+        {
+          urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'google-fonts-cache',
+            expiration: {
+              maxEntries: 10,
+              maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
+            }
+          }
+        },
+        {
+          urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'gstatic-fonts-cache',
+            expiration: {
+              maxEntries: 10,
+              maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
+            }
+          }
+        }
+      ],
+      globPatterns: [
+        '**/*.{js,css,html,png,svg,ico,json,woff2,woff,ttf,eot}'
+      ],
       cleanupOutdatedCaches: true,
       clientsClaim: true,
+      skipWaiting: true
     },
     client: {
       installPrompt: true,
-      periodicSyncForUpdates: 20, // Check for updates every 20 seconds in dev
+      periodicSyncForUpdates: 20,
     },
 
     manifest: {
@@ -77,6 +106,9 @@ export default defineNuxtConfig({
       background_color: "#ffffff",
       display: "standalone",
       start_url: "/",
+       scope: "/",
+      id: "/",
+      categories: ["business", "productivity"],
       // icons: [
       //   {
       //     src: "/icon-192x192.png",
