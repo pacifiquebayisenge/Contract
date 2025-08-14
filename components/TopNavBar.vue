@@ -61,7 +61,7 @@ const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
 
 <style>
 .n-tabs-tab__label {
-  font-weight: 500;
+  font-weight: 700;
 }
 
 /* Dynamic theme-based styling */
