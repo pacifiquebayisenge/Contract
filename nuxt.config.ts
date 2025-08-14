@@ -23,6 +23,7 @@ export default defineNuxtConfig({
       link: [
         { rel: "manifest", href: "/manifest.webmanifest" },
         { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+        { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" }
       ],
       meta: [
         { name: "description", content: "Contract management application" },
@@ -60,7 +61,7 @@ export default defineNuxtConfig({
     },
 
     workbox: {
-      navigateFallback: '/',
+      navigateFallback: '/index.html',
       navigateFallbackAllowlist: [/^\/$/],
       runtimeCaching: [
         {
@@ -84,11 +85,37 @@ export default defineNuxtConfig({
               maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
             }
           }
+        },
+        {
+        urlPattern: ({ request }) => request.mode === 'navigate', // Cache all navigation requests
+        handler: 'NetworkFirst', // Try network, fallback to cache
+        options: {
+          cacheName: 'pages-cache',
+          expiration: {
+            maxEntries: 50,
+            maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
+          }
         }
+      },
+      {
+        urlPattern: /^\/_nuxt\/.*\.(js|css)$/i, // Cache Nuxt build assets
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'nuxt-assets',
+          expiration: {
+            maxEntries: 100,
+            maxAgeSeconds: 30 * 24 * 60 * 60
+          }
+        }
+      }
       ],
       globPatterns: [
         '**/*.{js,css,html,png,svg,ico,json,woff2,woff,ttf,eot}'
       ],
+      additionalManifestEntries: [
+      { url: '/index.html', revision: `${Date.now()}` },
+      { url: '/manifest.webmanifest', revision: `${Date.now()}` }
+    ],
       cleanupOutdatedCaches: true,
       clientsClaim: true,
       skipWaiting: true

@@ -140,6 +140,21 @@ const isHttps = ref(false)
 const isInstalled = ref(false)
 const deferredPrompt = ref(null)
 const updateAvailable = ref(false)
+const registration = ref(null)
+
+// Real update check
+const checkForUpdate = async () => {
+  if (registration.value && navigator.onLine) {
+    try {
+      await registration.value.update()
+      console.log('Update check triggered on app launch')
+    } catch (error) {
+      console.error('Update check failed:', error)
+    }
+  } else {
+    console.log('No update check: No SW registration or offline')
+  }
+}
 
 // Check functions
 const checkManifest = async () => {
@@ -177,22 +192,7 @@ const checkIcons = async () => {
 }
 
 const triggerUpdate = () => {
-  // Simulate update check
-  console.log('Checking for updates...')
-  if (Math.random() > 0.7) {
-    showUpdateNotification.value = true
-    updateAvailable.value = true
-  } else {
-    console.log('No updates available')
-  }
-}
-
-const forceInstallPrompt = () => {
-  if (deferredPrompt.value) {
-    showInstallPrompt.value = true
-  } else {
-    console.log('Install prompt not available. Check install criteria above.')
-  }
+  checkForUpdate()
 }
 
 // Install functions
@@ -234,8 +234,31 @@ onMounted(() => {
   checkManifest()
   checkIcons()
   
-  // Check for service worker
+  // Check for service worker and set up update listener
   if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then((reg) => {
+      registration.value = reg
+      swRegistered.value = true
+
+      // Check for updates on app launch
+      checkForUpdate()
+
+      // Listen for updates
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              updateAvailable.value = true
+              showUpdateNotification.value = true
+              console.log('New update available!')
+            }
+          })
+        }
+      })
+    })
+
+    // Fallback: Check existing registrations
     navigator.serviceWorker.getRegistrations().then(registrations => {
       swRegistered.value = registrations.length > 0
     })
