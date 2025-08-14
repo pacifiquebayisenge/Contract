@@ -2,7 +2,7 @@
   "name": "Ugovor",
   "private": true,
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "scripts": {
     "dev": "nuxt dev",
     "pwa": "pnpm run generate && npx serve .output/public  ",
