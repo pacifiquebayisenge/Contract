@@ -10,11 +10,16 @@
       <slot />
     </div>
 
+    <div class="sticky bottom-20 z-50   flex justify-center items-center py-4">
+      <BottomMenuBar/>
+    </div>
+    
     <!-- PWA Status Component -->
     <PwaStatus />
   </div>
 </template>
 
 <script setup>
+import BottomMenuBar from "~/components/BottomMenuBar.vue";
 import TopNavBar from "~/components/TopNavBar.vue";
 </script>

@@ -1,7 +1,24 @@
 <template>
   <div class="home-container">
-    <AvatarCard title="Domme" />
-    <AvatarCard title="Sukkel" />
+    <AvatarCard title="Domme" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
   </div>
 </template>
 
@@ -12,6 +29,7 @@ import AvatarCard from "~/components/AvatarCard.vue";
 <style lang="scss" scoped>
 .home-container {
   display: flex;
+  flex-direction: column;
   gap: 3rem;
 
   div.n-card {

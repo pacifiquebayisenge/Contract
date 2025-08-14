@@ -55,11 +55,11 @@ export default defineNuxtConfig({
   pwa: {
     registerType: "autoUpdate",
 
-    devOptions: {
-      enabled: true, // Enable PWA in development
-      suppressWarnings: true,
-      type: "module",
-    },
+    // devOptions: {
+    //   enabled: true, // Enable PWA in development
+    //   suppressWarnings: true,
+    //   type: "module",
+    // },
 
     workbox: {
       navigateFallback: '/index.html',

@@ -1,18 +1,26 @@
 <template>
-  <n-card class="avatar-card-container">
-    <div class="header">
-      <n-avatar
-        round
-        size="small"
-        :style="{
-          color: 'grey',
-          backgroundColor: 'lightgray',
-        }"
-        >{{ title.charAt(0) }}</n-avatar
-      >
-      <span>{{ title }}</span>
+  <n-card>
+    <div class="avatar-card-content">
+
+      <div class="avatar">
+        <n-avatar
+          round
+          :size="80"
+          :style="{
+            color: 'grey',
+            backgroundColor: 'lightgray',
+          }"
+          >{{ title.charAt(0) }}</n-avatar
+        >
+      </div>
+
+      <div class="content">
+        <div class="title">
+          <span class="text-5xl">{{ title }}</span>
+        </div>
+        <div class="text">Card Content X</div>
+      </div>
     </div>
-    Card Content X
 
     <template #footer>
       <div class="flex gap-x-4 border-t border-gray-200 pt-2 footer">
@@ -49,18 +57,20 @@ const { title, seenCounter, streakCounter } = defineProps({
 </script>
 
 <style lang="scss" scoped>
-div.avatar-card-container {
+div.avatar-card-content {
   // max-width: 400px;
+  display: flex;
+  align-content: center;
+  gap: 2rem;
+  
 
-  .header {
-    display: flex;
-    align-content: center;
-    gap: 1rem;
+  .content {
+    margin-top: 1rem;
+  }
 
-    span {
-      padding-top: 0.25rem;
-      font-weight: 500;
-    }
+  span {
+    padding-top: 0.25rem;
+    font-weight: 500;
   }
 
   .footer {
