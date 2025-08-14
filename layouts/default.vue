@@ -1,8 +1,12 @@
 <template>
-  <div>
-    <TopNavBar />
+  <div class="flex flex-col min-h-screen">
+    <div class="sticky top-0 z-50 flex justify-center items-center py-4">
+      <TopNavBar />
+    </div>
 
-    <div class="px-6 py-2">
+    <ThemeSwitcher/>
+    <!-- Page content -->
+    <div class="flex-1 px-6 py-2">
       <slot />
     </div>
 
@@ -13,8 +17,4 @@
 
 <script setup>
 import TopNavBar from "~/components/TopNavBar.vue";
-
-
 </script>
-
-

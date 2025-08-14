@@ -1,110 +1,101 @@
 <template>
-  <div
-    class="relative bg-white border-b border-gray-200 overflow-x-auto whitespace-nowrap mx-8 hide-scrollbar"
+  <n-tabs
+    class="mx-8 px-12 flex justify-center themed-tabs"
+    type="line"
+    animated
+    :value="activeTab"
+    @update:value="handleTabChange"
   >
-    <div
-      ref="tabsContainer"
-      class="relative flex px-4 pt-4 pb-1 space-x-6 justify-self-center"
-    >
-      <button
-        v-for="(tab, index) in tabs"
-        :key="index"
-        class="relative text-sm pb-2"
-        @click="setActiveTab(index)"
-      >
-        <span
-          :ref="(el) => (tabRefs[index] = el)"
-          class="px-1 transition-colors duration-200 text-base"
-          :class="
-            activeTab === index
-              ? 'text-black font-semibold'
-              : 'text-gray-500 hover:text-black'
-          "
-        >
-          {{ tab.name }}
-        </span>
-      </button>
-
-      <!-- The animated underline -->
-      <div
-        class="absolute bottom-0 h-0.5 bg-black transition-all duration-300 ease-out"
-        :style="{
-          width: underlineWidth + 'px',
-          transform: `translateX(${underlineLeft}px)`,
-        }"
-      />
-    </div>
-  </div>
+    <n-tab-pane
+      v-for="(tab, index) in tabs"
+      :key="index"
+      class="text-gray-700"
+      :name="tab.name"
+      :tab="tab.name"
+    />
+  </n-tabs>
 </template>
 
-<script setup>
-import { ref, onMounted, watch, nextTick } from "vue";
+<script setup >
+import { ref, onMounted, computed } from "vue"
+import { useRouter, useRoute } from "vue-router"
+import { useThemeStore } from '~/stores/theme'
 
-const router = useRouter();
+const router = useRouter()
+const route = useRoute()
+const themeStore = useThemeStore()
 
-const tabs = [
+const tabs = ref([
   { name: "Home", path: "/" },
   { name: "Contract", path: "/contract" },
   { name: "P. O. T.", path: "/pot" },
   { name: "Memories", path: "/memories" },
   { name: "Stats", path: "/stats" },
-  // add more as needed
-];
-const activeTab = ref(0);
+])
 
-const tabRefs = [];
-const tabsContainer = ref(null);
-const tabsContainerXPadding = ref(10);
+const activeTab = ref(tabs.value[0].name)
 
-const underlineLeft = ref(0);
-const underlineWidth = ref(0);
-
-const updateUnderline = () => {
-  const el = tabRefs[activeTab.value];
-  const container = tabsContainer.value;
-
-  if (!el || !container) return;
-
-  const elRect = el.getBoundingClientRect();
-  const containerRect = container.getBoundingClientRect();
-
-  // Calculate left relative to container
-  underlineLeft.value =
-    elRect.left - tabsContainerXPadding.value - containerRect.left + container.scrollLeft;
-  underlineWidth.value = elRect.width;
-};
-
-const setActiveTab = async (index) => {
-  activeTab.value = index;
-  await nextTick();
-  updateUnderline();
-
-  const path = tabs[index].path;
-  router.push(path);
-};
+// Remove explicit type annotations to avoid ESLint issues
+const handleTabChange = (tabName) => {
+  const selectedTab = tabs.value.find((tab) => tab.name === tabName)
+  if (selectedTab) {
+    activeTab.value = tabName 
+    router.push(selectedTab.path) 
+  }
+}
 
 onMounted(() => {
-console.log('rr')
-  const currentRoute = useRoute();
-  const index = tabs.findIndex((tab) => tab.path === currentRoute.path);
-  if (index !== -1) {
-    activeTab.value = index;
+  // Initialize theme on component mount
+  themeStore.initializeTheme()
+  
+  // Set active tab based on current route
+  const currentTab = tabs.value.find((tab) => tab.path === route.path)
+  if (currentTab) {
+    activeTab.value = currentTab.name
   }
+})
 
-  window.addEventListener("resize", updateUnderline);
-  nextTick(updateUnderline);
-});
-
-watch(activeTab, updateUnderline);
+// Computed property for dynamic theme color
+const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
 </script>
 
 <style>
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
+.n-tabs-tab__label {
+  font-weight: 500;
 }
 
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* Dynamic theme-based styling */
+.themed-tabs .n-tabs-nav-scroll-content .n-tabs-bar {
+  border-color: v-bind(currentThemeColor) !important;
+}
+
+.themed-tabs .n-tabs-tab__label {
+  color: rgb(49, 49, 49)
+}
+
+.themed-tabs .n-tabs-tab--active .n-tabs-tab__label {
+  color: v-bind(currentThemeColor) !important;
+}
+
+.themed-tabs .n-tabs-tab:hover .n-tabs-tab__label {
+  color: v-bind(currentThemeColor) !important;
+  opacity: 0.8;
+}
+
+/* Alternative approach using CSS custom properties */
+.themed-tabs {
+  --theme-color: v-bind(currentThemeColor);
+}
+
+.themed-tabs .n-tabs-bar::after {
+  background-color: var(--theme-color) !important;
+}
+
+.themed-tabs .n-tabs-nav-scroll-content .n-tabs .n-tabs-bar { 
+  background-color:  var(--theme-color) !important;
+}
+
+.n-tabs .n-tabs-bar { 
+  background-color:  var(--theme-color) !important;
 }
 </style>

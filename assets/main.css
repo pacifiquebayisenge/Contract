@@ -1,3 +1,33 @@
 html {
   font-size: 62.5%;
 }
+
+:root {
+  --primary-color: #8A9A86; /* Default: Sage Green */
+}
+
+/* Theme variations */
+[data-theme="sage-green"] {
+  --primary-color: #8A9A86;
+}
+
+[data-theme="dark-blue"] {
+  --primary-color: #1E3A8A;
+}
+
+[data-theme="light-pink"] {
+  --primary-color: #F9A8D4;
+}
+
+/* Apply primary color to elements */
+.primary-bg {
+  background-color: var(--primary-color);
+}
+
+.primary-text {
+  color: var(--primary-color);
+}
+
+.primary-border {
+  border-color: var(--primary-color);
+}

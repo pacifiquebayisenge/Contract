@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "nuxtjs-naive-ui",
     "@vite-pwa/nuxt",
+     '@pinia/nuxt',
   ],
 
   css: ["assets/main.css", "assets/css/tailwind.css"],
