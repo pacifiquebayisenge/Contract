@@ -71,6 +71,7 @@
         <div>HTTPS: {{ isHttps ? '✓' : '✗' }}</div>
         <div>Install Available: {{ installable ? '✓' : '✗' }}</div>
         <div>Already Installed: {{ isInstalled ? '✓' : '✗' }}</div>
+        <div>Latest Version: {{ latestVersionInstalled ? '✓' : '✗' }} ({{ currentVersion || 'Unknown' }})</div>
       </div>
 
       <div class="mb-3 text-xs">
@@ -109,6 +110,12 @@
         >
           💾 Force Install Prompt
         </button>
+        <button 
+          class="w-full text-left bg-gray-700 px-2 py-1 rounded hover:bg-gray-600" 
+          @click="checkVersion"
+        >
+          🔍 Check Version
+        </button>
       </div>
 
       <button class="text-xs underline hover:text-gray-300" @click="showDebug = false">Hide Debug</button>
@@ -141,6 +148,8 @@ const isInstalled = ref(false)
 const deferredPrompt = ref(null)
 const updateAvailable = ref(false)
 const registration = ref(null)
+const latestVersionInstalled = ref(false)
+const currentVersion = ref(null)
 
 // Real update check
 const checkForUpdate = async () => {
@@ -153,6 +162,24 @@ const checkForUpdate = async () => {
     }
   } else {
     console.log('No update check: No SW registration or offline')
+  }
+}
+
+// Check app version
+const checkVersion = async () => {
+  try {
+    const response = await fetch('/version.json')
+    if (response.ok) {
+      const { version } = await response.json()
+      currentVersion.value = version
+      const storedVersion = localStorage.getItem('appVersion')
+      latestVersionInstalled.value = storedVersion === version
+      console.log(`Current version: ${version}, Stored version: ${storedVersion || 'None'}`)
+    } else {
+      console.error('Failed to fetch version.json')
+    }
+  } catch (error) {
+    console.error('Version check failed:', error)
   }
 }
 
@@ -206,6 +233,11 @@ const installApp = async () => {
     
     if (outcome === 'accepted') {
       isInstalled.value = true
+      // Store the current version on install
+      if (currentVersion.value) {
+        localStorage.setItem('appVersion', currentVersion.value)
+        latestVersionInstalled.value = true
+      }
     }
   }
 }
@@ -216,6 +248,11 @@ const dismissInstall = () => {
 }
 
 const reloadForUpdate = () => {
+  // Update stored version on reload
+  if (currentVersion.value) {
+    localStorage.setItem('appVersion', currentVersion.value)
+    latestVersionInstalled.value = true
+  }
   window.location.reload()
 }
 
@@ -233,6 +270,7 @@ onMounted(() => {
   // Initial checks
   checkManifest()
   checkIcons()
+  checkVersion() // Check version on launch
   
   // Check for service worker and set up update listener
   if ('serviceWorker' in navigator) {
@@ -252,6 +290,8 @@ onMounted(() => {
               updateAvailable.value = true
               showUpdateNotification.value = true
               console.log('New update available!')
+              // Fetch version again to update currentVersion
+              checkVersion()
             }
           })
         }
@@ -284,6 +324,11 @@ onMounted(() => {
     showInstallPrompt.value = false
     isInstalled.value = true
     deferredPrompt.value = null
+    // Store version on install
+    if (currentVersion.value) {
+      localStorage.setItem('appVersion', currentVersion.value)
+      latestVersionInstalled.value = true
+    }
   })
 })
 </script>
