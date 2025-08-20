@@ -316,12 +316,44 @@ const dismissUpdate = () => {
   showUpdateNotification.value = false;
 };
 
+const detectIfInstalled = async () => {
+  let installed = false;
+
+  // Check display-mode (works for iOS + some Android)
+  if (window.matchMedia("(display-mode: standalone)").matches) {
+    installed = true;
+  }
+
+  // Check if launched from homescreen on iOS
+  if (window.navigator.standalone === true) {
+    installed = true;
+  }
+
+  // Chrome-only: check installed related apps
+  if ('getInstalledRelatedApps' in navigator) {
+    try {
+      const relatedApps = await navigator.getInstalledRelatedApps();
+      if (relatedApps.length > 0) {
+        installed = true;
+      }
+    } catch (err) {
+      console.warn("getInstalledRelatedApps failed:", err);
+    }
+  }
+
+  return installed;
+};
+
+
 onMounted(() => {
   // Check HTTPS
   isHttps.value = location.protocol === "https:";
 
   // Check if already installed
-  isInstalled.value = window.matchMedia("(display-mode: standalone)").matches;
+  detectIfInstalled().then((result) => {
+    isInstalled.value = result;
+    console.log("Installed status:", result);
+  });
 
   // Initial checks
   checkManifest();
