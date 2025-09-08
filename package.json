@@ -20,10 +20,12 @@
     "@nuxt/icon": "^1.12.0",
     "@nuxt/image": "^1.10.0",
     "@pinia/nuxt": "^0.11.2",
+    "date-fns": "^4.1.0",
     "eslint": "^9.26.0",
     "naive-ui": "^2.41.0",
-    "nuxt": "^3.17.3",
+    "nuxt": "^3.18.1",
     "nuxtjs-naive-ui": "^1.0.2",
+    "pinia": "^3.0.2",
     "serve": "^14.2.4",
     "vue": "^3.5.13",
     "vue-router": "^4.5.1"
@@ -31,14 +33,13 @@
   "devDependencies": {
     "@css-render/vue3-ssr": "^0.15.14",
     "@nuxtjs/eslint-config-typescript": "^12.1.0",
-    "@nuxtjs/tailwindcss": "7.0.0-beta.0",
+    "@nuxtjs/tailwindcss": "^6.12.1",
     "@vite-pwa/nuxt": "^1.0.4",
     "autoprefixer": "^10.4.21",
     "naive-ui": "^2.41.0",
-    "pinia": "^3.0.2",
     "postcss": "^8.5.4",
     "sass-embedded": "^1.89.1",
-    "tailwindcss": "^4.1.8",
+    "tailwindcss": "^3.4.0",
     "vueuc": "0.3.5"
   },
   "packageManager": "pnpm@9.14.4+sha512.c8180b3fbe4e4bca02c94234717896b5529740a6cbadf19fa78254270403ea2f27d4e1d46a08a0f56c89b63dc8ebfd3ee53326da720273794e6200fcf0d184ab"

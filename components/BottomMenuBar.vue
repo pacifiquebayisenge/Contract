@@ -1,56 +1,58 @@
 <template>
-  <div class="bottom-menu-bar">
-    <div class="items flex space-between justify-center">
-      <div class="item">
-        <div class="icon">
-          <NIcon class="text-base opacity-55" :size="35" :component="UserIcon" />
+  <div>
+    <div class="bottom-menu-bar">
+      <div class="items flex space-between justify-center">
+        <div class="item">
+          <div class="icon">
+            <NIcon class="text-base opacity-55" :size="35" :component="UserIcon" />
+          </div>
+          <!-- <div class="label">Profile</div> -->
         </div>
-        <!-- <div class="label">Profile</div> -->
-      </div>
-      <div class="item">
-        <div class="icon">
-          <NIcon class="text-base opacity-55" :size="35" :component="InboxIcon" />
+        <div class="item">
+          <div class="icon">
+            <NIcon class="text-base opacity-55" :size="35" :component="InboxIcon" />
+          </div>
+          <!-- <div class="label">Inbox</div> -->
         </div>
-        <!-- <div class="label">Inbox</div> -->
-      </div>
-      <div class="item" @click="activate('bottom')">
-        <div class="icon">
-          <NIcon class="text-base opacity-55" :size="35" :component="Cog6ToothIcon" />
+        <div class="item" @click="activate('bottom')">
+          <div class="icon">
+            <NIcon class="text-base opacity-55" :size="35" :component="Cog6ToothIcon" />
+          </div>
+          <!-- <div class="label">Settings</div> -->
         </div>
-        <!-- <div class="label">Settings</div> -->
       </div>
     </div>
-  </div>
 
-  <!-- Drawer Component -->
-  <n-drawer v-model:show="active" :height="400" :placement="placement">
-    <n-drawer-content title="Settings">
-      <div>
-        <div class="settings-items px-5">
-          <n-collapse arrow-placement="right">
-            <n-collapse-item title="Theme" name="1">
-              <div class="px-3">
-                <span>Primary</span>
-                <ThemeSwitcher />
-              </div>
-            </n-collapse-item>
-            <!-- <n-collapse-item title="right" name="2">
+    <!-- Drawer Component -->
+    <n-drawer v-model:show="active" :height="400" :placement="placement">
+      <n-drawer-content title="Settings">
+        <div>
+          <div class="settings-items px-5">
+            <n-collapse arrow-placement="right">
+              <n-collapse-item title="Theme" name="1">
+                <div class="px-3">
+                  <span>Primary</span>
+                  <ThemeSwitcher />
+                </div>
+              </n-collapse-item>
+              <!-- <n-collapse-item title="right" name="2">
               <div>nice</div>
             </n-collapse-item>
             <n-collapse-item title="right" name="3">
               <div>very good</div>
             </n-collapse-item> -->
-          </n-collapse>
-        </div>
+            </n-collapse>
+          </div>
 
-        <!-- <div class="mt-4">
+          <!-- <div class="mt-4">
           <n-button @click="active = false" type="primary">
             Close Drawer
           </n-button>
         </div> -->
-      </div>
-    </n-drawer-content>
-  </n-drawer>
+        </div>
+      </n-drawer-content>
+    </n-drawer>
+  </div>
 </template>
 
 <script setup lang="ts">

@@ -1,40 +1,51 @@
 <template>
-  <n-card>
-    <div class="avatar-card-content">
-
-      <div class="avatar">
-        <n-avatar
-          round
-          :size="80"
-          :style="{
-            color: 'grey',
-            backgroundColor: 'lightgray',
-          }"
-          >{{ title.charAt(0) }}</n-avatar
-        >
-      </div>
-
-      <div class="content">
-        <div class="title">
-          <span class="text-5xl">{{ title }}</span>
+  <div>
+    <n-card>
+      <div class="avatar-card-content" @click="showDialog = true">
+        <div class="avatar">
+          <n-avatar
+            round
+            :size="80"
+            :style="{
+              color: 'grey',
+              backgroundColor: 'lightgray',
+            }"
+            >{{ title.charAt(0) }}</n-avatar
+          >
         </div>
-        <div class="text">Card Content X</div>
-      </div>
-    </div>
 
-    <template #footer>
-      <div class="flex gap-x-4 border-t border-gray-200 pt-2 footer">
-        <div class="flex gap-x-1 justify-center items-center">
-          <NIcon class="text-base opacity-55" :size="14" :component="EyeIcon"></NIcon>
-          <span class="text-base opacity-55">{{ seenCounter }}</span>
-        </div>
-        <div class="flex gap-x-1 justify-center items-center">
-          <NIcon class="text-base opacity-55" :size="14" :component="FireIcon"></NIcon>
-          <span class="text-base opacity-55">{{ streakCounter }}</span>
+        <div class="content">
+          <div class="title">
+            <span class="text-5xl">{{ title }}</span>
+          </div>
+          <div class="text">Card Content X</div>
         </div>
       </div>
-    </template>
-  </n-card>
+
+      <template #footer>
+        <div class="flex gap-x-4 border-t border-gray-200 pt-2 footer">
+          <div class="flex gap-x-1 justify-center items-center">
+            <NIcon class="text-base opacity-55" :size="14" :component="EyeIcon" />
+            <span class="text-base opacity-55">{{ seenCounter }}</span>
+          </div>
+          <div class="flex gap-x-1 justify-center items-center">
+            <NIcon class="text-base opacity-55" :size="14" :component="FireIcon" />
+            <span class="text-base opacity-55">{{ streakCounter }}</span>
+          </div>
+        </div>
+      </template>
+    </n-card>
+
+    <n-modal
+      v-model:show="showDialog"
+      preset="dialog"
+      title="Card Details"
+      positive-text="Close"
+      @positive-click="showDialog = false"
+    >
+      <p>test</p>
+    </n-modal>
+  </div>
 </template>
 
 <script setup>
@@ -54,6 +65,17 @@ const { title, seenCounter, streakCounter } = defineProps({
     default: 0,
   },
 });
+
+// Reactive variable to control dialog visibility
+let showDialog = ref(false);
+
+watch(
+  showDialog,
+  (newValue) => {
+    showDialog.value = newValue;
+  },
+  { deep: true }
+);
 </script>
 
 <style lang="scss" scoped>
@@ -62,7 +84,6 @@ div.avatar-card-content {
   display: flex;
   align-content: center;
   gap: 2rem;
-  
 
   .content {
     margin-top: 1rem;

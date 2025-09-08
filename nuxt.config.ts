@@ -2,6 +2,10 @@
 export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   devtools: { enabled: true },
+  devServer: {
+    port: 3008,
+    host: '0.0.0.0',
+  },
 
   modules: [
     "@nuxt/eslint",
@@ -44,7 +48,7 @@ export default defineNuxtConfig({
   build: {
     transpile: [
       "naive-ui",
-      "vueuc", // <-- Add this!
+"vueuc",
       "@css-render/vue3-ssr",
       "@juggle/resize-observer",
       "date-fns",
@@ -63,7 +67,12 @@ export default defineNuxtConfig({
 
     workbox: {
       navigateFallback: '/index.html',
-      navigateFallbackAllowlist: [/^\/$/],
+      globPatterns: [
+        '**/*.{js,css,html,png,svg,ico,json,woff2,woff,ttf,eot}'
+      ],
+      cleanupOutdatedCaches: true,
+      clientsClaim: true,
+      skipWaiting: true,
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -86,41 +95,10 @@ export default defineNuxtConfig({
               maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
             }
           }
-        },
-        {
-        urlPattern: ({ request }) => request.mode === 'navigate', // Cache all navigation requests
-        handler: 'NetworkFirst', // Try network, fallback to cache
-        options: {
-          cacheName: 'pages-cache',
-          expiration: {
-            maxEntries: 50,
-            maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
-          }
         }
-      },
-      {
-        urlPattern: /^\/_nuxt\/.*\.(js|css)$/i, // Cache Nuxt build assets
-        handler: 'CacheFirst',
-        options: {
-          cacheName: 'nuxt-assets',
-          expiration: {
-            maxEntries: 100,
-            maxAgeSeconds: 30 * 24 * 60 * 60
-          }
-        }
-      }
-      ],
-      globPatterns: [
-        '**/*.{js,css,html,png,svg,ico,json,woff2,woff,ttf,eot}'
-      ],
-      additionalManifestEntries: [
-      { url: '/index.html', revision: `${Date.now()}` },
-      { url: '/manifest.webmanifest', revision: `${Date.now()}` }
-    ],
-      cleanupOutdatedCaches: true,
-      clientsClaim: true,
-      skipWaiting: true
+      ]
     },
+    
     client: {
       installPrompt: true,
       periodicSyncForUpdates: 20,
@@ -134,7 +112,7 @@ export default defineNuxtConfig({
       background_color: "#ffffff",
       display: "standalone",
       start_url: "/",
-       scope: "/",
+      scope: "/",
       id: "/",
       categories: ["business", "productivity"],
       "icons": [
@@ -194,7 +172,8 @@ export default defineNuxtConfig({
 
   vite: {
     optimizeDeps: {
-      include: ["naive-ui"],
+      include: ["naive-ui", "lodash-es"],
     },
+    logLevel: "info",
   },
 });
