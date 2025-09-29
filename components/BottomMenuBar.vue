@@ -56,14 +56,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"; // <- This was missing!
+import { ref } from "vue";
 import { UserIcon, InboxIcon, Cog6ToothIcon } from "@heroicons/vue/24/outline";
 import type { DrawerPlacement } from "naive-ui";
 
 // Drawer state
 const active = ref(false);
 
-const placement = ref<DrawerPlacement>("bottom"); // Changed default to 'bottom'
+const placement = ref<DrawerPlacement>("bottom");
 
 // Function to activate drawer with different placements
 const activate = (place: DrawerPlacement) => {

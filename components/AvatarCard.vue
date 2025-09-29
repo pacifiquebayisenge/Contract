@@ -18,7 +18,7 @@
           <div class="title">
             <span class="text-5xl">{{ title }}</span>
           </div>
-          <div class="text">Card Content X</div>
+          <div class="text">Card Content Y</div>
         </div>
       </div>
 
@@ -36,14 +36,28 @@
       </template>
     </n-card>
 
-    <n-modal
+    <!-- <n-modal
       v-model:show="showDialog"
       preset="dialog"
-      title="Card Details"
+      :title="` ${title}'s action`"
       positive-text="Close"
+      class="avatar_modal"
       @positive-click="showDialog = false"
     >
-      <p>test</p>
+      <CardModal :title="title" />
+    </n-modal> -->
+
+    <n-modal v-model:show="showDialog" transform-origin="center">
+      <n-card
+        style="width: 80%"
+        :title="` ${title}'s action`"
+        :bordered="false"
+        size="huge"
+        role="dialog"
+        aria-modal="true"
+      >
+        <CardModal :name="title" />
+      </n-card>
     </n-modal>
   </div>
 </template>
@@ -95,6 +109,12 @@ div.avatar-card-content {
   }
 
   .footer {
+  }
+}
+
+div.n-dialog.avatar_modal {
+  .n-dialog__title i {
+    display: none !important;
   }
 }
 </style>
