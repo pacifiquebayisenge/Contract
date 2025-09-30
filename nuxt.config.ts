@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   devServer: {
     port: 3008,
-    host: '0.0.0.0',
+    host: "0.0.0.0",
   },
 
   modules: [
@@ -15,10 +15,10 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "nuxtjs-naive-ui",
     "@vite-pwa/nuxt",
-     '@pinia/nuxt',
+    "@pinia/nuxt",
   ],
 
-  css: ["assets/main.css", "assets/css/tailwind.css"],
+  css: ["assets/main.scss", "assets/css/tailwind.css"],
 
   ssr: false,
 
@@ -28,7 +28,11 @@ export default defineNuxtConfig({
       link: [
         { rel: "manifest", href: "/manifest.webmanifest" },
         { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
-        { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" }
+        {
+          rel: "apple-touch-icon",
+          sizes: "180x180",
+          href: "/apple-touch-icon.png",
+        },
       ],
       meta: [
         { name: "description", content: "Contract management application" },
@@ -48,7 +52,7 @@ export default defineNuxtConfig({
   build: {
     transpile: [
       "naive-ui",
-"vueuc",
+      "vueuc",
       "@css-render/vue3-ssr",
       "@juggle/resize-observer",
       "date-fns",
@@ -66,39 +70,37 @@ export default defineNuxtConfig({
     // },
 
     workbox: {
-      navigateFallback: '/index.html',
-      globPatterns: [
-        '**/*.{js,css,html,png,svg,ico,json,woff2,woff,ttf,eot}'
-      ],
+      navigateFallback: "/index.html",
+      globPatterns: ["**/*.{js,css,html,png,svg,ico,json,woff2,woff,ttf,eot}"],
       cleanupOutdatedCaches: true,
       clientsClaim: true,
       skipWaiting: true,
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-          handler: 'CacheFirst',
+          handler: "CacheFirst",
           options: {
-            cacheName: 'google-fonts-cache',
+            cacheName: "google-fonts-cache",
             expiration: {
               maxEntries: 10,
-              maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
-            }
-          }
+              maxAgeSeconds: 60 * 60 * 24 * 365, // 365 days
+            },
+          },
         },
         {
           urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-          handler: 'CacheFirst',
+          handler: "CacheFirst",
           options: {
-            cacheName: 'gstatic-fonts-cache',
+            cacheName: "gstatic-fonts-cache",
             expiration: {
               maxEntries: 10,
-              maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
-            }
-          }
-        }
-      ]
+              maxAgeSeconds: 60 * 60 * 24 * 365, // 365 days
+            },
+          },
+        },
+      ],
     },
-    
+
     client: {
       installPrompt: true,
       periodicSyncForUpdates: 20,
@@ -115,58 +117,58 @@ export default defineNuxtConfig({
       scope: "/",
       id: "/",
       categories: ["business", "productivity"],
-      "icons": [
-    {
-      "src": "icons/icon-48x48.png",
-      "sizes": "48x48",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-72x72.png",
-      "sizes": "72x72",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-96x96.png",
-      "sizes": "96x96",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-144x144.png",
-      "sizes": "144x144",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-256x256.png",
-      "sizes": "256x256",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
+      icons: [
+        {
+          src: "icons/icon-48x48.png",
+          sizes: "48x48",
+          type: "image/png",
+        },
+        {
+          src: "icons/icon-72x72.png",
+          sizes: "72x72",
+          type: "image/png",
+        },
+        {
+          src: "icons/icon-96x96.png",
+          sizes: "96x96",
+          type: "image/png",
+        },
+        {
+          src: "icons/icon-128x128.png",
+          sizes: "128x128",
+          type: "image/png",
+        },
+        {
+          src: "icons/icon-144x144.png",
+          sizes: "144x144",
+          type: "image/png",
+        },
+        {
+          src: "icons/icon-152x152.png",
+          sizes: "152x152",
+          type: "image/png",
+        },
+        {
+          src: "icons/icon-192x192.png",
+          sizes: "192x192",
+          type: "image/png",
+        },
+        {
+          src: "icons/icon-256x256.png",
+          sizes: "256x256",
+          type: "image/png",
+        },
+        {
+          src: "icons/icon-384x384.png",
+          sizes: "384x384",
+          type: "image/png",
+        },
+        {
+          src: "icons/icon-512x512.png",
+          sizes: "512x512",
+          type: "image/png",
+        },
+      ],
     },
   },
 

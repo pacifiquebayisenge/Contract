@@ -7,7 +7,7 @@
       :close-on-esc="true"
       preset="card"
       class="themed-modal"
-      style="width: 400px; max-width: 90vw;"
+      style="width: 400px; max-width: 90vw"
       title="Install Ugovor"
       :bordered="false"
       size="small"
@@ -20,20 +20,16 @@
           <span class="themed-title">Install Ugovor</span>
         </div>
       </template>
-      
+
       <div class="themed-content">
         <p class="text-sm themed-description">
           Install Ugovor as an app for better experience and offline access.
         </p>
       </div>
-      
+
       <template #action>
         <div class="flex justify-end space-x-2">
-          <n-button
-            class="themed-secondary-btn"
-            size="small"
-            @click="dismissInstall"
-          >
+          <n-button class="themed-secondary-btn" size="small" @click="dismissInstall">
             Not Now
           </n-button>
           <n-button
@@ -55,7 +51,7 @@
       :close-on-esc="true"
       preset="card"
       class="themed-modal update-modal"
-      style="width: 400px; max-width: 90vw;"
+      style="width: 400px; max-width: 90vw"
       title="Update Available"
       :bordered="false"
       size="small"
@@ -67,20 +63,16 @@
           <span class="themed-title">Update Available</span>
         </div>
       </template>
-      
+
       <div class="themed-content">
         <p class="text-sm themed-description">
           A new version is available. Refresh to update.
         </p>
       </div>
-      
+
       <template #action>
         <div class="flex justify-end space-x-2">
-          <n-button
-            class="themed-secondary-btn"
-            size="small"
-            @click="dismissUpdate"
-          >
+          <n-button class="themed-secondary-btn" size="small" @click="dismissUpdate">
             Later
           </n-button>
           <n-button
@@ -275,7 +267,7 @@ const triggerUpdate = () => {
 };
 
 const forceInstallPrompt = () => {
-  showInstallPrompt.value = true;
+  showInstallPrompt.value = false;
 };
 
 // Install functions
@@ -330,7 +322,7 @@ const detectIfInstalled = async () => {
   }
 
   // Chrome-only: check installed related apps
-  if ('getInstalledRelatedApps' in navigator) {
+  if ("getInstalledRelatedApps" in navigator) {
     try {
       const relatedApps = await navigator.getInstalledRelatedApps();
       if (relatedApps.length > 0) {
@@ -343,7 +335,6 @@ const detectIfInstalled = async () => {
 
   return installed;
 };
-
 
 onMounted(() => {
   // Check HTTPS
@@ -401,7 +392,7 @@ onMounted(() => {
 
     if (!sessionStorage.getItem("installPromptDismissed")) {
       setTimeout(() => {
-        showInstallPrompt.value = true;
+        showInstallPrompt.value = false;
       }, 3000);
     }
   });
@@ -495,95 +486,101 @@ onMounted(() => {
     background-color: #f8faf8 !important;
     border-color: #d4e4d1 !important;
   }
-  
+
   [data-theme="sage-green"] .themed-modal :deep(.n-card-header) {
     background-color: #f0f4f0 !important;
     border-bottom-color: #c3d3c0 !important;
   }
-  
+
   [data-theme="sage-green"] .themed-icon {
     color: #6b7c67;
   }
-  
+
   [data-theme="sage-green"] .themed-title {
     color: #4a5947;
   }
-  
+
   [data-theme="sage-green"] .themed-description {
     color: #5a6b57;
   }
-  
+
   [data-theme="sage-green"] .themed-modal :deep(.themed-secondary-btn.n-button) {
     border-color: #a8b8a5 !important;
     color: #5a6b57 !important;
   }
-  
-  [data-theme="sage-green"] .themed-modal :deep(.themed-primary-btn.n-button--primary-type) {
-    background-color: #8A9A86 !important;
+
+  [data-theme="sage-green"]
+    .themed-modal
+    :deep(.themed-primary-btn.n-button--primary-type) {
+    background-color: #8a9a86 !important;
   }
-  
+
   /* Dark blue fallback */
   [data-theme="dark-blue"] .themed-modal :deep(.n-card) {
     background-color: #f8faff !important;
     border-color: #c7d2fe !important;
   }
-  
+
   [data-theme="dark-blue"] .themed-modal :deep(.n-card-header) {
     background-color: #eff6ff !important;
     border-bottom-color: #bfdbfe !important;
   }
-  
+
   [data-theme="dark-blue"] .themed-icon {
     color: #1d4ed8;
   }
-  
+
   [data-theme="dark-blue"] .themed-title {
     color: #1e3a8a;
   }
-  
+
   [data-theme="dark-blue"] .themed-description {
     color: #3730a3;
   }
-  
+
   [data-theme="dark-blue"] .themed-modal :deep(.themed-secondary-btn.n-button) {
     border-color: #93c5fd !important;
     color: #3730a3 !important;
   }
-  
-  [data-theme="dark-blue"] .themed-modal :deep(.themed-primary-btn.n-button--primary-type) {
-    background-color: #1E3A8A !important;
+
+  [data-theme="dark-blue"]
+    .themed-modal
+    :deep(.themed-primary-btn.n-button--primary-type) {
+    background-color: #1e3a8a !important;
   }
-  
+
   /* Light pink fallback */
   [data-theme="light-pink"] .themed-modal :deep(.n-card) {
     background-color: #fefaff !important;
     border-color: #f5d0fe !important;
   }
-  
+
   [data-theme="light-pink"] .themed-modal :deep(.n-card-header) {
     background-color: #fef7ff !important;
     border-bottom-color: #f3e8ff !important;
   }
-  
+
   [data-theme="light-pink"] .themed-icon {
     color: #ec4899;
   }
-  
+
   [data-theme="light-pink"] .themed-title {
     color: #be185d;
   }
-  
+
   [data-theme="light-pink"] .themed-description {
     color: #db2777;
   }
-  
+
   [data-theme="light-pink"] .themed-modal :deep(.themed-secondary-btn.n-button) {
     border-color: #f9a8d4 !important;
     color: #db2777 !important;
   }
-  
-  [data-theme="light-pink"] .themed-modal :deep(.themed-primary-btn.n-button--primary-type) {
-    background-color: #F9A8D4 !important;
+
+  [data-theme="light-pink"]
+    .themed-modal
+    :deep(.themed-primary-btn.n-button--primary-type) {
+    background-color: #f9a8d4 !important;
   }
 }
 </style>

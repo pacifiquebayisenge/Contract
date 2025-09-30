@@ -1,7 +1,7 @@
 <template>
   <div>
     <n-card>
-      <div class="avatar-card-content" @click="showDialog = true">
+      <div class="avatar-card-content" @click="showActions = !showActions">
         <div class="avatar">
           <n-avatar
             round
@@ -22,6 +22,30 @@
         </div>
       </div>
 
+      <n-collapse-transition :show="showActions">
+        <div class="avatar-card-content-actions pl-40">
+          <div class="content">
+            <div class="title">
+              <span class="font-bold">action's</span>
+            </div>
+            <div class="action-buttons py-8">
+              <button
+                class="button-3D button-3D-colorfull-warning"
+                @click="showContractDialog = !showContractDialog"
+              >
+                Contract use
+              </button>
+              <button
+                class="button-3D button-3D-colorfull-error"
+                @click="showViolationDialog = !showViolationDialog"
+              >
+                Violation
+              </button>
+            </div>
+          </div>
+        </div>
+      </n-collapse-transition>
+
       <template #footer>
         <div class="flex gap-x-4 border-t border-gray-200 pt-2 footer">
           <div class="flex gap-x-1 justify-center items-center">
@@ -36,27 +60,24 @@
       </template>
     </n-card>
 
-    <!-- <n-modal
-      v-model:show="showDialog"
-      preset="dialog"
-      :title="` ${title}'s action`"
-      positive-text="Close"
-      class="avatar_modal"
-      @positive-click="showDialog = false"
-    >
-      <CardModal :title="title" />
-    </n-modal> -->
+    <n-modal v-model:show="showContractDialog" transform-origin="center">
+      <n-card style="max-width: 80%" :bordered="false" size="huge" role="dialog">
+        <template #header>
+          <span style="font-weight: bold; display: flex; justify-content: center">
+            Contract use
+          </span>
+        </template>
 
-    <n-modal v-model:show="showDialog" transform-origin="center">
-      <n-card
-        style="width: 80%"
-        :title="` ${title}'s action`"
-        :bordered="false"
-        size="huge"
-        role="dialog"
-        aria-modal="true"
-      >
-        <CardModal :name="title" />
+        <ContractModal :name="title" />
+      </n-card>
+    </n-modal>
+
+    <n-modal v-model:show="showViolationDialog" transform-origin="center">
+      <n-card style="width: 80%" :bordered="false" size="huge" role="dialog">
+        <span style="font-weight: bold; display: flex; justify-content: center">
+          Violation
+        </span>
+        <ViolationModal :name="title" />
       </n-card>
     </n-modal>
   </div>
@@ -64,6 +85,7 @@
 
 <script setup>
 import { EyeIcon, FireIcon } from "@heroicons/vue/24/outline";
+import ContractModal from "./ContractModal.vue";
 
 const { title, seenCounter, streakCounter } = defineProps({
   title: {
@@ -81,19 +103,29 @@ const { title, seenCounter, streakCounter } = defineProps({
 });
 
 // Reactive variable to control dialog visibility
-let showDialog = ref(false);
+let showActions = ref(false);
+let showContractDialog = ref(false);
+let showViolationDialog = ref(false);
 
 watch(
-  showDialog,
+  showContractDialog,
   (newValue) => {
-    showDialog.value = newValue;
+    showContractDialog.value = newValue;
+  },
+  { deep: true }
+);
+watch(
+  showViolationDialog,
+  (newValue) => {
+    showViolationDialog.value = newValue;
   },
   { deep: true }
 );
 </script>
 
 <style lang="scss" scoped>
-div.avatar-card-content {
+.avatar-card-content,
+.avatar-card-content-actions {
   // max-width: 400px;
   display: flex;
   align-content: center;
@@ -107,14 +139,25 @@ div.avatar-card-content {
     padding-top: 0.25rem;
     font-weight: 500;
   }
-
-  .footer {
-  }
 }
 
-div.n-dialog.avatar_modal {
-  .n-dialog__title i {
-    display: none !important;
+.avatar-card-content-actions {
+  width: 100%;
+  justify-content: center;
+  .content {
+    .title {
+      display: flex;
+      justify-content: center;
+    }
+    width: 100%;
+    max-width: 30rem;
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.6rem;
+      width: 100%;
+    }
   }
 }
 </style>
