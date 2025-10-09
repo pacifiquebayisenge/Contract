@@ -51,15 +51,12 @@ export const useThemeStore = defineStore("theme", {
             "content",
             this.themeColors[this.currentTheme]
           );
-          document!
-            .querySelector('meta[name="theme-color"]')!
-            .setAttribute("content", "#123456");
         }
       }
     },
 
     initializeTheme(): void {
-      if (process.client) {
+      if (import.meta.client) {
         const savedTheme = localStorage.getItem(
           "selected-theme"
         ) as ThemeName | null;
