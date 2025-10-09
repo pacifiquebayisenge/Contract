@@ -51,6 +51,9 @@ export const useThemeStore = defineStore("theme", {
             "content",
             this.themeColors[this.currentTheme]
           );
+          document!
+            .querySelector('meta[name="theme-color"]')!
+            .setAttribute("content", "#123456");
         }
       }
     },
