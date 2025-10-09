@@ -2,8 +2,8 @@
   <NModalProvider>
     <div id="app-container" class="flex flex-col min-h-screen">
       <div
-        class="sticky top-0 z-50 flex justify-center items-center py-2 bg-white"
-        style="border-top-left-radius: 1.5rem; border-top-right-radius: 1.5rem"
+        class="sticky top-0 z-50 flex justify-center items-center py-2 bg-white rounded-t-3xl"
+        style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
       >
         <TopNavBar />
       </div>
@@ -28,7 +28,12 @@ import BottomMenuBar from "~/components/BottomMenuBar.vue";
 import TopNavBar from "~/components/TopNavBar.vue";
 </script>
 <style lang="scss">
-div#app-container > div {
-  background-color: white;
+div#app-container {
+  overflow: hidden;
+
+  & > div {
+    background-color: white;
+    background-clip: padding-box;
+  }
 }
 </style>
