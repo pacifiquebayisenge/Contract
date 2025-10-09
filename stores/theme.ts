@@ -51,6 +51,10 @@ export const useThemeStore = defineStore("theme", {
             "content",
             this.themeColors[this.currentTheme]
           );
+
+          // 4️⃣ Update <body> background color
+          document.body.style.backgroundColor =
+            this.themeColors[this.currentTheme];
         }
       }
     },
