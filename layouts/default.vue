@@ -28,8 +28,7 @@ import BottomMenuBar from "~/components/BottomMenuBar.vue";
 import TopNavBar from "~/components/TopNavBar.vue";
 </script>
 <style lang="scss">
-div#app-container {
-  border-top-left-radius: 1.5rem;
-  border-top-right-radius: 1.5rem;
+div#app-container > div {
+  background-color: white;
 }
 </style>
