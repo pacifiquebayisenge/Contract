@@ -23,20 +23,4 @@
 import { NModalProvider } from "naive-ui";
 import BottomMenuBar from "~/components/BottomMenuBar.vue";
 import TopNavBar from "~/components/TopNavBar.vue";
-import { onMounted } from "vue";
-import { useHead } from "#imports";
-
-import { useThemeStore } from "~/stores/theme";
-
-const themeStore = useThemeStore();
-
-onMounted(() => {
-  themeStore.initializeTheme();
-});
-
-// Computed property for dynamic theme color
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
-useHead({
-  meta: [{ name: currentThemeColor, content: "#ffffff", id: "theme-color" }],
-});
 </script>

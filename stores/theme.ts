@@ -56,7 +56,8 @@ export const useThemeStore = defineStore("theme", {
     },
 
     initializeTheme(): void {
-      if (import.meta.client) {
+      // import.meta.client
+      if (process.client) {
         const savedTheme = localStorage.getItem(
           "selected-theme"
         ) as ThemeName | null;
