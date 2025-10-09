@@ -1,28 +1,32 @@
 // stores/theme.ts
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 
-export type ThemeName = 'sage-green' | 'dark-blue' | 'light-pink'
+export type ThemeName = "sage-green" | "dark-blue" | "light-pink";
 
 export interface ThemeState {
-  currentTheme: ThemeName
-  themes: ThemeName[]
-  themeColors: Record<ThemeName, string>
+  currentTheme: ThemeName;
+  themes: ThemeName[];
+  themeColors: Record<ThemeName, string>;
 }
 
-export const useThemeStore = defineStore('theme', {
+export const useThemeStore = defineStore("theme", {
   state: (): ThemeState => ({
-    currentTheme: 'sage-green',
-    themes: ['sage-green', 'dark-blue', 'light-pink'],
+    currentTheme: "sage-green",
+    themes: ["sage-green", "dark-blue", "light-pink"],
     themeColors: {
-      'sage-green': '#8A9A86',
-      'dark-blue': '#1E3A8A',
-      'light-pink': '#F9A8D4',
-    }
+      "sage-green": "#8A9A86",
+      "dark-blue": "#1E3A8A",
+      "light-pink": "#F9A8D4",
+    },
   }),
 
   getters: {
-    getCurrentThemeColor: (state): string => state.themeColors[state.currentTheme],
-    getThemeColor: (state) => (themeName: ThemeName): string => state.themeColors[themeName],
+    getCurrentThemeColor: (state): string =>
+      state.themeColors[state.currentTheme],
+    getThemeColor:
+      (state) =>
+      (themeName: ThemeName): string =>
+        state.themeColors[themeName],
   },
 
   actions: {
@@ -30,22 +34,38 @@ export const useThemeStore = defineStore('theme', {
       if (this.themes.includes(newTheme)) {
         this.currentTheme = newTheme;
         if (process.client) {
-          document.documentElement.setAttribute('data-theme', newTheme);
+          document.documentElement.setAttribute("data-theme", newTheme);
           // Store in localStorage for persistence
-          localStorage.setItem('selected-theme', newTheme);
+          localStorage.setItem("selected-theme", newTheme);
+
+          let metaThemeColor = document.querySelector(
+            'meta[name="theme-color"]'
+          ) as HTMLMetaElement | null;
+
+          if (!metaThemeColor) {
+            metaThemeColor = document.createElement("meta") as HTMLMetaElement;
+            metaThemeColor.name = "theme-color";
+            document.head.appendChild(metaThemeColor);
+          }
+          metaThemeColor.setAttribute(
+            "content",
+            this.themeColors[this.currentTheme]
+          );
         }
       }
     },
 
     initializeTheme(): void {
       if (process.client) {
-        const savedTheme = localStorage.getItem('selected-theme') as ThemeName | null;
+        const savedTheme = localStorage.getItem(
+          "selected-theme"
+        ) as ThemeName | null;
         if (savedTheme && this.themes.includes(savedTheme)) {
           this.setTheme(savedTheme);
         } else {
           this.setTheme(this.currentTheme);
         }
       }
-    }
-  }
-})
+    },
+  },
+});
