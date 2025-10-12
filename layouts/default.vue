@@ -7,10 +7,16 @@
       >
         <TopNavBar />
       </div>
-      <!-- Page content -->
-      <div class="flex-1 px-6 py-2 pb-18 overflow-y-auto">
-        <slot />
-      </div>
+
+      <!-- Scrollable page content only -->
+      <main class="flex-1 overflow-hidden bg-white">
+        <div
+          class="h-full px-6 pt-[2rem] pb-18 overflow-y-auto"
+          style="padding-bottom: 15rem"
+        >
+          <slot />
+        </div>
+      </main>
 
       <PWAUpdateDialog />
       <PWAInstallPrompt />
@@ -22,9 +28,6 @@
           <BottomMenuBar />
         </div>
       </div>
-
-      <!-- PWA Status Component -->
-      <!-- <PwaStatus /> -->
     </div>
   </NModalProvider>
 </template>
@@ -34,15 +37,51 @@ import { NModalProvider } from "naive-ui";
 import BottomMenuBar from "~/components/BottomMenuBar.vue";
 import TopNavBar from "~/components/TopNavBar.vue";
 import PWAUpdateDialog from "~/components/PWAUpdateDialog.vue";
+import PWAInstallPrompt from "~/components/PWAInstallPrompt.vue";
 </script>
 
 <style lang="scss">
 div#app-container {
   overflow: hidden;
+  height: 100vh;
 
   & > div {
     background-color: white;
     background-clip: padding-box;
   }
+
+  /* Ensure modal backdrops don't create scroll */
+  .n-modal-container {
+    position: fixed;
+    overflow: hidden;
+  }
+
+  /* Prevent body scroll when modal is open */
+  body.modal-open {
+    overflow: hidden;
+  }
+}
+
+/* Main content scroll area */
+main {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 transparent;
+}
+
+main::-webkit-scrollbar {
+  width: 6px;
+}
+
+main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+main::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 3px;
+}
+
+main::-webkit-scrollbar-thumb:hover {
+  background-color: #a8a8a8;
 }
 </style>

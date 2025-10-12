@@ -2,8 +2,32 @@
   <div class="home-container">
     <AvatarCard title="Domme" class="shadow-md" />
     <AvatarCard title="Sukkel" class="shadow-md" />
+
+    <AvatarCard title="Domme" class="shadow-md" />
     <AvatarCard title="Sukkel" class="shadow-md" />
+
+    <AvatarCard title="Domme" class="shadow-md" />
     <AvatarCard title="Sukkel" class="shadow-md" />
+
+    <AvatarCard title="Domme" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+
+    <AvatarCard title="Domme" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+
+    <AvatarCard title="Domme" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+
+    <AvatarCard title="Domme" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+
+    <AvatarCard title="Domme" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+
+    <AvatarCard title="Domme" class="shadow-md" />
+    <AvatarCard title="Sukkel" class="shadow-md" />
+
+    <AvatarCard title="Domme" class="shadow-md" />
     <AvatarCard title="Sukkel" class="shadow-md" />
   </div>
 </template>
