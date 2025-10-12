@@ -1,23 +1,27 @@
 <template>
   <NModalProvider>
-    <div id="app-container" class="flex flex-col min-h-screen">
+    <div id="app-container" class="flex flex-col h-screen overflow-hidden">
       <div
-        class="sticky top-0 z-50 flex justify-center items-center py-2 bg-white rounded-t-3xl"
+        class="sticky top-0 z-50 flex justify-center items-center py-2 bg-white rounded-t-3xl flex-shrink-0"
         style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
       >
         <TopNavBar />
       </div>
       <!-- Page content -->
-      <div class="flex-1 px-6 py-2 pb-18">
+      <div class="flex-1 px-6 py-2 pb-18 overflow-y-auto">
         <slot />
       </div>
 
-      <div class="sticky bottom-10 z-50 flex justify-center items-center py-4">
-        <BottomMenuBar />
+      <div
+        class="fixed bottom-[10px] left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent"
+      >
+        <div class="pointer-events-auto">
+          <BottomMenuBar />
+        </div>
       </div>
 
       <!-- PWA Status Component -->
-      <PwaStatus />
+      <!-- <PwaStatus /> -->
     </div>
   </NModalProvider>
 </template>
@@ -27,6 +31,7 @@ import { NModalProvider } from "naive-ui";
 import BottomMenuBar from "~/components/BottomMenuBar.vue";
 import TopNavBar from "~/components/TopNavBar.vue";
 </script>
+
 <style lang="scss">
 div#app-container {
   overflow: hidden;
