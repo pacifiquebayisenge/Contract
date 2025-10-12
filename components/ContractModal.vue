@@ -11,7 +11,9 @@
     >
     <span>Did {{ name }} use <span class="special">contract </span> again ???</span>
 
-    <button class="button-3D button-3D-colorfull-warning">Unbelievable !</button>
+    <button class="button-3D button-3D-colorfull-warning" @click="test()">
+      Unbelievable !
+    </button>
   </div>
 </template>
 
@@ -29,6 +31,11 @@ const themeStore = useThemeStore();
 
 // Computed property for dynamic theme color
 const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
+
+const test = () => {
+  console.log("vibrate");
+  navigator.vibrate([100, 200, 200, 200, 500]);
+};
 </script>
 
 <style lang="scss" scoped>

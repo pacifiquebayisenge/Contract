@@ -1,6 +1,6 @@
 <template>
   <NModalProvider>
-    <div id="app-container" class="flex flex-col h-screen overflow-hidden">
+    <div id="app-container" class="flex flex-col h-screen">
       <div
         class="sticky top-0 z-50 flex justify-center items-center py-2 bg-white rounded-t-3xl flex-shrink-0"
         style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
@@ -12,8 +12,11 @@
         <slot />
       </div>
 
+      <PWAUpdateDialog />
+      <PWAInstallPrompt />
+
       <div
-        class="fixed bottom-[30px] left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent"
+        class="fixed bottom-[40px] left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent"
       >
         <div class="pointer-events-auto">
           <BottomMenuBar />
@@ -30,6 +33,7 @@
 import { NModalProvider } from "naive-ui";
 import BottomMenuBar from "~/components/BottomMenuBar.vue";
 import TopNavBar from "~/components/TopNavBar.vue";
+import PWAUpdateDialog from "~/components/PWAUpdateDialog.vue";
 </script>
 
 <style lang="scss">

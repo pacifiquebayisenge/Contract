@@ -26,7 +26,6 @@ export default defineNuxtConfig({
     head: {
       title: "Ugovor",
       link: [
-        { rel: "manifest", href: "/manifest.webmanifest" },
         { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
         {
           rel: "apple-touch-icon",
@@ -41,7 +40,7 @@ export default defineNuxtConfig({
           property: "og:description",
           content: "Contract management application",
         },
-        // { name: "theme-color", content: "#ffffff" },
+
         { name: "mobile-web-app-capable", content: "yes" },
         { name: "apple-mobile-web-app-status-bar-style", content: "white" },
         { name: "apple-mobile-web-app-title", content: "Ugovor" },
@@ -63,11 +62,14 @@ export default defineNuxtConfig({
   pwa: {
     registerType: "autoUpdate",
 
-    // devOptions: {
-    //   enabled: true, // Enable PWA in development
-    //   suppressWarnings: true,
-    //   type: "module",
-    // },
+    devOptions: {
+      enabled: false,
+      type: "module",
+    },
+    client: {
+      installPrompt: true,
+      periodicSyncForUpdates: 20,
+    },
 
     workbox: {
       navigateFallback: "/index.html",
@@ -99,11 +101,6 @@ export default defineNuxtConfig({
           },
         },
       ],
-    },
-
-    client: {
-      installPrompt: true,
-      periodicSyncForUpdates: 20,
     },
 
     manifest: {

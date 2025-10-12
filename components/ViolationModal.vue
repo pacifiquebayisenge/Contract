@@ -13,7 +13,9 @@
       >Did {{ name }} violate a <span class="special">contract rule</span> again ???</span
     >
 
-    <button class="button-3D button-3D-colorfull-error">Shamefull !</button>
+    <button class="button-3D button-3D-colorfull-error" @click="test()">
+      Shamefull !
+    </button>
   </div>
 </template>
 
@@ -31,6 +33,11 @@ const themeStore = useThemeStore();
 
 // Computed property for dynamic theme color
 const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
+
+const test = () => {
+  console.log("vibrate");
+  navigator.vibrate([100, 200, 200, 200, 500]);
+};
 </script>
 
 <style lang="scss" scoped>
