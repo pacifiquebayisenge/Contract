@@ -43,6 +43,7 @@ const countdown = ref(5);
 const progress = ref(0);
 const progressColor = ref(currentThemeColor);
 
+// eslint-disable-next-line
 let countdownInterval: any = null;
 let registration: ServiceWorkerRegistration | null = null;
 let refreshing = false;

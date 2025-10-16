@@ -33,6 +33,13 @@
                 <div class="px-3">
                   <span>Primary</span>
                   <ThemeSwitcher />
+
+                  <n-divider />
+
+                  <span>Badge</span>
+                  <BadgeSwitcher />
+
+                  <n-divider />
                 </div>
               </n-collapse-item>
               <!-- <n-collapse-item title="right" name="2">

@@ -19,6 +19,8 @@ import {
   NText,
   NProgress,
   NImage,
+  NSwitch,
+  NDivider
 } from "naive-ui";
 import type { DrawerPlacement } from "naive-ui";
 
@@ -43,6 +45,8 @@ export default defineNuxtPlugin((nuxtApp) => {
       NText,
       NProgress,
       NImage,
+      NSwitch,
+      NDivider
     ],
   });
   nuxtApp.vueApp.use(naive);
