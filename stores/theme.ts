@@ -168,9 +168,10 @@ export const useThemeStore = defineStore("theme", {
       }
 
 
+
     },
 
-    // ✅ Add action to set badge ring option
+
     setBadgeRingOption(newOption: BadgeRingOption): void {
       if (this.badgeRingOptions.includes(newOption)) {
         this.currentBadgeRingOption = newOption;

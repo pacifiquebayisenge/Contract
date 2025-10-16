@@ -46,7 +46,6 @@ const lightThemeActive = ref(false);
 const badgeRingActive = ref(false);
 
 onMounted(() => {
-  console.log(themeStore.currentBadgeRingOption);
   themeStore.initializeTheme();
 });
 
@@ -56,6 +55,7 @@ const handleBadgeRing = (value: boolean) => {
     : themeStore.badgeRingOptions[1];
 
   themeStore.setBadgeRingOption(badgeRingOption);
+  console.log(themeStore.currentBadgeRingOption);
 };
 
 const handleLightTheme = (value: boolean) => {
@@ -151,8 +151,9 @@ const adjustColor = (color: string, amount: number) => {
 
 <style scoped>
 .badge-switcher {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto;
   gap: 16px;
-  flex-wrap: wrap;
 }
 </style>

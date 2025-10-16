@@ -3,17 +3,10 @@
     <n-card :style="{ borderRadius: '2rem !important' }">
       <div class="avatar-card-content" @click="showActions = !showActions">
         <div class="avatar">
-          <!-- <n-avatar
-            round
-            :size="80"
-            :style="{
-              color: 'grey',
-              backgroundColor: 'lightgray',
-              borderRadius: '2rem !important',
-            }"
-            >{{ title.charAt(0) }}</n-avatar
-          > -->
-          <div class="avatar-container">
+          <div
+            class="avatar-container"
+            :class="insideBadgeRing ? 'inside-ring' : 'outside-ring'"
+          >
             <n-image
               width="50"
               :src="
@@ -117,7 +110,15 @@ const { title, seenCounter, streakCounter } = defineProps({
 const themeStore = useThemeStore();
 
 // Computed property for dynamic theme color
-const currentThemeColor = computed(() => themeStore.getCurrentLightThemeColor);
+const currentThemeColor = computed(() =>
+  themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
+    ? themeStore.getCurrentLightThemeColor
+    : themeStore.getCurrentExtraLightThemeColor
+);
+
+const insideBadgeRing = computed(
+  () => themeStore.currentBadgeRingOption === themeStore.badgeRingOptions[0]
+);
 
 // Reactive variable to control dialog visibility
 let showActions = ref(false);
@@ -151,11 +152,14 @@ watch(
   align-items: center;
   border-start-end-radius: inherit;
 
-  outline: 2px solid rgba(0, 0, 0, 0.1);
-  outline-offset: 3px;
-
-  // outline: 2px solid rgba(0, 0, 0, 0.1);
-  // outline-offset: -5px;
+  &.outside-ring {
+    outline: 2px solid rgba(0, 0, 0, 0.1);
+    outline-offset: 3px;
+  }
+  &.inside-ring {
+    outline: 2px solid rgba(0, 0, 0, 0.1);
+    outline-offset: -5px;
+  }
 }
 
 .avatar-card-content,
