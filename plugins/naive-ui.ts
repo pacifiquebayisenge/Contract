@@ -18,6 +18,7 @@ import {
   NCollapseTransition,
   NText,
   NProgress,
+  NImage,
 } from "naive-ui";
 import type { DrawerPlacement } from "naive-ui";
 
@@ -41,6 +42,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       NCollapseTransition,
       NText,
       NProgress,
+      NImage,
     ],
   });
   nuxtApp.vueApp.use(naive);

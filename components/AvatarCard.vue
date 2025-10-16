@@ -1,17 +1,28 @@
 <template>
   <div>
-    <n-card>
+    <n-card :style="{ borderRadius: '2rem !important' }">
       <div class="avatar-card-content" @click="showActions = !showActions">
         <div class="avatar">
-          <n-avatar
+          <!-- <n-avatar
             round
             :size="80"
             :style="{
               color: 'grey',
               backgroundColor: 'lightgray',
+              borderRadius: '2rem !important',
             }"
             >{{ title.charAt(0) }}</n-avatar
-          >
+          > -->
+          <div class="avatar-container">
+            <n-image
+              width="50"
+              :src="
+                title.charAt(0) === 'S'
+                  ? '/memojis/paci/wink.png'
+                  : '/memojis/jeje/wink.png'
+              "
+            />
+          </div>
         </div>
 
         <div class="content">
@@ -86,6 +97,7 @@
 <script setup>
 import { EyeIcon, FireIcon } from "@heroicons/vue/24/outline";
 import ContractModal from "./ContractModal.vue";
+import { useThemeStore } from "~/stores/theme";
 
 const { title, seenCounter, streakCounter } = defineProps({
   title: {
@@ -101,6 +113,11 @@ const { title, seenCounter, streakCounter } = defineProps({
     default: 0,
   },
 });
+
+const themeStore = useThemeStore();
+
+// Computed property for dynamic theme color
+const currentThemeColor = computed(() => themeStore.getCurrentLightThemeColor);
 
 // Reactive variable to control dialog visibility
 let showActions = ref(false);
@@ -124,6 +141,23 @@ watch(
 </script>
 
 <style lang="scss" scoped>
+.avatar-container {
+  width: 8rem;
+  height: 8rem;
+  background-color: v-bind(currentThemeColor);
+  border-radius: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-start-end-radius: inherit;
+
+  outline: 2px solid rgba(0, 0, 0, 0.1);
+  outline-offset: 3px;
+
+  // outline: 2px solid rgba(0, 0, 0, 0.1);
+  // outline-offset: -5px;
+}
+
 .avatar-card-content,
 .avatar-card-content-actions {
   // max-width: 400px;

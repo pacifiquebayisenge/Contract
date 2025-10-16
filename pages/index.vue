@@ -43,6 +43,8 @@ import AvatarCard from "~/components/AvatarCard.vue";
   gap: 3rem;
 
   div.n-card {
+    border-radius: 2rem;
+
     // max-width: 400px;
 
     .header {
@@ -56,5 +58,9 @@ import AvatarCard from "~/components/AvatarCard.vue";
       }
     }
   }
+}
+
+.shadow-md {
+  border-radius: 2rem;
 }
 </style>

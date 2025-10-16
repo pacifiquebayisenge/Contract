@@ -7,6 +7,8 @@ export interface ThemeState {
   currentTheme: ThemeName;
   themes: ThemeName[];
   themeColors: Record<ThemeName, string>;
+  lightThemeColors: Record<ThemeName, string>;
+  extraLightThemeColors: Record<ThemeName, string>;
 }
 
 export const useThemeStore = defineStore("theme", {
@@ -18,15 +20,37 @@ export const useThemeStore = defineStore("theme", {
       "dark-blue": "#1E3A8A",
       "light-pink": "#F9A8D4",
     },
+    lightThemeColors: {
+      "sage-green": "#D4DDD2",
+      "dark-blue": "#B8C5E0",
+      "light-pink": "#FCEEF6",
+    },
+    extraLightThemeColors: {
+      "sage-green": "#E3E9E2",
+      "dark-blue": "#D4DCF0",
+      "light-pink": "#FEF6FA",
+    },
   }),
 
   getters: {
     getCurrentThemeColor: (state): string =>
       state.themeColors[state.currentTheme],
+    getCurrentLightThemeColor: (state): string =>
+      state.lightThemeColors[state.currentTheme],
+    getCurrentExtraLightThemeColor: (state): string =>
+      state.extraLightThemeColors[state.currentTheme],
     getThemeColor:
       (state) =>
       (themeName: ThemeName): string =>
         state.themeColors[themeName],
+    getLightThemeColor:
+      (state) =>
+      (themeName: ThemeName): string =>
+        state.lightThemeColors[themeName],
+    getExtraLightThemeColor:
+      (state) =>
+      (themeName: ThemeName): string =>
+        state.extraLightThemeColors[themeName],
   },
 
   actions: {
@@ -52,7 +76,7 @@ export const useThemeStore = defineStore("theme", {
             this.themeColors[this.currentTheme]
           );
 
-          // 4️⃣ Update <body> background color
+          // Update <body> background color
           document.body.style.backgroundColor =
             this.themeColors[this.currentTheme];
         }
