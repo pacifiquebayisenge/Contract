@@ -10,10 +10,7 @@
 
       <!-- Scrollable page content only -->
       <main class="flex-1 overflow-hidden bg-white">
-        <div
-          class="h-full px-6 pt-[2rem] pb-18 overflow-y-auto"
-          style="padding-bottom: 15rem"
-        >
+        <div class="h-full px-6 pt-[2rem] pb-18" style="padding-bottom: 15rem">
           <slot />
         </div>
       </main>

@@ -85,6 +85,7 @@ const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
 
 /* Alternative approach using CSS custom properties */
 .themed-tabs {
+  width: fit-content;
   --theme-color: v-bind(currentThemeColor);
 
   .n-tabs-pane-wrapper .n-tab-pane {

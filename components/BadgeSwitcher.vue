@@ -28,8 +28,8 @@
           '--n-text-color': '#484444c7',
         }"
       >
-        <template #checked> Extra light </template>
-        <template #unchecked> light </template>
+        <template #checked> light </template>
+        <template #unchecked> Extra light </template>
       </n-switch>
     </div>
   </div>
@@ -55,7 +55,6 @@ const handleBadgeRing = (value: boolean) => {
     : themeStore.badgeRingOptions[1];
 
   themeStore.setBadgeRingOption(badgeRingOption);
-  console.log(themeStore.currentBadgeRingOption);
 };
 
 const handleLightTheme = (value: boolean) => {

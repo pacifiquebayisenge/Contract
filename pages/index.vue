@@ -1,5 +1,5 @@
 <template>
-  <div class="home-container">
+  <div class="home-page-container invisible-scroll page-bottom-padding">
     <AvatarCard title="Domme" class="shadow-md" />
     <AvatarCard title="Sukkel" class="shadow-md" />
 
@@ -37,7 +37,7 @@ import AvatarCard from "~/components/AvatarCard.vue";
 </script>
 
 <style lang="scss" scoped>
-.home-container {
+.home-page-container {
   display: flex;
   flex-direction: column;
   gap: 3rem;

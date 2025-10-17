@@ -20,7 +20,8 @@ import {
   NProgress,
   NImage,
   NSwitch,
-  NDivider
+  NDivider,
+  NInfiniteScroll
 } from "naive-ui";
 import type { DrawerPlacement } from "naive-ui";
 
@@ -46,7 +47,8 @@ export default defineNuxtPlugin((nuxtApp) => {
       NProgress,
       NImage,
       NSwitch,
-      NDivider
+      NDivider,
+      NInfiniteScroll
     ],
   });
   nuxtApp.vueApp.use(naive);
