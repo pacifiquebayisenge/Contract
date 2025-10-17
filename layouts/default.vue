@@ -39,6 +39,7 @@ import PWAInstallPrompt from "~/components/PWAInstallPrompt.vue";
 
 <style lang="scss">
 div#app-container {
+  touch-action: none;
   overflow: hidden;
   height: 100vh;
 
