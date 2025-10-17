@@ -27,7 +27,7 @@ const currentThemeColor = computed(() =>
     : themeStore.getCurrentExtraLightThemeColor
 );
 
-const count = ref(6);
+const count = ref(15);
 
 function handleLoad() {
   count.value += 1;
