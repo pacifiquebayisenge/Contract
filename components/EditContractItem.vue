@@ -82,8 +82,8 @@ const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
   align-items: center;
   gap: 3rem;
 
-  .n-card-header .n-card-header__main {
-    text-align: center !important;
+  & > span {
+    text-align: center;
   }
 
   span {

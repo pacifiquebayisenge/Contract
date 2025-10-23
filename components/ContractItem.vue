@@ -52,7 +52,7 @@
       </template>
     </n-card>
 
-    <n-modal v-model:show="showEditDialog" transform-origin="center">
+    <n-modal v-model:show="showEditDialog" :auto-focus="false" transform-origin="center">
       <n-card
         style="max-width: 80%"
         :style="{ borderRadius: '1rem !important' }"

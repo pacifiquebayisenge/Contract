@@ -4,6 +4,7 @@
       >Are you <span class="special">sure </span> you want to delete contract rule
       <span class="special">{{ index + 1 }} </span> ???</span
     >
+
     <span>{{ item.title }}</span>
 
     <button
@@ -47,8 +48,9 @@ const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
   flex-direction: column;
   align-items: center;
   gap: 3rem;
-  .n-card-header .n-card-header__main {
-    text-align: center !important;
+
+  & > span {
+    text-align: center;
   }
 
   span {
