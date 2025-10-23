@@ -1,7 +1,6 @@
 <template>
   <div ref="card" class="shadow-md">
     <n-card :style="{ borderRadius: '2rem !important' }">
-      <!-- ... rest of your template stays EXACTLY the same ... -->
       <div class="avatar-card-content" @click="showActions = !showActions">
         <div ref="avatar" class="avatar">
           <div
@@ -100,7 +99,8 @@ const { title, seenCounter, streakCounter } = defineProps({
 });
 
 const themeStore = useThemeStore();
-const currentThemeColor = computed(() =>
+
+const currentLightThemeColor = computed(() =>
   themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
     ? themeStore.getCurrentLightThemeColor
     : themeStore.getCurrentExtraLightThemeColor
@@ -220,7 +220,7 @@ onMounted(() => {
 .avatar-container {
   width: 8rem;
   height: 8rem;
-  background-color: v-bind(currentThemeColor);
+  background-color: v-bind(currentLightThemeColor);
   border-radius: 2rem;
   display: flex;
   justify-content: center;

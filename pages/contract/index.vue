@@ -6,14 +6,18 @@
 
     <div class="scroll-container invisible-scroll page-bottom-padding">
       <n-infinite-scroll :distance="10" @load="handleLoad">
-        <ContractItem v-for="i in count" :key="i" :index="i" />
+        <ContractItem
+          v-for="(item, index) in items"
+          :key="index"
+          :index="index"
+          :item="item"
+        />
       </n-infinite-scroll>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import ContractItem from "~/components/ContractItem.vue";
 import { useThemeStore } from "~/stores/theme";
 
@@ -26,11 +30,89 @@ const currentThemeColor = computed(() =>
     : themeStore.getCurrentExtraLightThemeColor
 );
 
-const count = ref(15);
+// const count = ref(15);
 
 function handleLoad() {
-  count.value += 1;
+  // count.value += 1;
 }
+
+const items = [
+  {
+    id: "1",
+    title: "contract rule title",
+    description: "Description of the contract rule",
+  },
+  {
+    id: "2",
+    title: "contract rule title",
+    description: "Description of the contract rule",
+  },
+  {
+    id: "3",
+    title: "contract rule title",
+    description: "Description of the contract rule",
+  },
+  {
+    id: "4",
+    title: "contract rule title",
+    description: "Description of the contract rule",
+  },
+  {
+    id: "5",
+    title: "contract rule title",
+    description: "Description of the contract rule",
+  },
+  {
+    id: "6",
+    title: "contract rule title",
+    description: "Description of the contract rule",
+  },
+  {
+    id: "7",
+    title: "contract rule title",
+    description: "Description of the contract rule",
+  },
+  {
+    id: "8",
+    title: "contract rule title",
+    description: "Description of the contract rule",
+  },
+  {
+    id: "9",
+    title: "contract rule title",
+    description: "Description of the contract rule",
+  },
+  {
+    id: "10",
+    title: "contract rule title",
+    description: "Description of the contract rule",
+  },
+  {
+    id: "11",
+    title: "contract rule title",
+    description: "Description of the contract rule",
+  },
+  {
+    id: "12",
+    title: "contract rule title",
+    description: "Description of the contract rule",
+  },
+  {
+    id: "13",
+    title: "contract rule title",
+    description: "Description of the contract rule",
+  },
+  {
+    id: "14",
+    title: "contract rule title",
+    description: "Description of the contract rule",
+  },
+  {
+    id: "15",
+    title: "contract rule title",
+    description: "Description of the contract rule",
+  },
+];
 </script>
 
 <style lang="scss" scoped>
