@@ -7,6 +7,8 @@ export default defineNuxtConfig({
     host: "0.0.0.0",
   },
 
+
+
   modules: [
     "@nuxt/eslint",
     "@nuxt/fonts",
@@ -15,8 +17,13 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "nuxtjs-naive-ui",
     "@vite-pwa/nuxt",
-    "@pinia/nuxt",
-  ],
+    "@pinia/nuxt", '@hypernym/nuxt-anime'],
+  // Optional: Enable composables for explicit imports (default: false, uses global $anime)
+  anime: {
+    composables: true,  // Allows use of useAnime() composable
+    autoImport: true,   // Auto-imports composables globally (if composables: true)
+    provide: true       // Provides $anime globally (default: true)
+  },
 
   css: ["assets/main.scss", "assets/css/tailwind.css"],
 

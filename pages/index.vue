@@ -1,34 +1,7 @@
 <template>
   <div class="home-page-container invisible-scroll page-bottom-padding">
-    <AvatarCard title="Domme" class="shadow-md" />
-    <AvatarCard title="Sukkel" class="shadow-md" />
-
-    <AvatarCard title="Domme" class="shadow-md" />
-    <AvatarCard title="Sukkel" class="shadow-md" />
-
-    <AvatarCard title="Domme" class="shadow-md" />
-    <AvatarCard title="Sukkel" class="shadow-md" />
-
-    <AvatarCard title="Domme" class="shadow-md" />
-    <AvatarCard title="Sukkel" class="shadow-md" />
-
-    <AvatarCard title="Domme" class="shadow-md" />
-    <AvatarCard title="Sukkel" class="shadow-md" />
-
-    <AvatarCard title="Domme" class="shadow-md" />
-    <AvatarCard title="Sukkel" class="shadow-md" />
-
-    <AvatarCard title="Domme" class="shadow-md" />
-    <AvatarCard title="Sukkel" class="shadow-md" />
-
-    <AvatarCard title="Domme" class="shadow-md" />
-    <AvatarCard title="Sukkel" class="shadow-md" />
-
-    <AvatarCard title="Domme" class="shadow-md" />
-    <AvatarCard title="Sukkel" class="shadow-md" />
-
-    <AvatarCard title="Domme" class="shadow-md" />
-    <AvatarCard title="Sukkel" class="shadow-md" />
+    <AvatarCard title="Domme" />
+    <AvatarCard title="Sukkel" />
   </div>
 </template>
 

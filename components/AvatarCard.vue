@@ -1,24 +1,24 @@
 <template>
-  <div>
+  <div ref="card" class="shadow-md">
     <n-card :style="{ borderRadius: '2rem !important' }">
+      <!-- ... rest of your template stays EXACTLY the same ... -->
       <div class="avatar-card-content" @click="showActions = !showActions">
-        <div class="avatar">
+        <div ref="avatar" class="avatar">
           <div
+            ref="avatarBg"
             class="avatar-container"
             :class="insideBadgeRing ? 'inside-ring' : 'outside-ring'"
           >
-            <n-image
-              width="50"
-              :src="
-                title.charAt(0) === 'S'
-                  ? '/memojis/paci/wink.png'
-                  : '/memojis/jeje/wink.png'
-              "
-            />
+            <div ref="avatarImg" class="avatar-image">
+              <n-image
+                width="50"
+                :src="title.charAt(0) === 'S' ? paciAvatar : jejeAvatar"
+              />
+            </div>
           </div>
         </div>
 
-        <div class="content">
+        <div ref="content" class="content">
           <div class="title">
             <span class="text-5xl">{{ title }}</span>
           </div>
@@ -87,58 +87,133 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { EyeIcon, FireIcon } from "@heroicons/vue/24/outline";
 import ContractModal from "./ContractModal.vue";
 import { useThemeStore } from "~/stores/theme";
+import { onMounted, ref, computed } from "vue";
 
 const { title, seenCounter, streakCounter } = defineProps({
-  title: {
-    type: String,
-    default: "Name",
-  },
-  seenCounter: {
-    type: Number,
-    default: 0,
-  },
-  streakCounter: {
-    type: Number,
-    default: 0,
-  },
+  title: { type: String, default: "Name" },
+  seenCounter: { type: Number, default: 0 },
+  streakCounter: { type: Number, default: 0 },
 });
 
 const themeStore = useThemeStore();
-
-// Computed property for dynamic theme color
 const currentThemeColor = computed(() =>
   themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
     ? themeStore.getCurrentLightThemeColor
     : themeStore.getCurrentExtraLightThemeColor
 );
-
 const insideBadgeRing = computed(
   () => themeStore.currentBadgeRingOption === themeStore.badgeRingOptions[0]
 );
 
-// Reactive variable to control dialog visibility
 let showActions = ref(false);
 let showContractDialog = ref(false);
 let showViolationDialog = ref(false);
 
-watch(
-  showContractDialog,
-  (newValue) => {
-    showContractDialog.value = newValue;
-  },
-  { deep: true }
-);
-watch(
-  showViolationDialog,
-  (newValue) => {
-    showViolationDialog.value = newValue;
-  },
-  { deep: true }
-);
+const memojiNames = [
+  "angry.png",
+  "cloudy.png",
+  "cringe.png",
+  "dizzy.png",
+  "eye-roll.png",
+  "goofy.png",
+  "happy.png",
+  "heart-eyes.png",
+  "idea.png",
+  "irritated.png",
+  "kiss.png",
+  "love.png",
+  "lucky.png",
+  "mad.png",
+  "mindblown.png",
+  "party.png",
+  "sad.png",
+  "shook.png",
+  "sleepy.png",
+  "star-eyes.png",
+  "tear-drop.png",
+  "tears-laughing.png",
+  "thinking.png",
+  "whisper.png",
+  "wink.png",
+];
+
+const jejeImgs = memojiNames.map((name) => `/memojis/jeje/${name}`);
+const paciImgs = memojiNames.map((name) => `/memojis/paci/${name}`);
+
+const paciAvatar = ref("");
+const jejeAvatar = ref("");
+
+// ---- NEW REFS for precise animation control ----
+const { $anime } = useNuxtApp();
+const card = ref(null);
+const avatarBg = ref(null); // Avatar background
+const avatarImg = ref(null); // Avatar image
+const content = ref(null);
+
+onMounted(() => {
+  const randomIndex = Math.floor(Math.random() * paciImgs.length);
+  paciAvatar.value = paciImgs[randomIndex];
+
+  const randomIndex2 = Math.floor(Math.random() * jejeImgs.length);
+  jejeAvatar.value = jejeImgs[randomIndex2];
+
+  if (!card.value || !avatarBg.value || !avatarImg.value || !content.value) return;
+
+  $anime
+    .timeline({
+      easing: "easeOutElastic(1, .8)",
+      duration: 3000,
+    })
+    // 1️⃣ START: Card is small square (CSS handles initial state)
+
+    // 2️⃣ Avatar BACKGROUND pops up (scale from 0 to 1)
+    .add({
+      targets: avatarBg.value,
+      scale: [0, 1],
+      opacity: [0, 1],
+      duration: 600,
+      easing: "easeOutBack(1.7)",
+    })
+
+    // 3️⃣ Avatar PICTURE appears (delayed, scales in)
+    .add(
+      {
+        targets: avatarImg.value,
+        scale: [0.5, 1],
+        opacity: [0, 1],
+        duration: 600,
+        easing: "easeOutElastic(1, .8)",
+      },
+      "+=100"
+    ) // Start 100ms after background finishes
+
+    // // 4️⃣ Card grows to original rectangular state
+    // .add(
+    //   {
+    //     targets: card.value,
+    //     // scale: [0.6, 1],
+    //     width: ["50%", "100%"],
+    //     height: ["10%", "fit-content"],
+    //     duration: 800,
+    //     easing: "easeOutExpo",
+    //   },
+    //   "-=200"
+    // ) // Overlap with image by 200ms
+
+    // 5️⃣ Content (title/text) slides in from bottom
+    .add({
+      targets: content.value,
+      opacity: [0, 1],
+      display: ["none", "block"],
+      translateY: [20, 0],
+      duration: 700,
+      easing: "easeOutQuad",
+    });
+});
 </script>
 
 <style lang="scss" scoped>
