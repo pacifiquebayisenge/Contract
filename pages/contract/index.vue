@@ -6,9 +6,7 @@
 
     <div class="scroll-container invisible-scroll page-bottom-padding">
       <n-infinite-scroll :distance="10" @load="handleLoad">
-        <div v-for="i in count" :key="i" class="item">
-          {{ i }}
-        </div>
+        <ContractItem v-for="i in count" :key="i" :index="i" />
       </n-infinite-scroll>
     </div>
   </div>
@@ -16,6 +14,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import ContractItem from "~/components/ContractItem.vue";
 import { useThemeStore } from "~/stores/theme";
 
 const themeStore = useThemeStore();
