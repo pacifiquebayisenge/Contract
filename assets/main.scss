@@ -72,6 +72,27 @@ body {
   }
 
   &-colorfull {
+    border-color: #cccccc;
+    color: #333;
+    box-shadow: 0 0.4rem 0 #cccccc, 0 0.4rem 0.6rem rgba(0, 0, 0, 0.1);
+    transform: translateY(-0.4rem);
+    transition: all 0.1s ease;
+
+    &:hover {
+      transform: translateY(-0.5rem);
+      box-shadow: 0 0.5rem 0 #cccccc, 0 0.5rem 0.6rem rgba(0, 0, 0, 0.1);
+    }
+
+    &:active {
+      transform: translateY(0);
+      background: #e0e0e0;
+      box-shadow: 0 0 0 #cccccc, 0 0 0 rgba(0, 0, 0, 0.1);
+    }
+
+    &:focus {
+      outline: none;
+    }
+
     // Success state with lighter green
     &-success {
       background: #cceada;
