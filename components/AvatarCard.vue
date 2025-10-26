@@ -53,11 +53,11 @@
         <div class="flex gap-x-4 border-t border-gray-200 pt-2 footer">
           <div class="flex gap-x-1 justify-center items-center">
             <NIcon class="text-base opacity-55" :size="14" :component="EyeIcon" />
-            <span class="text-base opacity-55">{{ seenCounter }}</span>
+            <span class="text-base opacity-55">{{ countStore.getSeenCount }}</span>
           </div>
           <div class="flex gap-x-1 justify-center items-center">
             <NIcon class="text-base opacity-55" :size="14" :component="FireIcon" />
-            <span class="text-base opacity-55">{{ streakCounter }}</span>
+            <span class="text-base opacity-55">{{ countStore.getStreakCount }}</span>
           </div>
         </div>
       </template>
@@ -90,15 +90,15 @@
 import { EyeIcon, FireIcon } from "@heroicons/vue/24/outline";
 import ContractModal from "./ContractModal.vue";
 import { useThemeStore } from "~/stores/theme";
+import { useCountStore } from "~/stores/counter";
 import { onMounted, ref, computed } from "vue";
 
-const { title, seenCounter, streakCounter } = defineProps({
+const { title } = defineProps({
   title: { type: String, default: "Name" },
-  seenCounter: { type: Number, default: 0 },
-  streakCounter: { type: Number, default: 0 },
 });
 
 const themeStore = useThemeStore();
+const countStore = useCountStore();
 
 const currentLightThemeColor = computed(() =>
   themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
@@ -155,6 +155,9 @@ const avatarImg = ref(null); // Avatar image
 const content = ref(null);
 
 onMounted(() => {
+  countStore.updateSeenCount();
+  countStore.initializeCounts();
+
   const randomIndex = Math.floor(Math.random() * paciImgs.length);
   paciAvatar.value = paciImgs[randomIndex];
 
@@ -190,21 +193,6 @@ onMounted(() => {
       },
       "+=100"
     ) // Start 100ms after background finishes
-
-    // // 4️⃣ Card grows to original rectangular state
-    // .add(
-    //   {
-    //     targets: card.value,
-    //     // scale: [0.6, 1],
-    //     width: ["50%", "100%"],
-    //     height: ["10%", "fit-content"],
-    //     duration: 800,
-    //     easing: "easeOutExpo",
-    //   },
-    //   "-=200"
-    // ) // Overlap with image by 200ms
-
-    // 5️⃣ Content (title/text) slides in from bottom
     .add({
       targets: content.value,
       opacity: [0, 1],

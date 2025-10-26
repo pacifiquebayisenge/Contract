@@ -1,9 +1,6 @@
 <template>
-  <div class="delete-contract-item-model">
-    <span>
-      Let's see what we can <span class="special">change</span> about contract rule
-      <span class="special">{{ index + 1 }}</span> ???
-    </span>
+  <div class="new-contract-item-model">
+    <span> Ah ! A new <span class="special">contract rule !!</span> </span>
 
     <div class="field">
       <input
@@ -28,7 +25,7 @@
       class="button-3D button-3D-colorfull"
       @click="$emit('update:modelValue', { id: item.id, title, description })"
     >
-      <span>Edit</span>
+      <span>Submit</span>
     </button>
   </div>
 </template>
@@ -96,7 +93,7 @@ const currentLightThemeColor = computed(() =>
 </script>
 
 <style lang="scss" scoped>
-.delete-contract-item-model {
+.new-contract-item-model {
   display: flex;
   flex-direction: column;
   align-items: center;

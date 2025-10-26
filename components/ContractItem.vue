@@ -1,5 +1,9 @@
 <template>
-  <div ref="card" :style="{ borderRadius: '1rem !important' }" class="shadow-md my-8">
+  <div
+    ref="card"
+    :style="{ borderRadius: '1rem !important', cursor: 'pointer' }"
+    class="shadow-md my-8"
+  >
     <n-card :style="{ borderRadius: '1rem !important' }">
       <!-- ... rest of your template stays EXACTLY the same ... -->
       <div class="contract-item-content" @click="showActions = !showActions">
