@@ -155,8 +155,8 @@ const avatarImg = ref(null); // Avatar image
 const content = ref(null);
 
 onMounted(() => {
-  countStore.updateSeenCount();
   countStore.initializeCounts();
+  countStore.updateSeenCount();
 
   const randomIndex = Math.floor(Math.random() * paciImgs.length);
   paciAvatar.value = paciImgs[randomIndex];

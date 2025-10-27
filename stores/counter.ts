@@ -14,11 +14,14 @@ export const useCountStore = defineStore("count", {
 
     actions: {
         setSeenCount(seenCount: number): void {
+            console.log('set')
+
             this.seenCount = seenCount;
             localStorage.setItem("seen-count", seenCount.toString());
         },
 
         updateSeenCount(): void {
+            console.log('update')
             const newSeenCount = this.seenCount + 1;
             this.setSeenCount(newSeenCount);
         },
@@ -29,9 +32,12 @@ export const useCountStore = defineStore("count", {
         },
 
         initializeCounts(): void {
+
             if (process.client) {
                 const savedSeenCount = parseInt(localStorage.getItem("seen-count") || "0");
                 const savedStreakCount = parseInt(localStorage.getItem("streak-count") || "0");
+
+
 
                 this.setSeenCount(isNaN(savedSeenCount) ? 0 : savedSeenCount);
                 this.setStreakCount(isNaN(savedStreakCount) ? 0 : savedStreakCount);
