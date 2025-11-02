@@ -35,7 +35,7 @@ export const useCountStore = defineStore("count", {
         },
         setCreditCount(creditCount: number): void {
             this.creditCount = creditCount;
-            localStorage.setItem("credit-count", creditCount.toString());
+            localStorage.setItem("credit-count", '0');
         },
 
         updateSeenCount(): void {
