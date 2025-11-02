@@ -7,6 +7,16 @@
 
 <script setup>
 import AvatarCard from "~/components/AvatarCard.vue";
+import { useCountStore } from "~/stores/counter";
+import { onMounted } from "vue";
+
+const countStore = useCountStore();
+
+onMounted(() => {
+  countStore.initializeCounts();
+  countStore.updateSeenCount();
+  countStore.updateCreditCount();
+});
 </script>
 
 <style lang="scss" scoped>

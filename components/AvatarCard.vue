@@ -59,6 +59,10 @@
             <NIcon class="text-base opacity-55" :size="14" :component="FireIcon" />
             <span class="text-base opacity-55">{{ countStore.getStreakCount }}</span>
           </div>
+          <div class="flex gap-x-1 justify-center items-center">
+            <NIcon class="text-base opacity-55" :size="14" :component="BanknotesIcon" />
+            <span class="text-base opacity-55">{{ countStore.getCreditCount }}</span>
+          </div>
         </div>
       </template>
     </n-card>
@@ -87,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { EyeIcon, FireIcon } from "@heroicons/vue/24/outline";
+import { EyeIcon, FireIcon, BanknotesIcon } from "@heroicons/vue/24/outline";
 import ContractModal from "./ContractModal.vue";
 import { useThemeStore } from "~/stores/theme";
 import { useCountStore } from "~/stores/counter";
@@ -155,9 +159,6 @@ const avatarImg = ref(null); // Avatar image
 const content = ref(null);
 
 onMounted(() => {
-  countStore.initializeCounts();
-  countStore.updateSeenCount();
-
   const randomIndex = Math.floor(Math.random() * paciImgs.length);
   paciAvatar.value = paciImgs[randomIndex];
 
