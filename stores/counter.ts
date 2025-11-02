@@ -47,7 +47,7 @@ export const useCountStore = defineStore("count", {
             this.setStreakCount(newStreakCount);
         },
         updateCreditCount(): void {
-            const newCreditCount = this.creditCount + 500;
+            const newCreditCount = this.creditCount + 100;
             this.setCreditCount(newCreditCount);
         },
 
