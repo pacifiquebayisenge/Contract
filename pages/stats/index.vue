@@ -2,6 +2,7 @@
   <div class="stats-page-container">
     <div class="content">
       <div class="avatar-container py-8">
+        <!-- Left mirrored avatar -->
         <div class="avatar-image mirror">
           <n-image
             style="transform: rotate(5deg) scaleX(-1)"
@@ -10,6 +11,7 @@
           />
         </div>
 
+        <!-- Right avatar -->
         <div class="avatar-image">
           <n-image
             style="transform: rotate(3deg)"
@@ -17,7 +19,12 @@
             src="/memojis/paci/thinking.png"
           />
         </div>
+
+        <!-- Shadows (anchored to floor) -->
+        <div class="avatar-shadow left"></div>
+        <div class="avatar-shadow right"></div>
       </div>
+
       <p class="title">Please wait ...</p>
       <p class="comm">Not enough <strong class="special"> data </strong> yet</p>
     </div>
@@ -35,6 +42,7 @@ const currentLightThemeColor = computed(() =>
     ? themeStore.getCurrentLightThemeColor
     : themeStore.getCurrentExtraLightThemeColor
 );
+
 const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
 </script>
 
@@ -47,52 +55,58 @@ const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
   padding-bottom: 25rem;
 
   .avatar-container {
-    display: flex;
-    gap: 3rem;
     position: relative;
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
 
     /* Floor surface */
     &::before {
       content: "";
       position: absolute;
-      bottom: -20px;
+      bottom: -4rem;
       left: 50%;
       transform: translateX(-50%);
       width: 132%;
-      height: 41px;
+      height: 4rem;
       background: v-bind(currentLightThemeColor);
       border-radius: 50%;
-      filter: blur(4px);
+      filter: blur(0.4rem);
       opacity: 0.6;
     }
 
+    /* Floating avatars */
     .avatar-image {
       position: relative;
+      z-index: 2;
       animation: float 3.5s ease-in-out infinite;
 
       img {
         display: block;
       }
-      transform: rotate(5deg) scaleX(-1);
 
-      &.mirror .n-image img {
-        transform: rotate(5deg) scaleX(-1) !important;
+      &.mirror img {
+        transform: scaleX(-1);
+      }
+    }
+
+    /* Shadows (fixed on floor, not floating) */
+    .avatar-shadow {
+      position: absolute;
+      bottom: -2.5rem;
+      width: 7rem;
+      height: 1.2rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 50%;
+      filter: blur(0.4rem);
+      animation: shadow 3.5s ease-in-out infinite;
+
+      &.left {
+        left: calc(50% - 9rem);
       }
 
-      /* Shadow on floor */
-      &::after {
-        content: "";
-        position: absolute;
-        bottom: -3rem; /* anchored to floor */
-        left: 50%;
-        transform: translateX(-50%);
-        width: 70%;
-        height: 10px;
-        background: rgba(0, 0, 0, 0.35);
-        border-radius: 50%;
-        filter: blur(4px);
-        opacity: 0.6;
-        animation: puddle 3.5s ease-in-out infinite;
+      &.right {
+        left: calc(50% + 2rem);
       }
     }
   }
@@ -105,7 +119,6 @@ const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
   }
 
   .comm {
-    text-align: center;
     text-align: center;
     font-weight: 500;
     margin-top: 1rem;
@@ -123,19 +136,19 @@ const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-1rem);
   }
 }
 
-/* Subtle puddle breathing effect */
-@keyframes puddle {
+/* Shadow breathing (inverse of float — grows when avatar comes down) */
+@keyframes shadow {
   0%,
   100% {
-    transform: translateX(-50%) scale(1);
-    opacity: 0.6;
+    transform: scale(1.2);
+    opacity: 0.75;
   }
   50% {
-    transform: translateX(-50%) scale(1.1);
+    transform: scale(0.9);
     opacity: 0.45;
   }
 }
