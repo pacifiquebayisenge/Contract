@@ -23,11 +23,11 @@ export default defineNuxtConfig({
   ],
 
   supabase: {
-  redirect: false,
   cookieName: "sb", // required to make cookies predictable
-  session: {
-    autoRefreshToken: true,
-    persistSession: true,
+  redirect: false,
+  cookieOptions: {
+    sameSite: "lax",
+    secure: false,
   }
 },
 

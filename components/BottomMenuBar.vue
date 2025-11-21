@@ -33,7 +33,7 @@
       <n-drawer-content title="Settings">
         <div>
           <div class="settings-items px-5">
-            <button class="button-3D button-3D-colorfull-error">Logout</button>
+            <button class="button-3D button-3D-colorfull-error"  @click="logout">Logout</button>
           </div>
 
           <!-- <div class="mt-4">
@@ -108,6 +108,13 @@ const activateAccount = (place: DrawerPlacement) => {
   showAccount.value = true;
   placement.value = place;
 };
+
+const supabase = useSupabaseClient()
+
+async function logout() {
+  await supabase.auth.signOut()
+  navigateTo("/signin")
+}
 </script>
 
 <style lang="scss">

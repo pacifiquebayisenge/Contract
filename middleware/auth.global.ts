@@ -1,26 +1,24 @@
 export default defineNuxtRouteMiddleware(async (to) => {
-  const user = useSupabaseUser()
   const supabase = useSupabaseClient()
+  const user = useSupabaseUser()
   const nuxtApp = useNuxtApp()
 
-  const publicPages = ["/signin", "/signup"]
+  const publicPages = ['/signin', '/signup']
   if (publicPages.includes(to.path)) return
-
-  // Wait for session restore if user is undefined
+  
+  // While restoring session, user.value is undefined
   if (user.value === undefined) {
     nuxtApp.$authLoading.show()
 
-    // Restore session
-    await supabase.auth.getSession()
-
-    // WAIT until Pinia updates user
-    await new Promise(resolve => setTimeout(resolve, 0))
+    // Force session restore from cookies
+    const { data } = await supabase.auth.getSession()
 
     nuxtApp.$authLoading.hide()
+
+    // If user now exists -> allow entry
+    if (data.session?.user) return
   }
 
-  // After session loads
-  if (!user.value) {
-    return navigateTo("/signin")
-  }
+  // If user still null after restoring → user is truly logged out
+  if (!user.value) return navigateTo('/signin')
 })

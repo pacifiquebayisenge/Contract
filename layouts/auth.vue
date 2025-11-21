@@ -40,6 +40,7 @@ const cardRef = ref(null)
 
 // ENTRY + SUBTLE FLOAT ANIMATION
 onMounted(() => {
+    theme.initializeTheme();
   anime({
     targets: cardRef.value,
     opacity: [0, 1],
