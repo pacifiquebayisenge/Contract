@@ -24,7 +24,12 @@
     </div>
 
     <!-- Drawer Component -->
-    <n-drawer v-model:show="active" :height="400" :placement="placement">
+    <n-drawer
+      v-model:show="active"
+      :height="400"
+      :placement="placement"
+      style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
+    >
       <n-drawer-content title="Settings">
         <div>
           <div class="settings-items px-5">

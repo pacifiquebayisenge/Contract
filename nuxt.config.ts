@@ -4,7 +4,6 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   devServer: {
     port: 3008,
-    host: "0.0.0.0",
   },
 
 
@@ -17,13 +16,45 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "nuxtjs-naive-ui",
     "@vite-pwa/nuxt",
-    "@pinia/nuxt", '@hypernym/nuxt-anime'],
-  // Optional: Enable composables for explicit imports (default: false, uses global $anime)
+    "@pinia/nuxt",
+    "@hypernym/nuxt-anime",
+    '@nuxtjs/supabase'
+
+  ],
+
+  supabase: {
+    redirect: false, // you handle redirects manually (you already do)
+  },
+
   anime: {
     composables: true,  // Allows use of useAnime() composable
     autoImport: true,   // Auto-imports composables globally (if composables: true)
     provide: true       // Provides $anime globally (default: true)
   },
+
+  runtimeConfig: {
+    public: {
+      oauthGoogleClientId: process.env.NUXT_OAUTH_GOOGLE_CLIENT_ID,
+      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
+      supabaseKey: process.env.NUXT_PUBLIC_SUPABASE_KEY
+    }
+  },
+
+
+
+  // runtimeConfig: {
+  //   session: {
+  //     password: process.env.NUXT_SESSION_PASSWORD || ''
+  //   },
+  //   oauth: {
+  //     google: {
+  //       clientId: process.env.NUXT_OAUTH_GOOGLE_CLIENT_ID
+  //     }
+  //   },
+  //   public: {
+  //     googleClientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID,
+  //   }
+  // },
 
   css: ["assets/main.scss", "assets/css/tailwind.css"],
 
@@ -32,6 +63,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: "Ugovor",
+
       link: [
         { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
         {

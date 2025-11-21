@@ -10,12 +10,20 @@ import AvatarCard from "~/components/AvatarCard.vue";
 import { useCountStore } from "~/stores/counter";
 import { onMounted } from "vue";
 
+
+
+const user = useSupabaseUser()
+
+
 const countStore = useCountStore();
 
-onMounted(() => {
+
+
+onMounted(async () => {
   countStore.initializeCounts();
   countStore.updateSeenCount();
-  countStore.updateCreditCount();
+console.log(user)
+ 
 });
 </script>
 
