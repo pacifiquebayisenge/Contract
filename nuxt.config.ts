@@ -23,19 +23,14 @@ export default defineNuxtConfig({
   ],
 
   supabase: {
-    redirect: false, // you handle redirects manually (you already do)
-     clientOptions: {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-      }
-    },
-     cookieOptions: {
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-      sameSite: "lax",
-      secure: false, // IMPORTANT for localhost
-    },
-  },
+  redirect: false,
+  cookieName: "sb", // required to make cookies predictable
+  session: {
+    autoRefreshToken: true,
+    persistSession: true,
+  }
+},
+
 
   anime: {
     composables: true,  // Allows use of useAnime() composable
