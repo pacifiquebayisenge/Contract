@@ -109,12 +109,10 @@ const activateAccount = (place: DrawerPlacement) => {
   placement.value = place;
 };
 
-const supabase = useSupabaseClient()
 
-async function logout() {
-  await supabase.auth.signOut()
-  navigateTo("/signin")
-}
+const { logout } = useAuth()
+
+
 </script>
 
 <style lang="scss">

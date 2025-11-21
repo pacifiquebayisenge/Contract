@@ -5,20 +5,28 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const publicPages = ['/signin', '/signup']
   if (publicPages.includes(to.path)) return
-  
-  // While restoring session, user.value is undefined
-  if (user.value === undefined) {
-    nuxtApp.$authLoading.show()
 
-    // Force session restore from cookies
-    const { data } = await supabase.auth.getSession()
+  // Already logged in → OK
+  if (user.value) return
 
-    nuxtApp.$authLoading.hide()
+  // Try restoring session from cookies
+  nuxtApp.$authLoading.show()
 
-    // If user now exists -> allow entry
-    if (data.session?.user) return
+  const { data } = await supabase.auth.getSession()
+
+  nuxtApp.$authLoading.hide()
+
+  // Supabase session restored?
+  if (data.session?.user) {
+    // This updates Nuxt's internal auth state properly.
+    await supabase.auth.setSession({
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token
+    })
+
+    return
   }
 
-  // If user still null after restoring → user is truly logged out
-  if (!user.value) return navigateTo('/signin')
+  // Not logged in → redirect
+  return navigateTo('/signin')
 })
