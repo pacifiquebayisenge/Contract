@@ -30,7 +30,7 @@
       :placement="placement"
       style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
     >
-      <n-drawer-content title="Settings">
+      <n-drawer-content title="Account">
         <div>
           <div class="settings-items px-5">
             <button class="button-3D button-3D-colorfull-error"  @click="logout">Logout</button>

@@ -1,53 +1,58 @@
 <template>
-  <div :style="backgroundStyle" class="auth-layout flex items-center justify-center p-6 relative overflow-hidden">
-
+  <div
+    :style="backgroundStyle"
+    class="auth-layout flex items-center justify-center p-6 relative overflow-hidden"
+  >
     <!-- Animated Floating Card -->
-    <div ref="cardRef" class="auth-card">
+    <div ref="cardRef" class="auth-card ">
       <slot />
     </div>
-
   </div>
 </template>
 
 <script setup>
-import { useThemeStore } from "~/stores/theme"
-import anime from "animejs"
-import { onMounted, ref, computed } from "vue"
+import { useThemeStore } from "~/stores/theme";
+import anime from "animejs";
+import { onMounted, ref, computed } from "vue";
 
-const theme = useThemeStore()
+const theme = useThemeStore();
 
 // THEME-BASED ANIMATED GRADIENT BACKGROUND
 const backgroundStyle = computed(() => {
-  const main = theme.getCurrentThemeColor
-  const light = theme.getCurrentLightThemeColor
-  const extra = theme.getCurrentExtraLightThemeColor
+  const main = theme.getCurrentThemeColor;
+  const light = theme.getCurrentLightThemeColor;
+  const extra = theme.getCurrentExtraLightThemeColor;
 
   return {
     background: `
       linear-gradient(
-        135deg,
-        ${extra} 0%,
-        ${light} 40%,
-        ${main} 100%
+        180deg,
+        ${main} 0%,
+        ${light} 60%,
+        ${extra} 100%
       )
     `,
-    backgroundSize: "180% 180%",
-    animation: "gradientMove 12s ease infinite"
-  }
-})
+    backgroundSize: "100% 200%",
+  };
+});
 
-const cardRef = ref(null)
+const cardRef = ref(null);
+
 
 // ENTRY + SUBTLE FLOAT ANIMATION
 onMounted(() => {
-    theme.initializeTheme();
+  theme.initializeTheme();
+
+
+  
+
   anime({
     targets: cardRef.value,
     opacity: [0, 1],
     translateY: [40, 0],
     duration: 800,
     easing: "easeOutQuad",
-  })
+  });
 
   anime({
     targets: cardRef.value,
@@ -56,8 +61,8 @@ onMounted(() => {
     loop: true,
     easing: "easeInOutQuad",
     duration: 3500,
-  })
-})
+  });
+});
 </script>
 
 <style scoped>
@@ -75,31 +80,27 @@ onMounted(() => {
   padding: 1.5rem 1.8rem;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(22px);
-  border-radius: 1.75rem;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+  border-radius: 2rem;
   position: relative;
-  z-index: 10;
-  height: fit-content;
-  animation: fadeIn 0.6s ease-out;
+
+  /* FIX: ensure ripple appears behind card */
+  z-index: 0;
+
 }
+
+
+
+
+
 
 /* Mobile breakpoint */
 @media (max-width: 640px) {
   .auth-card {
-    max-width: 25rem;
+    max-width: 30rem;
   }
 }
 
-/* OPTIONAL: subtle fade on mount */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(25px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 
-/* ANIMATED BACKGROUND */
-@keyframes gradientMove {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
 </style>
+
+

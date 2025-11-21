@@ -1,40 +1,52 @@
 <template>
   <div class="flex justify-center items-center p-4">
-    <n-card  class="max-w-sm w-full">
-
-
-     <template #header>
+    <n-card class="max-w-lg w-full card">
+      <template #header>
         <div class="text-center font-semibold text-xxlg">Login</div>
       </template>
 
+      <div class="field mb-8">
+        <n-input
+          v-model:value="email"
+          class="bg-[#0000000a] rounded-[1rem] mb-4"
+          type="email"
+          placeholder="Email"
+        >
+          <template #prefix>
+          
+            <UserIcon class="w-5 h-5 text-gray-500" />
+          </template>
+        </n-input>
+        <div class="line" />
+      </div>
 
-      <n-input v-model:value="email" type="email" placeholder="Email" class="mb-4">
-        <template #prefix>
-          <UserIcon class="w-5 h-5 text-gray-500" />
-        </template>
-      </n-input>
+      <div class="field mb-8">
+        <n-input
+          v-model:value="password"
+          :type="showPassword ? 'text' : 'password'"
+          placeholder="Password"
+          class="bg-[#0000000a] rounded-[1rem] mb-4"
+        >
+          <template #suffix>
+            <component
+              :is="showPassword ? EyeSlashIcon : EyeIcon"
+              class="w-5 h-5 cursor-pointer text-gray-500"
+              @click="showPassword = !showPassword"
+            />
+          </template>
+        </n-input>
+        <div class="line" />
+      </div>
 
-      <n-input
-        v-model:value="password"
-        :type="showPassword ? 'text' : 'password'"
-        placeholder="Password"
-        class="mb-4"
-      >
-        <template #suffix>
-          <component
-            :is="showPassword ? EyeSlashIcon : EyeIcon"
-            class="w-5 h-5 cursor-pointer text-gray-500"
-            @click="showPassword = !showPassword"
-          />
-        </template>
-      </n-input>
-
-      <n-button type="primary" block @click="login" :loading="loading"> Log In </n-button>
+      <button class="button-3D button-3D-colorfull" block @click="login">
+        <span v-if="loading">Loading...</span>
+        <span v-else>Log In</span>
+      </button>
 
       <div class="flex flex-col items-center mt-4 space-y-8">
-        <n-text class="mt-6 text-center">Don't have an account?</n-text>
+        <n-text class="mt-6 text-center">Don't have an account ?</n-text>
 
-        <n-button text @click="navigateTo('/signup')"> Sign Up </n-button>
+        <n-button class="other-action" text @click="navigateTo('/signup')"> Sign Up </n-button>
       </div>
 
       <n-alert class="mt-4" v-if="message" type="error">
@@ -47,10 +59,13 @@
 <script setup>
 import { UserIcon } from "@heroicons/vue/24/outline";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/solid";
+import { useThemeStore } from "~/stores/theme";
 
 definePageMeta({
   layout: "auth",
 });
+
+const themeStore = useThemeStore();
 
 const supabase = useSupabaseClient();
 
@@ -59,6 +74,14 @@ const password = ref("");
 const message = ref("");
 const loading = ref(false);
 const showPassword = ref(false);
+
+const currentLightThemeColor = computed(() =>
+  themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
+    ? themeStore.getCurrentLightThemeColor
+    : themeStore.getCurrentExtraLightThemeColor
+);
+
+const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
 
 async function login() {
   loading.value = true;
@@ -74,3 +97,95 @@ async function login() {
   else navigateTo("/");
 }
 </script>
+
+<style scoped lang="scss">
+.card {
+  background-color: none;
+  background: none;
+
+  display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.field {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  .n-input {
+    height: 5rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:hover,
+    &:focus,
+    &:focus-within {
+      --n-border-hover: transparent !important;
+      --n-border-focus: transparent !important;
+      --n-box-shadow-focus: transparent !important;
+      box-shadow: none !important;
+      border: none !important; 
+
+
+      --n-caret-color: v-bind(currentThemeColor) !important;
+
+      outline: none !important;
+    }
+  }
+
+  
+
+  input {
+    padding: 0.5rem 1.5rem;
+    border-radius: 1rem;
+    border: none;
+    outline: none;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #555555;
+    transition: padding 0.3s 0.2s ease;
+    resize: none;
+    
+  }
+
+  // sibling magic ;o
+  &:focus-within .line {
+    &:after {
+      transform: scaleX(1);
+    }
+  }
+
+  .line {
+    width: 100%;
+    height: 3px;
+    position: absolute;
+    bottom: -8px;
+    background: transparent;
+    border-radius: 2rem;
+
+    &:after {
+      content: " ";
+      position: absolute;
+      float: right;
+      width: 100%;
+      height: 3px;
+
+      transform: scalex(0);
+      transition: transform 0.3s ease;
+
+      background: v-bind(currentLightThemeColor);
+    }
+  }
+}
+
+.other-action  {
+  font-weight: 700;
+  color: v-bind(currentThemeColor);
+}
+
+</style>
