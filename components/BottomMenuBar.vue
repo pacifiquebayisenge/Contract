@@ -2,7 +2,7 @@
   <div>
     <div class="bottom-menu-bar">
       <div class="items flex space-between justify-center">
-        <div class="item">
+        <div class="item"  @click="activateAccount('bottom')">
           <div class="icon">
             <NIcon class="text-base opacity-55" :size="35" :component="UserIcon" />
           </div>
@@ -14,7 +14,7 @@
           </div>
           <!-- <div class="label">Inbox</div> -->
         </div>
-        <div class="item" @click="activate('bottom')">
+        <div class="item" @click="activateSettings('bottom')">
           <div class="icon">
             <NIcon class="text-base opacity-55" :size="35" :component="Cog6ToothIcon" />
           </div>
@@ -23,9 +23,31 @@
       </div>
     </div>
 
-    <!-- Drawer Component -->
+    <!-- account drawer -->
     <n-drawer
-      v-model:show="active"
+      v-model:show="showAccount"
+      :height="400"
+      :placement="placement"
+      style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
+    >
+      <n-drawer-content title="Settings">
+        <div>
+          <div class="settings-items px-5">
+            <button class="button-3D button-3D-colorfull-error">Logout</button>
+          </div>
+
+          <!-- <div class="mt-4">
+          <n-button @click="active = false" type="primary">
+            Close Drawer
+          </n-button>
+        </div> -->
+        </div>
+      </n-drawer-content>
+    </n-drawer>
+
+    <!-- settings drawer -->
+    <n-drawer
+      v-model:show="showSettings"
       :height="400"
       :placement="placement"
       style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
@@ -72,14 +94,18 @@ import { ref } from "vue";
 import { UserIcon, InboxIcon, Cog6ToothIcon } from "@heroicons/vue/24/outline";
 import type { DrawerPlacement } from "naive-ui";
 
-// Drawer state
-const active = ref(false);
-
 const placement = ref<DrawerPlacement>("bottom");
+// Drawer state
 
-// Function to activate drawer with different placements
-const activate = (place: DrawerPlacement) => {
-  active.value = true;
+const showSettings = ref(false);
+const showAccount = ref(false);
+
+const activateSettings = (place: DrawerPlacement) => {
+  showSettings.value = true;
+  placement.value = place;
+};
+const activateAccount = (place: DrawerPlacement) => {
+  showAccount.value = true;
   placement.value = place;
 };
 </script>

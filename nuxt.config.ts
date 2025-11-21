@@ -24,6 +24,17 @@ export default defineNuxtConfig({
 
   supabase: {
     redirect: false, // you handle redirects manually (you already do)
+     clientOptions: {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+      }
+    },
+     cookieOptions: {
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      sameSite: "lax",
+      secure: false, // IMPORTANT for localhost
+    },
   },
 
   anime: {
@@ -100,6 +111,8 @@ export default defineNuxtConfig({
 
   pwa: {
     registerType: "autoUpdate",
+     navigateFallback: null, // IMPORTANT: do not serve cached fallback for auth routes
+    navigateFallbackDenylist: [/\/auth\//, /supabase/],
 
     devOptions: {
       enabled: false,
