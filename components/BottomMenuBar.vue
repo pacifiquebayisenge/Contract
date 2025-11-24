@@ -29,10 +29,12 @@
       :height="500"
       placement="bottom"
       :auto-focus="false"
+      :block-scroll="true"
+      :trap-focus="false"
       style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
     >
       <n-drawer-content title="Account">
-        <div>
+        <div class="drawer-body invisible-scroll">
           <div class="account-items px-5 mb-16">
             <n-input
               v-model:value="inputValue.firstname"
@@ -78,10 +80,12 @@
       v-model:show="showSettings"
       :height="400"
       placement="bottom"
+      :block-scroll="true"
+      :trap-focus="false"
       style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
     >
       <n-drawer-content title="Settings">
-        <div>
+        <div class="drawer-body invisible-scroll">
           <div class="settings-items px-5">
             <n-collapse arrow-placement="right">
               <n-collapse-item title="Theme" name="1">
@@ -251,5 +255,12 @@ input {
 
 .n-collapse .n-collapse-item .n-collapse-item__header .n-collapse-item__header-main {
   font-weight: 700;
+}
+
+.drawer-body {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; // smooth scrolling on iOS
+  padding-bottom: 2rem; // so inputs don’t hit the keyboard
 }
 </style>
