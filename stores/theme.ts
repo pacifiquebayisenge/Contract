@@ -1,15 +1,14 @@
-
 // stores/theme.ts
 import { defineStore } from "pinia";
 
 export type ThemeName = "sage-green" | "dark-blue" | "light-pink";
 export type LightThemeOptionName = "light-color" | "extra-light-color";
-export type BadgeRingOption = 'inside' | 'outside';
+export type BadgeRingOption = "inside" | "outside";
 
 export interface ThemeState {
   currentTheme: ThemeName;
   currentLightThemeOption: LightThemeOptionName;
-  currentBadgeRingOption: BadgeRingOption
+  currentBadgeRingOption: BadgeRingOption;
 
   themes: ThemeName[];
   lightThemeOptions: LightThemeOptionName[];
@@ -18,20 +17,20 @@ export interface ThemeState {
   lightThemeColors: Record<ThemeName, string>;
   extraLightThemeColors: Record<ThemeName, string>;
 
+  badgeRingOptions: BadgeRingOption[];
 
-  badgeRingOptions: BadgeRingOption[]
+  ready: boolean
 }
 
 export const useThemeStore = defineStore("theme", {
   state: (): ThemeState => ({
     currentTheme: "sage-green",
     currentLightThemeOption: "light-color",
-    currentBadgeRingOption: 'outside',
-
+    currentBadgeRingOption: "outside",
 
     themes: ["sage-green", "dark-blue", "light-pink"],
     lightThemeOptions: ["light-color", "extra-light-color"],
-    badgeRingOptions: ['inside', 'outside'],
+    badgeRingOptions: ["inside", "outside"],
 
     themeColors: {
       "sage-green": "#8A9A86",
@@ -48,12 +47,12 @@ export const useThemeStore = defineStore("theme", {
       "dark-blue": "#D4DCF0",
       "light-pink": "#FEF6FA",
     },
+    ready: false
   }),
 
   getters: {
     // get the current theme colors variantions
-    getCurrentThemeColor: (state): string =>
-      state.themeColors[state.currentTheme],
+    getCurrentThemeColor: (state): string => state.themeColors[state.currentTheme],
 
     getCurrentLightThemeColor: (state): string =>
       state.lightThemeColors[state.currentTheme],
@@ -61,24 +60,17 @@ export const useThemeStore = defineStore("theme", {
     getCurrentExtraLightThemeColor: (state): string =>
       state.extraLightThemeColors[state.currentTheme],
 
-    getCurrentBadgeRingOption: (state): BadgeRingOption =>
-      state.currentBadgeRingOption,
+    getCurrentBadgeRingOption: (state): BadgeRingOption => state.currentBadgeRingOption,
 
     // methods to get the color based on color name prop
-    getThemeColor:
-      (state) =>
-        (themeName: ThemeName): string =>
-          state.themeColors[themeName],
+    getThemeColor: (state) => (themeName: ThemeName): string =>
+      state.themeColors[themeName],
 
-    getLightThemeColor:
-      (state) =>
-        (themeName: ThemeName): string =>
-          state.lightThemeColors[themeName],
+    getLightThemeColor: (state) => (themeName: ThemeName): string =>
+      state.lightThemeColors[themeName],
 
-    getExtraLightThemeColor:
-      (state) =>
-        (themeName: ThemeName): string =>
-          state.extraLightThemeColors[themeName],
+    getExtraLightThemeColor: (state) => (themeName: ThemeName): string =>
+      state.extraLightThemeColors[themeName],
 
     // get the current theme colors bos swadow variantions (with 40 opacity like #d0305040)
     getCurrentThemeBoxShadow: (state): string => {
@@ -97,26 +89,20 @@ export const useThemeStore = defineStore("theme", {
     },
 
     // methods to get the color box shadow based on color name prop
-    getThemeBoxShadow:
-      (state) =>
-        (themeName: ThemeName): string => {
-          const color = state.themeColors[themeName];
-          return `0 0 0 2px ${color}40`;
-        },
+    getThemeBoxShadow: (state) => (themeName: ThemeName): string => {
+      const color = state.themeColors[themeName];
+      return `0 0 0 2px ${color}40`;
+    },
 
-    getLightThemeBoxShadow:
-      (state) =>
-        (themeName: ThemeName): string => {
-          const color = state.lightThemeColors[themeName];
-          return `0 0 0 2px ${color}40`;
-        },
+    getLightThemeBoxShadow: (state) => (themeName: ThemeName): string => {
+      const color = state.lightThemeColors[themeName];
+      return `0 0 0 2px ${color}40`;
+    },
 
-    getExtraLightThemeBoxShadow:
-      (state) =>
-        (themeName: ThemeName): string => {
-          const color = state.extraLightThemeColors[themeName];
-          return `0 0 0 2px ${color}40`;
-        },
+    getExtraLightThemeBoxShadow: (state) => (themeName: ThemeName): string => {
+      const color = state.extraLightThemeColors[themeName];
+      return `0 0 0 2px ${color}40`;
+    },
   },
 
   actions: {
@@ -141,14 +127,10 @@ export const useThemeStore = defineStore("theme", {
             document.head.appendChild(metaThemeColor);
           }
 
-          metaThemeColor.setAttribute(
-            "content",
-            this.themeColors[this.currentTheme]
-          );
+          metaThemeColor.setAttribute("content", this.themeColors[this.currentTheme]);
 
           // Update <body> background color
-          document.body.style.backgroundColor =
-            this.themeColors[this.currentTheme];
+          document.body.style.backgroundColor = this.themeColors[this.currentTheme];
         }
       }
     },
@@ -158,19 +140,10 @@ export const useThemeStore = defineStore("theme", {
         this.currentLightThemeOption = newLightThemeOption;
 
         if (process.client) {
-          localStorage.setItem(
-            "selected-light-theme-option",
-            newLightThemeOption
-          );
+          localStorage.setItem("selected-light-theme-option", newLightThemeOption);
         }
-
-
       }
-
-
-
     },
-
 
     setBadgeRingOption(newOption: BadgeRingOption): void {
       if (this.badgeRingOptions.includes(newOption)) {
@@ -182,16 +155,14 @@ export const useThemeStore = defineStore("theme", {
       }
     },
 
-    initializeTheme(): void {
+    init(): void {
       // import.meta.client
       if (process.client) {
-        const savedTheme = localStorage.getItem(
-          "selected-theme"
-        ) as ThemeName
+        const savedTheme = localStorage.getItem("selected-theme") as ThemeName;
 
         const savedLightThemeOption = localStorage.getItem(
-          "selected-light-theme-option",
-        ) as LightThemeOptionName
+          "selected-light-theme-option"
+        ) as LightThemeOptionName;
 
         const savedBadgeRingOption = localStorage.getItem(
           "selected-badge-ring-option"
@@ -203,13 +174,19 @@ export const useThemeStore = defineStore("theme", {
           this.setTheme(this.currentTheme);
         }
 
-        if (savedLightThemeOption && this.lightThemeOptions.includes(savedLightThemeOption)) {
+        if (
+          savedLightThemeOption &&
+          this.lightThemeOptions.includes(savedLightThemeOption)
+        ) {
           this.setLightThemeOption(savedLightThemeOption);
         } else {
           this.setLightThemeOption(this.currentLightThemeOption);
         }
 
-        if (savedBadgeRingOption && this.badgeRingOptions.includes(savedBadgeRingOption)) {
+        if (
+          savedBadgeRingOption &&
+          this.badgeRingOptions.includes(savedBadgeRingOption)
+        ) {
           this.setBadgeRingOption(savedBadgeRingOption);
         } else {
           this.setBadgeRingOption(this.currentBadgeRingOption);

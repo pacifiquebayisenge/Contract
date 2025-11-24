@@ -13,7 +13,6 @@
           placeholder="Email"
         >
           <template #prefix>
-          
             <UserIcon class="w-5 h-5 text-gray-500" />
           </template>
         </n-input>
@@ -38,7 +37,7 @@
         <div class="line" />
       </div>
 
-      <button class="button-3D button-3D-colorfull" block @click="login">
+      <button class="button-3D button-3D-colorfull" block @click="handleLogin">
         <span v-if="loading">Loading...</span>
         <span v-else>Log In</span>
       </button>
@@ -46,33 +45,34 @@
       <div class="flex flex-col items-center mt-4 space-y-8">
         <n-text class="mt-6 text-center">Don't have an account ?</n-text>
 
-        <n-button class="other-action" text @click="navigateTo('/signup')"> Sign Up </n-button>
+        <n-button class="other-action" text @click="navigateTo('/signup')">
+          Sign Up
+        </n-button>
       </div>
 
-      <n-alert class="mt-4" v-if="message" type="error">
-        {{ message }}
+      <n-alert class="mt-4" v-if="errorMessage" type="error">
+        {{ errorMessage }}
       </n-alert>
     </n-card>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { UserIcon } from "@heroicons/vue/24/outline";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/solid";
 import { useThemeStore } from "~/stores/theme";
+import { navigateTo } from "#app";
 
 definePageMeta({
   layout: "auth",
 });
 
-const themeStore = useThemeStore();
+const { login, loading, errorMessage } = useAuth();
 
-const supabase = useSupabaseClient();
+const themeStore = useThemeStore();
 
 const email = ref("");
 const password = ref("");
-const message = ref("");
-const loading = ref(false);
 const showPassword = ref(false);
 
 const currentLightThemeColor = computed(() =>
@@ -81,20 +81,14 @@ const currentLightThemeColor = computed(() =>
     : themeStore.getCurrentExtraLightThemeColor
 );
 
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
+const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
 
-async function login() {
-  loading.value = true;
+async function handleLogin() {
+  const success = await login(email.value, password.value);
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email: email.value,
-    password: password.value,
-  });
-
-  loading.value = false;
-
-  if (error) message.value = error.message;
-  else navigateTo("/");
+  if (success) {
+    navigateTo("/");
+  }
 }
 </script>
 
@@ -102,10 +96,10 @@ async function login() {
 .card {
   background-color: none;
   background: none;
-
+  border-style: none !important;
   display: flex;
-    flex-direction: column;
-    align-items: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 .field {
@@ -129,16 +123,13 @@ async function login() {
       --n-border-focus: transparent !important;
       --n-box-shadow-focus: transparent !important;
       box-shadow: none !important;
-      border: none !important; 
-
+      border: none !important;
 
       --n-caret-color: v-bind(currentThemeColor) !important;
 
       outline: none !important;
     }
   }
-
-  
 
   input {
     padding: 0.5rem 1.5rem;
@@ -150,7 +141,6 @@ async function login() {
     color: #555555;
     transition: padding 0.3s 0.2s ease;
     resize: none;
-    
   }
 
   // sibling magic ;o
@@ -183,9 +173,14 @@ async function login() {
   }
 }
 
-.other-action  {
+.other-action {
   font-weight: 700;
   color: v-bind(currentThemeColor);
-}
 
+  &:active,
+  &:hover,
+  &:focus-visible {
+    color: v-bind(currentLightThemeColor);
+  }
+}
 </style>

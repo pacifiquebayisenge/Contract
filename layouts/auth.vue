@@ -4,7 +4,7 @@
     class="auth-layout flex items-center justify-center p-6 relative overflow-hidden"
   >
     <!-- Animated Floating Card -->
-    <div ref="cardRef" class="auth-card ">
+    <div ref="cardRef" class="auth-card">
       <slot />
     </div>
   </div>
@@ -38,14 +38,8 @@ const backgroundStyle = computed(() => {
 
 const cardRef = ref(null);
 
-
 // ENTRY + SUBTLE FLOAT ANIMATION
 onMounted(() => {
-  theme.initializeTheme();
-
-
-  
-
   anime({
     targets: cardRef.value,
     opacity: [0, 1],
@@ -85,13 +79,7 @@ onMounted(() => {
 
   /* FIX: ensure ripple appears behind card */
   z-index: 0;
-
 }
-
-
-
-
-
 
 /* Mobile breakpoint */
 @media (max-width: 640px) {
@@ -99,8 +87,4 @@ onMounted(() => {
     max-width: 30rem;
   }
 }
-
-
 </style>
-
-

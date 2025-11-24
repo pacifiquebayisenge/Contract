@@ -1,18 +1,16 @@
 module.exports = {
-  parser: 'vue-eslint-parser',
+  parser: "vue-eslint-parser",
   parserOptions: {
-    parser: '@typescript-eslint/parser',
+    parser: "@typescript-eslint/parser",
     ecmaVersion: 2022,
-    sourceType: 'module',
+    sourceType: "module",
     ecmaFeatures: {
-      jsx: true
-    }
+      jsx: true,
+    },
   },
-  extends: [
-    '@nuxtjs/eslint-config-typescript'
-  ],
+  extends: ["@nuxtjs/eslint-config-typescript"],
   rules: {
     // Allow type imports
-    '@typescript-eslint/consistent-type-imports': 'off'
-  }
-}
+    "@typescript-eslint/consistent-type-imports": "off",
+  },
+};

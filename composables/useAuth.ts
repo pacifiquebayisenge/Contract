@@ -1,5 +1,6 @@
 import { ref } from "vue"
 import { useSupabaseClient, useSupabaseUser } from "#imports"
+import { navigateTo } from "#app"
 
 export function useAuth() {
   const supabase = useSupabaseClient()
@@ -19,6 +20,7 @@ export function useAuth() {
     })
 
     loading.value = false
+
     if (error) {
       errorMessage.value = error.message
       return false
@@ -38,6 +40,7 @@ export function useAuth() {
     })
 
     loading.value = false
+
     if (error) {
       errorMessage.value = error.message
       return false

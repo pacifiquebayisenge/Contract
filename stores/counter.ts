@@ -1,7 +1,7 @@
 // stores/count.ts
 import { defineStore } from "pinia";
 
-// Number of milliseconds in a day 
+// Number of milliseconds in a day
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
 // Helper function to calculate days passed since a given date string
@@ -26,15 +26,15 @@ export const useCountStore = defineStore("count", {
         seenCount: 0,
         streakCount: 0,
         creditCount: 0,
-        isSyncDay: false
+        isSyncDay: false,
+        ready: false
     }),
 
     getters: {
         getSeenCount: (state) => state.seenCount,
         getStreakCount: (state) => state.streakCount,
         // Getter returns a formatted string for creditCount
-        getCreditCount: (state) =>
-            formatCount(state.creditCount)
+        getCreditCount: (state) => formatCount(state.creditCount),
     },
 
     actions: {
@@ -83,7 +83,6 @@ export const useCountStore = defineStore("count", {
             }
 
             // Note: If daysPassed is 0 (it's the same day), no action is taken.
-
         },
         syncDayCheck() {
             if (!import.meta.client) return;
@@ -92,28 +91,24 @@ export const useCountStore = defineStore("count", {
 
             this.isSyncDay = daysPassed > 0;
 
-            this.syncToDB(this.isSyncDay)
-
-
+            this.syncToDB(this.isSyncDay);
         },
 
         syncToDB(isSyncDay: boolean) {
-
             if (!import.meta.client) return;
-            if (!isSyncDay) return
+            if (!isSyncDay) return;
 
             const savedSeenCount = parseInt(localStorage.getItem("seen-count") || "0");
             const savedStreakCount = parseInt(localStorage.getItem("streak-count") || "0");
             const savedCreditCount = parseInt(localStorage.getItem("credit-count") || "0");
 
             // http methods
-
         },
 
-        initializeCounts(): void {
+        init(): void {
             if (!import.meta.client) return;
 
-            // Load counts from local storage 
+            // Load counts from local storage
             const loadCount = (key: string) => parseInt(localStorage.getItem(key) || "0");
 
             this.setSeenCount(loadCount("seen-count"));
@@ -121,10 +116,9 @@ export const useCountStore = defineStore("count", {
             this.setCreditCount(loadCount("credit-count"));
 
             // IMPORTANT: daily credit check upon initialization
-            this.updateCreditCountDaily()
+            this.updateCreditCountDaily();
 
-            this.syncDayCheck()
-
+            this.syncDayCheck();
         },
     },
 });

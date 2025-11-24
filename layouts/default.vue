@@ -1,32 +1,32 @@
 <template>
   <NModalProvider>
-   <n-spin :show="authLoading.visible.value" size="large">
-    <div id="app-container" class="flex flex-col h-screen">
-      <div
-        class="sticky top-0 z-50 flex justify-center items-center py-2 bg-white rounded-t-3xl flex-shrink-0"
-        style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
-      >
-        <TopNavBar />
-      </div>
-
-      <!-- Scrollable page content only -->
-      <main class="flex-1 overflow-hidden bg-white">
-        <div class="h-full px-6 pt-[2rem] pb-18" style="padding-bottom: 15rem">
-          <slot />
+    <n-spin :show="authLoading.visible.value" size="large">
+      <div id="app-container" class="flex flex-col h-screen">
+        <div
+          class="sticky top-0 z-50 flex justify-center items-center py-2 bg-white rounded-t-3xl flex-shrink-0"
+          style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
+        >
+          <TopNavBar />
         </div>
-      </main>
 
-      <PWAUpdateDialog />
-      <PWAInstallPrompt />
+        <!-- Scrollable page content only -->
+        <main class="flex-1 overflow-hidden bg-white">
+          <div class="h-full px-6 pt-[2rem] pb-18" style="padding-bottom: 15rem">
+            <slot />
+          </div>
+        </main>
 
-      <div
-        class="fixed bottom-[40px] left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent"
-      >
-        <div class="pointer-events-auto">
-          <BottomMenuBar />
+        <PWAUpdateDialog />
+        <PWAInstallPrompt />
+
+        <div
+          class="fixed bottom-[40px] left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent"
+        >
+          <div class="pointer-events-auto">
+            <BottomMenuBar />
+          </div>
         </div>
       </div>
-    </div>
     </n-spin>
   </NModalProvider>
 </template>
@@ -38,8 +38,8 @@ import TopNavBar from "~/components/TopNavBar.vue";
 import PWAUpdateDialog from "~/components/PWAUpdateDialog.vue";
 import PWAInstallPrompt from "~/components/PWAInstallPrompt.vue";
 
-const nuxtApp = useNuxtApp()
-const authLoading = nuxtApp.$authLoading
+const nuxtApp = useNuxtApp();
+const authLoading = nuxtApp.$authLoading;
 
 useHead({
   meta: [

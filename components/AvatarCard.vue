@@ -1,5 +1,5 @@
 <template>
-  <div ref="card" class="shadow-md">
+  <div ref="card" class="shadow-md card">
     <n-card :style="{ borderRadius: '2rem !important' }">
       <div class="avatar-card-content" @click="showActions = !showActions">
         <div ref="avatar" class="avatar">
@@ -11,7 +11,7 @@
             <div ref="avatarImg" class="avatar-image">
               <n-image
                 width="50"
-                :src="title.charAt(0) === 'S' ? paciAvatar : jejeAvatar"
+                :src="fullName.charAt(0) === 'P' ? paciAvatar : jejeAvatar"
               />
             </div>
           </div>
@@ -19,9 +19,11 @@
 
         <div ref="content" class="content">
           <div class="title">
-            <span class="text-5xl">{{ title }}</span>
+            <span class="text-5xl">{{ pseudo }}</span>
           </div>
-          <div class="text">Card Content Y</div>
+          <div class="text">
+            {{ fullName }}
+          </div>
         </div>
       </div>
 
@@ -75,7 +77,7 @@
           </span>
         </template>
 
-        <ContractModal :name="title" />
+        <ContractModal :name="pseudo" />
       </n-card>
     </n-modal>
 
@@ -84,7 +86,7 @@
         <span style="font-weight: bold; display: flex; justify-content: center">
           Violation
         </span>
-        <ViolationModal :name="title" />
+        <ViolationModal :name="pseudo" />
       </n-card>
     </n-modal>
   </div>
@@ -97,12 +99,25 @@ import { useThemeStore } from "~/stores/theme";
 import { useCountStore } from "~/stores/counter";
 import { onMounted, ref, computed } from "vue";
 
-const { title } = defineProps({
-  title: { type: String, default: "Name" },
+const props = defineProps({
+  profile: {
+    type: Object,
+    default: () => ({}),
+  },
+  pseudo: {
+    type: String,
+    default: "No nickname ?",
+  },
 });
 
 const themeStore = useThemeStore();
 const countStore = useCountStore();
+
+const fullName = computed(() => {
+  const p = props.profile;
+  if (!p || !p.firstname || !p.lastname) return "Full name ?";
+  return p.firstname + " " + p.lastname;
+});
 
 const currentLightThemeColor = computed(() =>
   themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
@@ -206,6 +221,9 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.card {
+  cursor: pointer;
+}
 .avatar-container {
   width: 8rem;
   height: 8rem;

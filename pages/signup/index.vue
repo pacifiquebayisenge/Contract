@@ -13,15 +13,13 @@
           placeholder="Email"
         >
           <template #prefix>
-          
             <UserIcon class="w-5 h-5 text-gray-500" />
           </template>
         </n-input>
         <div class="line" />
       </div>
 
-
-        <div class="field mb-8">
+      <div class="field mb-8">
         <n-input
           v-model:value="password"
           :type="showPassword ? 'text' : 'password'"
@@ -39,44 +37,42 @@
         <div class="line" />
       </div>
 
-      <button class="button-3D button-3D-colorfull" blockblock @click="signup">
+      <button class="button-3D button-3D-colorfull" blockblock>
         <span v-if="loading">Loading...</span>
-        <span v-else>Create Account</span>
+        <span v-else>... Call Admin ...</span>
       </button>
-
-      
 
       <div class="flex flex-col items-center mt-4 space-y-8">
         <n-text class="mt-6 text-center">Already have an account ?</n-text>
 
-        <n-button class="other-action" text @click="navigateTo('/signin')">  Login </n-button>
+        <n-button class="other-action" text @click="navigateTo('/signin')">
+          Login
+        </n-button>
       </div>
 
-      <n-alert class="mt-4" v-if="message" type="info">
-        {{ message }}
+      <n-alert class="mt-4" v-if="errorMessage" type="info">
+        {{ errorMessage }}
       </n-alert>
     </n-card>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { UserIcon } from "@heroicons/vue/24/outline";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/solid";
+import { navigateTo } from "#app";
 import { useThemeStore } from "~/stores/theme";
 
 definePageMeta({
   layout: "auth",
 });
 
+const { signup, loading, errorMessage } = useAuth();
 
 const themeStore = useThemeStore();
 
-const supabase = useSupabaseClient();
-
 const email = ref("");
 const password = ref("");
-const message = ref("");
-const loading = ref(false);
 const showPassword = ref(false);
 
 const currentLightThemeColor = computed(() =>
@@ -85,20 +81,21 @@ const currentLightThemeColor = computed(() =>
     : themeStore.getCurrentExtraLightThemeColor
 );
 
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
+const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
 
-async function signup() {
-  loading.value = true;
+// eslint-disable-next-line no-unused-vars
+async function handleSignup() {
+  const success = await signup(email.value, password.value);
 
-  const { error } = await supabase.auth.signUp({
-    email: email.value,
-    password: password.value,
-  });
+  if (success) {
+    // You can choose what to do:
+    // 1. Redirect to login:
+    navigateTo("/signin");
 
-  loading.value = false;
-
-  if (error) message.value = error.message;
-  else message.value = "Account created! Check your email.";
+    // OR
+    // 2. Show a message on the same page:
+    // message.value = "Account created! Check your email.";
+  }
 }
 </script>
 
@@ -106,10 +103,10 @@ async function signup() {
 .card {
   background-color: none;
   background: none;
-
+  border-style: none !important;
   display: flex;
-    flex-direction: column;
-    align-items: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 .field {
@@ -133,16 +130,13 @@ async function signup() {
       --n-border-focus: transparent !important;
       --n-box-shadow-focus: transparent !important;
       box-shadow: none !important;
-      border: none !important; 
-
+      border: none !important;
 
       --n-caret-color: v-bind(currentThemeColor) !important;
 
       outline: none !important;
     }
   }
-
-  
 
   input {
     padding: 0.5rem 1.5rem;
@@ -154,7 +148,6 @@ async function signup() {
     color: #555555;
     transition: padding 0.3s 0.2s ease;
     resize: none;
-    
   }
 
   // sibling magic ;o
@@ -187,10 +180,14 @@ async function signup() {
   }
 }
 
-.other-action  {
+.other-action {
   font-weight: 700;
-   color: v-bind(currentThemeColor);
+  color: v-bind(currentThemeColor);
+
+  &:active,
+  &:hover,
+  &:focus-visible {
+    color: v-bind(currentLightThemeColor);
+  }
 }
-
-
 </style>

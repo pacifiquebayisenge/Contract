@@ -1,29 +1,23 @@
 <template>
   <div class="home-page-container invisible-scroll page-bottom-padding">
-    <AvatarCard title="Domme" />
-    <AvatarCard title="Sukkel" />
+    <AvatarCard :profile="userStore.profile" :pseudo="pseudoStore.myPseudo" />
+    <AvatarCard :profile="userStore.partnerProfile" :pseudo="pseudoStore.partnerPseudo" />
   </div>
 </template>
 
 <script setup>
 import AvatarCard from "~/components/AvatarCard.vue";
 import { useCountStore } from "~/stores/counter";
+import { useUserStore } from "~/stores/user";
+import { usePseudoStore } from "~/stores/pseudo";
 import { onMounted } from "vue";
 
-
-
-const user = useSupabaseUser()
-
-
 const countStore = useCountStore();
-
-
+const userStore = useUserStore();
+const pseudoStore = usePseudoStore();
 
 onMounted(async () => {
-  countStore.initializeCounts();
   countStore.updateSeenCount();
-console.log(user)
- 
 });
 </script>
 

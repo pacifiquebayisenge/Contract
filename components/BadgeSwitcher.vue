@@ -45,10 +45,6 @@ const themeStore = useThemeStore();
 const lightThemeActive = ref(false);
 const badgeRingActive = ref(false);
 
-onMounted(() => {
-  themeStore.initializeTheme();
-});
-
 const handleBadgeRing = (value: boolean) => {
   const badgeRingOption = value
     ? themeStore.badgeRingOptions[0]

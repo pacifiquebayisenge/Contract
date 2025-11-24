@@ -46,9 +46,6 @@ const handleTabChange = (tabName) => {
 };
 
 onMounted(() => {
-  // Initialize theme on component mount
-  themeStore.initializeTheme();
-
   // Set active tab based on current route
   const currentTab = tabs.value.find((tab) => tab.path === route.path);
   if (currentTab) {
