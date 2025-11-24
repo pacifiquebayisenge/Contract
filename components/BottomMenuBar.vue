@@ -26,7 +26,7 @@
     <!-- account drawer -->
     <n-drawer
       v-model:show="showAccount"
-      :height="400"
+      :height="450"
       placement="bottom"
       :auto-focus="false"
       :block-scroll="true"
