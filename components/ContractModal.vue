@@ -81,11 +81,11 @@ const updateStreak = async () => {
     return;
   }
 
-  if ((partner.streak ?? 0) < 3) {
-    await streakStore.updateStreak();
-  } else {
-    console.log("BLOCKED: streak >= 3");
-  }
+  // if ((partner.streak ?? 0) < 3) {
+  // } else {
+  // 	console.log("BLOCKED: streak >= 3");
+  // }
+  await streakStore.updateStreak();
   emit("close");
 };
 </script>
