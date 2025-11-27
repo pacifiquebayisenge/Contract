@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
 
   // get current user
   const user = await serverSupabaseUser(event)
-  const currentUserId = user?.id
+  const currentUserId = user?.sub
 
   if (!currentUserId) {
     throw createError({
