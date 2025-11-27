@@ -52,7 +52,7 @@ export default defineNuxtConfig({
     },
   },
 
-  css: ['assets/main.scss', 'assets/css/tailwind.css'],
+  css: ['assets/main.scss', 'assets/css/tailwind.css', 'assets/css/pwa-standalone.css'],
 
   ssr: false,
   dirs: ['utils'],
@@ -80,8 +80,21 @@ export default defineNuxtConfig({
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'Ugovor' },
         { name: 'theme-color', content: '#ffffff' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1.0, viewport-fit=cover' },
+        {
+          name: 'viewport',
+          content:
+            'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover',
+        },
+        { name: 'format-detection', content: 'telephone=no' },
       ],
+    },
+  },
+
+  // Force SPA mode for better PWA behavior
+  router: {
+    options: {
+      hashMode: false,
+      scrollBehaviorType: 'smooth',
     },
   },
 
@@ -110,14 +123,20 @@ export default defineNuxtConfig({
     },
 
     workbox: {
-      navigateFallback: undefined, // Changed from '/' to undefined
-      navigateFallbackDenylist: [/^\/_/, /\/api\//], // Exclude API and Nuxt internal routes
+      navigateFallback: '/index.html',
+      navigateFallbackDenylist: [
+        /^\/_/,
+        /\/api\//,
+        /\.(?:png|jpg|jpeg|svg|gif|webp|ico|woff|woff2|ttf|eot|otf)$/,
+      ],
       importScripts: ['/sw-push.js'],
       globPatterns: ['**/*.{js,css,html,png,svg,ico,json,woff2,woff,ttf,eot}'],
       globIgnores: ['**/sw-push.js'],
       cleanupOutdatedCaches: true,
       clientsClaim: true,
       skipWaiting: true,
+      // Add these to handle SPA navigation better
+      navigationPreload: true,
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -162,10 +181,10 @@ export default defineNuxtConfig({
       theme_color: '#ffffff',
       background_color: '#ffffff',
       display: 'standalone',
-      display_override: ['standalone', 'fullscreen'], // Prefer standalone mode
-      start_url: '/',
-      scope: '/',
-      id: '/',
+      display_override: ['standalone', 'fullscreen'],
+      start_url: '/?standalone=true', // Add query param to track PWA launches
+      scope: '/', // This must include ALL your routes
+      id: '/?standalone=true',
       orientation: 'portrait-primary',
       categories: ['business', 'productivity'],
       icons: [
