@@ -162,6 +162,7 @@ export default defineNuxtConfig({
       description: 'Contract management application',
       theme_color: '#ffffff',
       background_color: '#ffffff',
+      display_override: ['standalone', 'minimal-ui', 'browser'],
       display: 'standalone',
       start_url: '/',
       scope: '/',
