@@ -30,10 +30,8 @@ export default defineEventHandler(async (event) => {
   )
 
   // Fetch subscriptions for *everyone except me*
-  const { data: subs, error } = await client
-    .from('push_subscriptions')
-    .select('*')
-    .neq('user_id', currentUserId)
+  const { data: subs, error } = await client.from('push_subscriptions').select('*')
+  // .neq('user_id', currentUserId)
 
   if (error) {
     console.error('Error loading subscriptions:', error)
