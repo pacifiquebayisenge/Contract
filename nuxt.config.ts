@@ -52,7 +52,7 @@ export default defineNuxtConfig({
     },
   },
 
-  css: ['assets/main.scss', 'assets/css/tailwind.css'],
+  css: ['assets/main.scss', 'assets/css/tailwind.css', 'assets/css/pwa-standalone.css'],
 
   ssr: false,
   dirs: ['utils'],
@@ -77,9 +77,10 @@ export default defineNuxtConfig({
         },
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
-        { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'Ugovor' },
         { name: 'theme-color', content: '#ffffff' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1.0, viewport-fit=cover' },
       ],
     },
   },
@@ -161,6 +162,7 @@ export default defineNuxtConfig({
       theme_color: '#ffffff',
       background_color: '#ffffff',
       display: 'standalone',
+      display_override: ['standalone', 'fullscreen'], // Prefer standalone mode
       start_url: '/',
       scope: '/',
       id: '/',
