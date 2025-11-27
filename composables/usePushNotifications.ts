@@ -7,18 +7,32 @@ export function usePushNotifications() {
   const permission = ref<NotificationPermission>('default') // browser permission
   const notificationsEnabled = ref<boolean>(false) // user setting
   const loading = ref(false)
+  const isSupported = ref(false)
+
+  // Check if notifications are supported
+  if (import.meta.client && typeof window !== 'undefined') {
+    isSupported.value = 'Notification' in window && 'serviceWorker' in navigator
+  }
 
   // Load browser permission + user setting
   const loadStoredPermission = () => {
-    if (!import.meta.client) return
-    const stored = localStorage.getItem(STORAGE_KEY_PERMISSION) as NotificationPermission | null
-    permission.value = stored || Notification.permission
+    if (!import.meta.client || !isSupported.value) return
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_PERMISSION) as NotificationPermission | null
+      permission.value = stored || Notification.permission
+    } catch (error) {
+      console.error('Error loading stored permission:', error)
+    }
   }
 
   const loadStoredEnabled = () => {
     if (!import.meta.client) return
-    const stored = localStorage.getItem(STORAGE_KEY_ENABLED)
-    notificationsEnabled.value = stored === 'true'
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_ENABLED)
+      notificationsEnabled.value = stored === 'true'
+    } catch (error) {
+      console.error('Error loading stored enabled:', error)
+    }
   }
 
   const saveEnabled = (enabled: boolean) => {
@@ -36,6 +50,11 @@ export function usePushNotifications() {
   // Request browser permission ONLY when user toggles ON
   const requestPermission = async () => {
     if (!import.meta.client) return 'default'
+
+    if (!isSupported.value) {
+      console.warn('⚠️ Notifications not supported in this browser/mode')
+      return 'denied'
+    }
 
     loading.value = true
 
@@ -188,6 +207,7 @@ export function usePushNotifications() {
     permission,
     notificationsEnabled,
     loading,
+    isSupported,
 
     // load/save
     loadStoredPermission,

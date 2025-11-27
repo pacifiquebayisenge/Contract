@@ -3,31 +3,40 @@ import { nextTick } from 'vue'
 export default defineNuxtPlugin(() => {
   if (!import.meta.client) return
 
-  // Use onNuxtReady for proper initialization timing
   const nuxtApp = useNuxtApp()
 
   nuxtApp.hook('app:mounted', async () => {
     console.log('🌍 App fully mounted — push system activating')
 
-    // --- SAFARI DETECTION & BLOCK ---
-    if (!('Notification' in window)) {
-      console.log('📵 Notifications NOT supported in this browser (iPhone Safari tab).')
+    // --- CHECK IF NOTIFICATIONS API EXISTS ---
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      console.log('📵 Notifications API not available in this browser/mode.')
       return
     }
 
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
-
-    if (isSafari) {
-      const isPWA = window.matchMedia('(display-mode: standalone)').matches
-      if (!isPWA) {
-        console.log('📵 Safari detected — push only works in PWA (Add to Home Screen).')
-        return
-      }
-    }
-
+    // --- CHECK IF SERVICE WORKER IS SUPPORTED ---
     if (!('serviceWorker' in navigator)) {
       console.log('❌ No service worker support')
       return
+    }
+
+    // --- iOS SAFARI BROWSER CHECK (not PWA) ---
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    const isIOSSafari = isIOS && !isStandalone
+
+    if (isIOSSafari) {
+      console.log('📵 iOS Safari browser detected. Push notifications only work in installed PWA.')
+      console.log('💡 Please "Add to Home Screen" to enable notifications.')
+      return
+    }
+
+    // --- ANDROID/DESKTOP BROWSER CHECK ---
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+
+    if (isSafari && !isStandalone) {
+      console.log('📵 Safari browser detected — push notifications work best in PWA mode.')
+      // Continue anyway on desktop Safari
     }
 
     const config = useRuntimeConfig()
@@ -36,22 +45,16 @@ export default defineNuxtPlugin(() => {
     await nextTick()
     console.log('👤 Supabase user:', user.value)
 
-    // If permission already granted → register SW and subscribe
+    // Try to sync any pending subscriptions first
+    const { syncPendingSubscription } = usePushNotifications()
+    await syncPendingSubscription()
+
+    // If permission already granted → register SW
     if (Notification.permission === 'granted') {
-      console.log('🔔 Permission already granted — setting up push subscription')
+      console.log('🔔 Permission already granted — setting up subscription')
       await setupPushSubscription(config)
     } else {
       console.log('🔕 Permission NOT granted — waiting for user toggle')
-    }
-
-    // Listen for messages from service worker
-    if (navigator.serviceWorker.controller) {
-      navigator.serviceWorker.addEventListener('message', (event) => {
-        if (event.data?.type === 'NOTIFICATION_CLICK') {
-          console.log('📬 Notification clicked in foreground:', event.data)
-          // Handle notification click if needed
-        }
-      })
     }
   })
 })
@@ -60,37 +63,44 @@ async function setupPushSubscription(config: any) {
   try {
     console.log('🔧 Setting up push subscription…')
 
-    // Wait for service worker to be ready (Workbox-generated SW)
-    const registration = await navigator.serviceWorker.ready
-    console.log('✅ Service Worker ready:', registration)
+    // Wait for service worker to be ready (auto-registered by @vite-pwa/nuxt)
+    // The PWA module handles registration automatically
+    if (!navigator.serviceWorker.controller) {
+      console.log('⏳ Waiting for service worker controller...')
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+    }
 
-    // Check if we already have a subscription
+    const registration = await navigator.serviceWorker.ready
+    console.log('✅ Service worker ready:', registration.scope)
+
     let subscription = await registration.pushManager.getSubscription()
 
-    if (subscription) {
-      console.log('📱 Existing subscription found:', subscription.endpoint)
-    } else {
-      console.log('🆕 Creating new push subscription…')
-
-      // Subscribe to push notifications
+    if (!subscription) {
       subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(config.public.publicVapid),
       })
-
-      console.log('✅ New subscription created:', subscription.endpoint)
     }
 
-    // Save subscription to backend
     console.log('⬆ Saving subscription to backend')
-    await $fetch('/api/save-subscription', {
-      method: 'POST',
-      body: subscription.toJSON(),
-    })
 
-    console.log('✅ Subscription saved successfully')
+    try {
+      await $fetch('/api/save-subscription', {
+        method: 'POST',
+        body: subscription.toJSON(),
+      })
+      console.log('✅ Subscription saved successfully')
+    } catch (error: any) {
+      console.error('❌ Failed to save subscription:', error)
+
+      // If API is not available (static build), store for later
+      if (error.status === 404 || error.statusCode === 404) {
+        console.warn('⚠️ API not available. Use "pnpm build && pnpm start" for full functionality')
+        localStorage.setItem('pending-push-subscription', JSON.stringify(subscription.toJSON()))
+      }
+    }
   } catch (error) {
-    console.error('❌ Error setting up push subscription:', error)
+    console.error('❌ Error in setupPushSubscription:', error)
   }
 }
 
@@ -103,70 +113,4 @@ function urlBase64ToUint8Array(base64String: string) {
     outputArray[i] = rawData.charCodeAt(i)
   }
   return outputArray
-}
-
-// Export helper functions for manual subscription management
-export const usePushNotifications = () => {
-  const config = useRuntimeConfig()
-
-  return {
-    async requestPermission() {
-      const permission = await Notification.requestPermission()
-
-      if (permission === 'granted') {
-        console.log('🎉 Notification permission granted')
-        await setupPushSubscription(config)
-        return true
-      } else {
-        console.log('❌ Notification permission denied')
-        return false
-      }
-    },
-
-    async unsubscribe() {
-      try {
-        const registration = await navigator.serviceWorker.ready
-        const subscription = await registration.pushManager.getSubscription()
-
-        if (subscription) {
-          await subscription.unsubscribe()
-
-          // Remove from backend
-          await $fetch('/api/remove-subscription', {
-            method: 'POST',
-            body: { endpoint: subscription.endpoint },
-          })
-
-          console.log('🔕 Unsubscribed from push notifications')
-          return true
-        }
-
-        return false
-      } catch (error) {
-        console.error('❌ Error unsubscribing:', error)
-        return false
-      }
-    },
-
-    async getSubscription() {
-      try {
-        const registration = await navigator.serviceWorker.ready
-        return await registration.pushManager.getSubscription()
-      } catch (error) {
-        console.error('❌ Error getting subscription:', error)
-        return null
-      }
-    },
-
-    async resubscribe() {
-      try {
-        await this.unsubscribe()
-        await setupPushSubscription(config)
-        return true
-      } catch (error) {
-        console.error('❌ Error resubscribing:', error)
-        return false
-      }
-    },
-  }
 }

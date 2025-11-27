@@ -142,6 +142,7 @@ const {
   permission,
   notificationsEnabled,
   loading,
+  isSupported,
   loadStoredPermission,
   loadStoredEnabled,
   saveEnabled,
@@ -157,6 +158,14 @@ const showAccount = ref(false);
 const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
 
 const statusText = computed(() => {
+  if (!isSupported.value) {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
+    if (isIOS && !isStandalone) {
+      return "⚠️ iOS: Please install app (Add to Home Screen) to enable notifications";
+    }
+    return "⚠️ Notifications not supported in this browser";
+  }
   if (loading.value) return "Processing...";
   if (!notificationsEnabled.value) return "Notifications are disabled";
   if (permission.value === "denied")
@@ -178,6 +187,13 @@ onMounted(() => {
 
 const toggleNotifications = async (val: boolean) => {
   console.log(`🔄 Toggle notifications: ${val}`);
+
+  // Check if notifications are supported
+  if (!isSupported.value) {
+    console.warn("⚠️ Notifications not supported");
+    notificationsEnabled.value = false;
+    return;
+  }
 
   saveEnabled(val); // Always save user preference
 

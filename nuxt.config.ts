@@ -109,7 +109,8 @@ export default defineNuxtConfig({
     },
 
     workbox: {
-      navigateFallback: '/',
+      navigateFallback: undefined, // Changed from '/' to undefined
+      navigateFallbackDenylist: [/^\/_/, /\/api\//], // Exclude API and Nuxt internal routes
       importScripts: ['/sw-push.js'],
       globPatterns: ['**/*.{js,css,html,png,svg,ico,json,woff2,woff,ttf,eot}'],
       globIgnores: ['**/sw-push.js'],
