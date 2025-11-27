@@ -100,6 +100,9 @@ export default defineNuxtConfig({
     navigateFallback: null, // IMPORTANT: do not serve cached fallback for auth routes
     navigateFallbackDenylist: [/\/auth\//, /supabase/],
 
+    srcDir: 'public',
+    filename: 'sw.js',
+
     devOptions: {
       enabled: false,
       type: 'module',
@@ -110,7 +113,7 @@ export default defineNuxtConfig({
     },
 
     workbox: {
-      navigateFallback: '/index.html',
+      navigateFallback: '/',
       importScripts: ['custom-sw.js'],
       globPatterns: ['**/*.{js,css,html,png,svg,ico,json,woff2,woff,ttf,eot}'],
       cleanupOutdatedCaches: true,
