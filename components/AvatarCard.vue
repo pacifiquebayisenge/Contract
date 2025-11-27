@@ -27,7 +27,7 @@
         </div>
       </div>
 
-      <n-collapse-transition :show="showActions">
+      <n-collapse-transition v-if="isPartner" :show="showActions">
         <div class="avatar-card-content-actions pl-40">
           <div class="content">
             <div class="title">
@@ -55,15 +55,19 @@
         <div class="flex gap-x-4 border-t border-gray-200 pt-2 footer">
           <div class="flex gap-x-1 justify-center items-center">
             <NIcon class="text-base opacity-55" :size="14" :component="EyeIcon" />
-            <span class="text-base opacity-55">{{ countStore.getSeenCount }}</span>
+            <span class="text-base opacity-55">{{
+              formatCountToMs(profile?.seen || 0)
+            }}</span>
           </div>
           <div class="flex gap-x-1 justify-center items-center">
             <NIcon class="text-base opacity-55" :size="14" :component="FireIcon" />
-            <span class="text-base opacity-55">{{ countStore.getStreakCount }}</span>
+            <span class="text-base opacity-55">{{ profile?.streak || 0 }}</span>
           </div>
           <div class="flex gap-x-1 justify-center items-center">
             <NIcon class="text-base opacity-55" :size="14" :component="BanknotesIcon" />
-            <span class="text-base opacity-55">{{ countStore.getCreditCount }}</span>
+            <span class="text-base opacity-55">{{
+              formatCountToMs(profile?.credit) || 0
+            }}</span>
           </div>
         </div>
       </template>
@@ -77,7 +81,7 @@
           </span>
         </template>
 
-        <ContractModal :name="pseudo" />
+        <ContractModal :name="pseudo" @close="showContractDialog = false" />
       </n-card>
     </n-modal>
 
@@ -93,11 +97,15 @@
 </template>
 
 <script setup lang="ts">
-import { EyeIcon, FireIcon, BanknotesIcon } from "@heroicons/vue/24/outline";
-import ContractModal from "./ContractModal.vue";
+import { computed, onMounted, ref } from "vue";
+import { BanknotesIcon, EyeIcon, FireIcon } from "@heroicons/vue/24/outline";
 import { useThemeStore } from "~/stores/theme";
-import { useCountStore } from "~/stores/counter";
-import { onMounted, ref, computed } from "vue";
+// import { useSeenStore } from "~/stores/seen";
+// import { useStreakStore } from "~/stores/streak";
+// import { useCreditStore } from "~/stores/credit";
+import { useUserStore } from "~/stores/user";
+import { formatCountToMs } from "~/utils/formatCountToMs";
+import ContractModal from "./ContractModal.vue";
 
 const props = defineProps({
   profile: {
@@ -110,13 +118,24 @@ const props = defineProps({
   },
 });
 
+// const { user } = useAuth();
+
 const themeStore = useThemeStore();
-const countStore = useCountStore();
+const userStore = useUserStore();
+// const streakStore = useStreakStore();
+// const creditStore = useCreditStore();
 
 const fullName = computed(() => {
   const p = props.profile;
   if (!p || !p.firstname || !p.lastname) return "Full name ?";
   return p.firstname + " " + p.lastname;
+});
+
+const isPartner = computed(() => {
+  const profileId = props.profile?.id;
+  const partnerId = userStore.partnerProfile?.id;
+
+  return profileId != null && partnerId != null && profileId === partnerId;
 });
 
 const currentLightThemeColor = computed(() =>
@@ -224,6 +243,7 @@ onMounted(() => {
 .card {
   cursor: pointer;
 }
+
 .avatar-container {
   width: 8rem;
   height: 8rem;
@@ -238,6 +258,7 @@ onMounted(() => {
     outline: 2px solid rgba(0, 0, 0, 0.1);
     outline-offset: 3px;
   }
+
   &.inside-ring {
     outline: 2px solid rgba(0, 0, 0, 0.1);
     outline-offset: -5px;
@@ -264,13 +285,16 @@ onMounted(() => {
 .avatar-card-content-actions {
   width: 100%;
   justify-content: center;
+
   .content {
     .title {
       display: flex;
       justify-content: center;
     }
+
     width: 100%;
     max-width: 30rem;
+
     .action-buttons {
       display: flex;
       flex-direction: column;

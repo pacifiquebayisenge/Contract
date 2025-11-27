@@ -1,72 +1,67 @@
-import { defineStore } from "pinia";
-import type { Database } from "~/types/supabase.types";
+import { defineStore } from 'pinia'
+import type { Database } from '~/types/supabase.types'
 
-type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
+type ProfileRow = Database['public']['Tables']['profiles']['Row']
 
-export const useUserStore = defineStore("userStore", {
-    state: () => ({
-        userId: null as string | null,
-        profile: null as ProfileRow | null,
-        partnerProfile: null as ProfileRow | null,
+export const useUserStore = defineStore('user', {
+	state: () => ({
+		userId: null as string | null,
+		profile: null as ProfileRow | null,
+		partnerProfile: null as ProfileRow | null,
 
-        ready: false
-    }),
+		ready: false,
+	}),
 
-    actions: {
-        async init() {
-            const supabase = useSupabaseClient<Database>();
-            const authUser = useSupabaseUser();
+	actions: {
+		async init() {
+			const supabase = useSupabaseClient<Database>()
+			const authUser = useSupabaseUser()
 
-            if (!authUser.value) return;
+			if (!authUser.value) return
 
-            // YOUR ID
-            this.userId = authUser.value.sub;
+			// YOUR ID
+			this.userId = authUser.value.sub
 
-            // Load your profile
-            const { data: myProfile } = await supabase
-                .from("profiles")
-                .select("*")
-                .eq("id", this.userId)
-                .single();
+			// Load your profile
+			const { data: myProfile } = await supabase
+				.from('profiles')
+				.select('*')
+				.eq('id', this.userId)
+				.single()
 
-            if (myProfile) {
-                this.profile = myProfile;
-            }
+			if (myProfile) {
+				this.profile = myProfile
+			}
 
-            // Load both profiles (2 total)
-            const { data: profiles } = await supabase
-                .from("profiles")
-                .select("*");
+			// Load both profiles (2 total)
+			const { data: profiles } = await supabase.from('profiles').select('*')
 
-            if (!profiles) return;
+			if (!profiles) return
 
-            // Find your partner
-            this.partnerProfile = profiles.find(p => p.id !== this.userId) ?? null;
+			// Find your partner
+			this.partnerProfile = profiles.find((p) => p.id !== this.userId) ?? null
 
+			this.ready = true
+		},
 
+		async updateProfile(firstname: string, lastname: string) {
+			if (!this.userId) return
 
-            this.ready = true;
-        },
+			const supabase = useSupabaseClient<Database>()
 
-        async updateProfile(firstname: string, lastname: string) {
-            console.log(firstname)
-            if (!this.userId) return;
+			const { data, error } = await supabase
+				.from('profiles')
+				.update({
+					firstname,
+					lastname,
+				})
+				.eq('id', this.userId)
+				.select('*')
+				.single()
 
-            const supabase = useSupabaseClient<Database>();
-
-            const { data, error } = await supabase
-                .from("profiles")
-                .update({
-                    firstname,
-                    lastname
-                })
-                .eq("id", this.userId)
-                .select("*")
-                .single();
-
-            if (!error && data) {
-                this.profile = data; // update local state
-            }
-        }
-    }
-});
+			if (!error && data) {
+				this.profile = data // update local state
+			}
+		},
+	},
+})

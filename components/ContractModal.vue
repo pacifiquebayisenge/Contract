@@ -35,7 +35,7 @@
     </div>
     <span>Did {{ name }} use <span class="special">contract </span> again ???</span>
 
-    <button class="button-3D button-3D-colorfull-warning" @click="test()">
+    <button class="button-3D button-3D-colorfull-warning" @click="updateStreak()">
       Unbelievable !
     </button>
   </div>
@@ -43,6 +43,8 @@
 
 <script setup>
 import { useThemeStore } from "~/stores/theme";
+import { useUserStore } from "~/stores/user";
+import { useStreakStore } from "~/stores/streak";
 
 const { name } = defineProps({
   name: {
@@ -51,7 +53,11 @@ const { name } = defineProps({
   },
 });
 
+const emit = defineEmits(["close"]);
+
 const themeStore = useThemeStore();
+const userStore = useUserStore();
+const streakStore = useStreakStore();
 
 // Computed property for dynamic theme color
 const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
@@ -66,6 +72,22 @@ const currentLightThemeColor = computed(() =>
 const insideBadgeRing = computed(
   () => themeStore.currentBadgeRingOption === themeStore.badgeRingOptions[0]
 );
+
+const updateStreak = async () => {
+  const partner = userStore.partnerProfile;
+
+  if (!partner) {
+    console.warn("Partner profile not loaded yet");
+    return;
+  }
+
+  if ((partner.streak ?? 0) < 3) {
+    await streakStore.updateStreak();
+  } else {
+    console.log("BLOCKED: streak >= 3");
+  }
+  emit("close");
+};
 </script>
 
 <style lang="scss" scoped>

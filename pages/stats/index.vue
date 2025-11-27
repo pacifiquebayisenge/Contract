@@ -1,155 +1,151 @@
 <template>
-  <div class="stats-page-container">
-    <div class="content">
-      <div class="avatar-container py-8">
-        <!-- Left mirrored avatar -->
-        <div class="avatar-image mirror">
-          <n-image
-            style="transform: rotate(5deg) scaleX(-1)"
-            width="80"
-            src="/memojis/jeje/thinking.png"
-          />
-        </div>
+	<div class="stats-page-container">
+		<div class="content">
+			<div class="avatar-container py-8">
+				<!-- Left mirrored avatar -->
+				<div class="avatar-image mirror">
+					<n-image
+						style="transform: rotate(5deg) scaleX(-1)"
+						width="80"
+						src="/memojis/jeje/thinking.png"
+					/>
+				</div>
 
-        <!-- Right avatar -->
-        <div class="avatar-image">
-          <n-image
-            style="transform: rotate(3deg)"
-            width="81"
-            src="/memojis/paci/thinking.png"
-          />
-        </div>
+				<!-- Right avatar -->
+				<div class="avatar-image">
+					<n-image style="transform: rotate(3deg)" width="81" src="/memojis/paci/thinking.png" />
+				</div>
 
-        <!-- Shadows (anchored to floor) -->
-        <div class="avatar-shadow left"></div>
-        <div class="avatar-shadow right"></div>
-      </div>
+				<!-- Shadows (anchored to floor) -->
+				<div class="avatar-shadow left"></div>
+				<div class="avatar-shadow right"></div>
+			</div>
 
-      <p class="title">Please wait ...</p>
-      <p class="comm">Not enough <strong class="special"> data </strong> yet</p>
-    </div>
-  </div>
+			<p class="title">Please wait ...</p>
+			<p class="comm">Not enough <strong class="special"> data </strong> yet</p>
+		</div>
+	</div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { useThemeStore } from "~/stores/theme";
+import { computed } from 'vue'
+import { useThemeStore } from '~/stores/theme'
 
-const themeStore = useThemeStore();
+const themeStore = useThemeStore()
 
 const currentLightThemeColor = computed(() =>
-  themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
-    ? themeStore.getCurrentLightThemeColor
-    : themeStore.getCurrentExtraLightThemeColor
-);
+	themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
+		? themeStore.getCurrentLightThemeColor
+		: themeStore.getCurrentExtraLightThemeColor
+)
 
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
+const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
 </script>
 
 <style lang="scss" scoped>
 .stats-page-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  padding-bottom: 25rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	padding-bottom: 25rem;
 
-  .avatar-container {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    gap: 3rem;
+	.avatar-container {
+		position: relative;
+		display: flex;
+		justify-content: center;
+		gap: 3rem;
 
-    /* Floor surface */
-    &::before {
-      content: "";
-      position: absolute;
-      bottom: -4rem;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 132%;
-      height: 4rem;
-      background: v-bind(currentLightThemeColor);
-      border-radius: 50%;
-      filter: blur(0.4rem);
-      opacity: 0.6;
-    }
+		/* Floor surface */
+		&::before {
+			content: '';
+			position: absolute;
+			bottom: -4rem;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 132%;
+			height: 4rem;
+			background: v-bind(currentLightThemeColor);
+			border-radius: 50%;
+			filter: blur(0.4rem);
+			opacity: 0.6;
+		}
 
-    /* Floating avatars */
-    .avatar-image {
-      position: relative;
-      z-index: 2;
-      animation: float 3.5s ease-in-out infinite;
+		/* Floating avatars */
+		.avatar-image {
+			position: relative;
+			z-index: 2;
+			animation: float 3.5s ease-in-out infinite;
 
-      img {
-        display: block;
-      }
+			img {
+				display: block;
+			}
 
-      &.mirror img {
-        transform: scaleX(-1);
-      }
-    }
+			&.mirror img {
+				transform: scaleX(-1);
+			}
+		}
 
-    /* Shadows (fixed on floor, not floating) */
-    .avatar-shadow {
-      position: absolute;
-      bottom: -2.5rem;
-      width: 7rem;
-      height: 1.2rem;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 50%;
-      filter: blur(0.4rem);
-      animation: shadow 3.5s ease-in-out infinite;
+		/* Shadows (fixed on floor, not floating) */
+		.avatar-shadow {
+			position: absolute;
+			bottom: -2.5rem;
+			width: 7rem;
+			height: 1.2rem;
+			background: rgba(0, 0, 0, 0.3);
+			border-radius: 50%;
+			filter: blur(0.4rem);
+			animation: shadow 3.5s ease-in-out infinite;
 
-      &.left {
-        left: calc(50% - 9rem);
-      }
+			&.left {
+				left: calc(50% - 9rem);
+			}
 
-      &.right {
-        left: calc(50% + 2rem);
-      }
-    }
-  }
+			&.right {
+				left: calc(50% + 2rem);
+			}
+		}
+	}
 
-  .title {
-    text-align: center;
-    margin-top: 5rem;
-    font-size: 2rem;
-    font-weight: 600;
-  }
+	.title {
+		text-align: center;
+		margin-top: 5rem;
+		font-size: 2rem;
+		font-weight: 600;
+	}
 
-  .comm {
-    text-align: center;
-    font-weight: 500;
-    margin-top: 1rem;
+	.comm {
+		text-align: center;
+		font-weight: 500;
+		margin-top: 1rem;
 
-    .special {
-      color: v-bind(currentThemeColor);
-    }
-  }
+		.special {
+			color: v-bind(currentThemeColor);
+		}
+	}
 }
 
 /* Floating bounce */
 @keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-1rem);
-  }
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-1rem);
+	}
 }
 
 /* Shadow breathing (inverse of float — grows when avatar comes down) */
 @keyframes shadow {
-  0%,
-  100% {
-    transform: scale(1.2);
-    opacity: 0.75;
-  }
-  50% {
-    transform: scale(0.9);
-    opacity: 0.45;
-  }
+	0%,
+	100% {
+		transform: scale(1.2);
+		opacity: 0.75;
+	}
+	50% {
+		transform: scale(0.9);
+		opacity: 0.45;
+	}
 }
 </style>

@@ -1,164 +1,164 @@
 <template>
-  <div class="new-contract-item-model">
-    <span> Ah ! A new <span class="special">contract rule !!</span> </span>
+	<div class="new-contract-item-model">
+		<span> Ah ! A new <span class="special">contract rule !!</span> </span>
 
-    <div class="field">
-      <input
-        v-model="title"
-        type="text"
-        placeholder="Contract rule..."
-        class="bg-[#0000000a] rounded-[1rem]"
-      />
-      <div class="line" />
-    </div>
+		<div class="field">
+			<input
+				v-model="title"
+				type="text"
+				placeholder="Contract rule..."
+				class="bg-[#0000000a] rounded-[1rem]"
+			/>
+			<div class="line" />
+		</div>
 
-    <div class="field w-[100%] max-w-[85rem]">
-      <textarea
-        v-model="description"
-        placeholder="Description of the rule"
-        class="h-[15rem] bg-[#0000000a] rounded-[1rem] w-[100%] max-w-[85rem]"
-      />
-      <div class="line" />
-    </div>
+		<div class="field w-[100%] max-w-[85rem]">
+			<textarea
+				v-model="description"
+				placeholder="Description of the rule"
+				class="h-[15rem] bg-[#0000000a] rounded-[1rem] w-[100%] max-w-[85rem]"
+			/>
+			<div class="line" />
+		</div>
 
-    <button
-      class="button-3D button-3D-colorfull"
-      @click="$emit('update:modelValue', { id: item.id, title, description })"
-    >
-      <span>Submit</span>
-    </button>
-  </div>
+		<button
+			class="button-3D button-3D-colorfull"
+			@click="$emit('update:modelValue', { id: item.id, title, description })"
+		>
+			<span>Submit</span>
+		</button>
+	</div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted, computed } from "vue";
-import { useThemeStore } from "~/stores/theme";
+import { computed, onMounted, ref, watch } from 'vue'
+import { useThemeStore } from '~/stores/theme'
 
 const props = defineProps({
-  modelValue: {
-    type: Object,
-    default: () => ({
-      id: "",
-      title: "",
-      description: "",
-    }),
-  },
-  index: {
-    type: Number,
-    default: 0,
-  },
-  item: {
-    type: Object,
-    default: () => ({
-      id: "",
-      title: "",
-      description: "",
-    }),
-  },
-});
+	modelValue: {
+		type: Object,
+		default: () => ({
+			id: '',
+			title: '',
+			description: '',
+		}),
+	},
+	index: {
+		type: Number,
+		default: 0,
+	},
+	item: {
+		type: Object,
+		default: () => ({
+			id: '',
+			title: '',
+			description: '',
+		}),
+	},
+})
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(['update:modelValue'])
 
-const { item } = props;
+const { item } = props
 
 // local reactive copies
-const title = ref("");
-const description = ref("");
+const title = ref('')
+const description = ref('')
 
 // 1️⃣ populate on launch
 onMounted(() => {
-  title.value = item.title || "";
-  description.value = item.description || "";
+	title.value = item.title || ''
+	description.value = item.description || ''
 
-  // also initialize modelValue immediately
-  emit("update:modelValue", { ...item });
-});
+	// also initialize modelValue immediately
+	emit('update:modelValue', { ...item })
+})
 
 // 2️⃣ sync back to parent automatically
 watch([title, description], ([newTitle, newDescription]) => {
-  emit("update:modelValue", {
-    id: item.id,
-    title: newTitle,
-    description: newDescription,
-  });
-});
+	emit('update:modelValue', {
+		id: item.id,
+		title: newTitle,
+		description: newDescription,
+	})
+})
 
-const themeStore = useThemeStore();
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
+const themeStore = useThemeStore()
+const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
 const currentLightThemeColor = computed(() =>
-  themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
-    ? themeStore.getCurrentLightThemeColor
-    : themeStore.getCurrentExtraLightThemeColor
-);
+	themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
+		? themeStore.getCurrentLightThemeColor
+		: themeStore.getCurrentExtraLightThemeColor
+)
 </script>
 
 <style lang="scss" scoped>
 .new-contract-item-model {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 3rem;
 
-  & > span {
-    text-align: center;
-  }
+	& > span {
+		text-align: center;
+	}
 
-  span {
-    font-size: 1.6rem;
-    font-weight: 500;
+	span {
+		font-size: 1.6rem;
+		font-weight: 500;
 
-    .special {
-      color: v-bind(currentThemeColor);
-      font-weight: 700;
-    }
-  }
+		.special {
+			color: v-bind(currentThemeColor);
+			font-weight: 700;
+		}
+	}
 
-  input,
-  textarea {
-    padding: 0.5rem 1.5rem;
-    border-radius: 1rem;
-    border: none;
-    outline: none;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #555555;
-    transition: padding 0.3s 0.2s ease;
-    resize: none;
-    // sibling magic ;o
-    &:focus + .line {
-      &:after {
-        transform: scaleX(1);
-      }
-    }
-  }
+	input,
+	textarea {
+		padding: 0.5rem 1.5rem;
+		border-radius: 1rem;
+		border: none;
+		outline: none;
+		font-size: 1.5rem;
+		font-weight: 600;
+		color: #555555;
+		transition: padding 0.3s 0.2s ease;
+		resize: none;
+		// sibling magic ;o
+		&:focus + .line {
+			&:after {
+				transform: scaleX(1);
+			}
+		}
+	}
 
-  .field {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+	.field {
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
 
-    .line {
-      width: 100%;
-      height: 3px;
-      position: absolute;
-      bottom: -8px;
-      background: white;
+		.line {
+			width: 100%;
+			height: 3px;
+			position: absolute;
+			bottom: -8px;
+			background: white;
 
-      &:after {
-        content: " ";
-        position: absolute;
-        float: right;
-        width: 100%;
-        height: 3px;
+			&:after {
+				content: ' ';
+				position: absolute;
+				float: right;
+				width: 100%;
+				height: 3px;
 
-        transform: scalex(0);
-        transition: transform 0.3s ease;
+				transform: scalex(0);
+				transition: transform 0.3s ease;
 
-        background: v-bind(currentLightThemeColor);
-      }
-    }
-  }
+				background: v-bind(currentLightThemeColor);
+			}
+		}
+	}
 }
 </style>

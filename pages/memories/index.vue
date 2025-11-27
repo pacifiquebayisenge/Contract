@@ -1,3 +1,3 @@
 <template>
-    <div>Memories</div>
+	<div>Memories</div>
 </template>

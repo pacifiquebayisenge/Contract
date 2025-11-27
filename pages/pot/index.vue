@@ -1,3 +1,3 @@
 <template>
-    <div>Picture of today</div>
+	<div>Picture of today</div>
 </template>

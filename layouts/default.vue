@@ -34,9 +34,9 @@
 <script setup>
 import { NModalProvider } from "naive-ui";
 import BottomMenuBar from "~/components/BottomMenuBar.vue";
-import TopNavBar from "~/components/TopNavBar.vue";
-import PWAUpdateDialog from "~/components/PWAUpdateDialog.vue";
 import PWAInstallPrompt from "~/components/PWAInstallPrompt.vue";
+import PWAUpdateDialog from "~/components/PWAUpdateDialog.vue";
+import TopNavBar from "~/components/TopNavBar.vue";
 
 const nuxtApp = useNuxtApp();
 const authLoading = nuxtApp.$authLoading;
