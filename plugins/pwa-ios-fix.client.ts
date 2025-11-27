@@ -1,23 +1,38 @@
+// plugins/ios-pwa-fix.client.ts
 export default defineNuxtPlugin(() => {
-  // Only run inside PWA (installed standalone)
-  const isStandalone =
-    window.matchMedia('(display-mode: standalone)').matches ||
-    (navigator as any).standalone === true
+  if (process.client) {
+    // Only run on iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    if (!isIOS) return
 
-  if (!isStandalone) return
+    // Only run if actually installed (standalone)
+    const isInStandaloneMode = () =>
+      ('standalone' in window.navigator && (window.navigator as any).standalone) ||
+      window.matchMedia('(display-mode: standalone)').matches
 
-  const router = useRouter()
+    if (!isInStandaloneMode()) return
 
-  // If first loaded page is NOT the start_url (/)
-  if (window.location.pathname !== '/') {
-    const intended = window.location.pathname + window.location.search + window.location.hash
+    // THIS IS THE NUCLEAR FIX
+    const forceStandalone = () => {
+      // Trick iOS into thinking the page was loaded directly
+      // by temporarily breaking and restoring the history entry
+      window.history.scrollRestoration = 'manual'
 
-    // Force iOS to load the homepage (required to keep standalone)
-    window.history.replaceState({}, '', '/')
+      // Tiny delay so it runs after Nuxt navigation finishes
+      setTimeout(() => {
+        // This forces iOS to hide the UI bars again
+        window.scrollTo(0, 1)
+        window.scrollTo(0, 0)
+      }, 100)
+    }
 
-    // After Vue hydrates, move to the correct route
-    requestAnimationFrame(() => {
-      router.replace(intended)
+    // Run on every client-side navigation
+    const nuxtApp = useNuxtApp()
+    nuxtApp.hook('page:finish', forceStandalone)
+
+    // Also run once on initial load too
+    onMounted(() => {
+      setTimeout(forceStandalone, 300)
     })
   }
 })
