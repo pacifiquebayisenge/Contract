@@ -6,19 +6,16 @@
           <div class="icon">
             <NIcon class="text-base opacity-55" :size="35" :component="UserIcon" />
           </div>
-          <!-- <div class="label">Profile</div> -->
         </div>
         <div class="item">
           <div class="icon">
             <NIcon class="text-base opacity-55" :size="35" :component="InboxIcon" />
           </div>
-          <!-- <div class="label">Inbox</div> -->
         </div>
         <div class="item" @click="activateSettingsDrawer()">
           <div class="icon">
             <NIcon class="text-base opacity-55" :size="35" :component="Cog6ToothIcon" />
           </div>
-          <!-- <div class="label">Settings</div> -->
         </div>
       </div>
     </div>
@@ -66,24 +63,12 @@
                   <n-divider />
                 </div>
               </n-collapse-item>
-              <!-- <n-collapse-item title="right" name="2">
-              <div>nice</div>
-            </n-collapse-item>
-            <n-collapse-item title="right" name="3">
-              <div>very good</div>
-            </n-collapse-item> -->
             </n-collapse>
 
             <button class="button-3D button-3D-colorfull-error my-6" @click="logout">
               Logout
             </button>
           </div>
-
-          <!-- <div class="mt-4">
-          <n-button @click="active = false" type="primary">
-            Close Drawer
-          </n-button>
-        </div> -->
         </div>
       </n-drawer-content>
     </n-drawer>
@@ -115,30 +100,27 @@
                 </div>
               </n-collapse-item>
               <n-collapse-item title="Notifications" name="2">
-                <span>Notifications</span>
-                <n-switch
-                  v-model:value="notificationsEnabled"
-                  @update:value="toggleNotifications"
-                >
-                  Notifications Allowed
-                </n-switch>
+                <div class="px-3">
+                  <n-space vertical>
+                    <span>Push Notifications</span>
 
-                <n-text depth="3">
-                  {{ notificationsEnabled ? "Notifications ON" : "Notifications OFF" }}
-                </n-text>
+                    <n-switch
+                      v-model:value="notificationsEnabled"
+                      :loading="loading"
+                      @update:value="toggleNotifications"
+                    >
+                      <template #checked>Enabled</template>
+                      <template #unchecked>Disabled</template>
+                    </n-switch>
+
+                    <n-text depth="3" style="font-size: 12px">
+                      {{ statusText }}
+                    </n-text>
+                  </n-space>
+                </div>
               </n-collapse-item>
-
-              <!-- <n-collapse-item title="right" name="3">
-                <div>very good</div>
-              </n-collapse-item> -->
             </n-collapse>
           </div>
-
-          <!-- <div class="mt-4">
-          <n-button @click="active = false" type="primary">
-            Close Drawer
-          </n-button>
-        </div> -->
         </div>
       </n-drawer-content>
     </n-drawer>
@@ -146,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed, reactive, onMounted } from "vue";
 import { Cog6ToothIcon, InboxIcon, UserIcon } from "@heroicons/vue/24/outline";
 import { usePseudoStore } from "~/stores/pseudo";
 import { useThemeStore } from "~/stores/theme";
@@ -159,6 +141,7 @@ const pseudoStore = usePseudoStore();
 const {
   permission,
   notificationsEnabled,
+  loading,
   loadStoredPermission,
   loadStoredEnabled,
   saveEnabled,
@@ -173,6 +156,15 @@ const showAccount = ref(false);
 
 const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
 
+const statusText = computed(() => {
+  if (loading.value) return "Processing...";
+  if (!notificationsEnabled.value) return "Notifications are disabled";
+  if (permission.value === "denied")
+    return "Browser blocked notifications. Please enable in browser settings.";
+  if (permission.value === "granted") return "Notifications are enabled";
+  return "Notifications ready to enable";
+});
+
 const inputValue = reactive({
   firstname: "",
   lastname: "",
@@ -185,6 +177,8 @@ onMounted(() => {
 });
 
 const toggleNotifications = async (val: boolean) => {
+  console.log(`🔄 Toggle notifications: ${val}`);
+
   saveEnabled(val); // Always save user preference
 
   // User turned notifications OFF
@@ -199,16 +193,19 @@ const toggleNotifications = async (val: boolean) => {
   // CASE 1 → Browser already allowed notifications
   if (Notification.permission === "granted") {
     console.log("📬 Browser already granted permission → registering subscription");
-    await requestPermission(); // This registers SW + subscription
+    const result = await requestPermission();
+    if (result !== "granted") {
+      console.log("⚠ Failed to set up subscription");
+      saveEnabled(false);
+      notificationsEnabled.value = false;
+    }
     return;
   }
 
   // CASE 2 → Browser previously blocked this site
   if (Notification.permission === "denied") {
     console.log("❌ Browser is blocking notifications");
-
-    // UI stays ON because user wants it ON
-    // But app cannot create subscription until user unblocks it
+    // Keep switch ON but show message that browser blocked it
     return;
   }
 
@@ -219,7 +216,7 @@ const toggleNotifications = async (val: boolean) => {
     const result = await requestPermission();
 
     if (result !== "granted") {
-      console.log("⚠ User dismissed or denied permission → switch OFF internally");
+      console.log("⚠ User dismissed or denied permission → switch OFF");
       saveEnabled(false);
       notificationsEnabled.value = false;
     }
@@ -304,7 +301,6 @@ const saveChanges = async () => {
 
 .n-input {
   height: 5rem;
-
   display: flex;
   justify-content: center;
   align-items: center;
@@ -317,9 +313,7 @@ const saveChanges = async () => {
     --n-box-shadow-focus: transparent !important;
     box-shadow: none !important;
     border: none !important;
-
     --n-caret-color: v-bind(currentThemeColor) !important;
-
     outline: none !important;
   }
 }
@@ -343,7 +337,7 @@ input {
 .drawer-body {
   height: 100%;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch; // smooth scrolling on iOS
-  padding-bottom: 2rem; // so inputs don’t hit the keyboard
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2rem;
 }
 </style>

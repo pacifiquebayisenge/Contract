@@ -10,73 +10,166 @@ export function usePushNotifications() {
 
   // Load browser permission + user setting
   const loadStoredPermission = () => {
+    if (!import.meta.client) return
     const stored = localStorage.getItem(STORAGE_KEY_PERMISSION) as NotificationPermission | null
     permission.value = stored || Notification.permission
   }
 
   const loadStoredEnabled = () => {
+    if (!import.meta.client) return
     const stored = localStorage.getItem(STORAGE_KEY_ENABLED)
     notificationsEnabled.value = stored === 'true'
   }
 
   const saveEnabled = (enabled: boolean) => {
+    if (!import.meta.client) return
     notificationsEnabled.value = enabled
     localStorage.setItem(STORAGE_KEY_ENABLED, enabled ? 'true' : 'false')
   }
 
   const savePermission = (status: NotificationPermission) => {
+    if (!import.meta.client) return
     permission.value = status
     localStorage.setItem(STORAGE_KEY_PERMISSION, status)
   }
 
   // Request browser permission ONLY when user toggles ON
   const requestPermission = async () => {
+    if (!import.meta.client) return 'default'
+
     loading.value = true
 
-    const result = await Notification.requestPermission()
-    savePermission(result)
+    try {
+      const result = await Notification.requestPermission()
+      savePermission(result)
 
-    if (result === 'granted') {
-      const config = useRuntimeConfig()
-      const registration = await navigator.serviceWorker.register('/sw.js')
+      if (result === 'granted') {
+        const config = useRuntimeConfig()
 
-      let subscription = await registration.pushManager.getSubscription()
-      if (!subscription) {
-        subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(config.public.publicVapid),
-        })
+        // Wait for service worker to be ready (auto-registered by @vite-pwa/nuxt)
+        // Don't manually register - let the PWA module handle it
+        if (!navigator.serviceWorker.controller) {
+          console.log('⏳ Waiting for service worker to be ready...')
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+        }
+
+        const registration = await navigator.serviceWorker.ready
+        console.log('✅ Service worker ready:', registration.scope)
+
+        let subscription = await registration.pushManager.getSubscription()
+
+        if (!subscription) {
+          subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(config.public.publicVapid),
+          })
+        }
+
+        // Try to save subscription to backend
+        try {
+          await $fetch('/api/save-subscription', {
+            method: 'POST',
+            body: subscription.toJSON(),
+          })
+          console.log('✅ Subscription saved to backend')
+        } catch (apiError: any) {
+          console.error('❌ Failed to save subscription to backend:', apiError)
+
+          // If API is not available (404), store subscription locally for later
+          if (apiError.status === 404 || apiError.statusCode === 404) {
+            console.warn(
+              "⚠️ API not available. This might be because you're running a static build."
+            )
+            console.warn(
+              '💡 Use "pnpm build && pnpm start" instead of "pnpm generate" for full functionality'
+            )
+
+            // Store subscription in localStorage as fallback
+            if (import.meta.client) {
+              localStorage.setItem(
+                'pending-push-subscription',
+                JSON.stringify(subscription.toJSON())
+              )
+            }
+          }
+        }
       }
+
+      loading.value = false
+      return result
+    } catch (error) {
+      console.error('❌ Error requesting permission:', error)
+      loading.value = false
+      return 'denied'
+    }
+  }
+
+  // App-level "OFF"
+  const disableNotifications = async () => {
+    if (!import.meta.client) return
+
+    try {
+      const registration = await navigator.serviceWorker.ready
+      const subscription = await registration.pushManager.getSubscription()
+
+      if (subscription) {
+        // 1. Try to send endpoint to backend to delete from DB
+        try {
+          await $fetch('/api/remove-subscription', {
+            method: 'POST',
+            body: {
+              endpoint: subscription.endpoint,
+            },
+          })
+          console.log('✅ Subscription removed from backend')
+        } catch (apiError: any) {
+          console.error('❌ Failed to remove subscription from backend:', apiError)
+
+          // If API not available, just continue with local unsubscribe
+          if (apiError.status === 404 || apiError.statusCode === 404) {
+            console.warn('⚠️ API not available, but continuing with local unsubscribe')
+          }
+        }
+
+        // 2. Unsubscribe browser regardless of backend result
+        await subscription.unsubscribe()
+        console.log('✅ Browser subscription removed')
+      }
+
+      // 3. Clear local storage
+      if (import.meta.client) {
+        localStorage.removeItem('pending-push-subscription')
+      }
+
+      saveEnabled(false)
+    } catch (error) {
+      console.error('❌ Error disabling notifications:', error)
+    }
+  }
+
+  // Check if there's a pending subscription to sync
+  const syncPendingSubscription = async () => {
+    if (!import.meta.client) return
+
+    const pending = localStorage.getItem('pending-push-subscription')
+    if (!pending) return
+
+    console.log('📤 Found pending subscription, attempting to sync...')
+
+    try {
+      const subscription = JSON.parse(pending)
 
       await $fetch('/api/save-subscription', {
         method: 'POST',
         body: subscription,
       })
+
+      console.log('✅ Pending subscription synced successfully')
+      localStorage.removeItem('pending-push-subscription')
+    } catch (error) {
+      console.error('❌ Failed to sync pending subscription:', error)
+      // Keep it in localStorage for next time
     }
-
-    loading.value = false
-    return result
-  }
-
-  // App-level "OFF"
-  const disableNotifications = async () => {
-    const registration = await navigator.serviceWorker.getRegistration()
-    const subscription = await registration?.pushManager.getSubscription()
-
-    if (subscription) {
-      // 1. Send endpoint to backend to delete from DB
-      await $fetch('/api/remove-subscription', {
-        method: 'POST',
-        body: {
-          endpoint: subscription.endpoint,
-        },
-      })
-
-      // 2. Unsubscribe browser
-      await subscription.unsubscribe()
-    }
-
-    saveEnabled(false)
   }
 
   const urlBase64ToUint8Array = (base64String: string) => {
@@ -104,5 +197,6 @@ export function usePushNotifications() {
     // actions
     requestPermission,
     disableNotifications,
+    syncPendingSubscription,
   }
 }
