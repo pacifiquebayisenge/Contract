@@ -54,42 +54,10 @@ useHead({
 </script>
 
 <style lang="scss">
-html,
-body,
-#__nuxt,
-#app-container {
-  height: 100vh; /* fallback */
-  height: 100dvh; /* modern browsers */
-  height: -webkit-fill-available; /* iOS ≤ 17 */
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-
 div#app-container {
-  display: flex;
-  flex-direction: column;
-  overscroll-behavior: none;
-  background: white;
-
-  /* The magic combo */
-  min-height: 100dvh;
-  min-height: -webkit-fill-available;
-  height: 100dvh;
-  height: -webkit-fill-available;
-
-  /* Safe-area handling */
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-bottom: constant(safe-area-inset-bottom); /* iOS < 11.2 */
-
-  /* Force iOS to respect these values */
-  @supports (height: 100dvh) {
-    height: 100dvh;
-  }
-  @supports (-webkit-touch-callout: none) {
-    height: -webkit-fill-available;
-  }
+  touch-action: none;
+  overflow: hidden;
+  height: 100vh;
 
   & > div {
     background-color: white;
