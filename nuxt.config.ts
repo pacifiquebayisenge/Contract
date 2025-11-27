@@ -109,11 +109,8 @@ export default defineNuxtConfig({
       periodicSyncForUpdates: 20,
     },
 
-    // ✅ Required for custom push handler (service worker)
-    srcDir: 'public',
-    filename: 'sw.js',
-
     workbox: {
+      importScripts: ['sw.js'],
       navigateFallback: '/index.html',
       globPatterns: ['**/*.{js,css,html,png,svg,ico,json,woff2,woff,ttf,eot}'],
       cleanupOutdatedCaches: true,
