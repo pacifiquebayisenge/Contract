@@ -1,9 +1,24 @@
 export default defineNuxtPlugin(() => {
   if (!process.client) return
 
-  // Run after Nuxt app has fully mounted
   onMounted(async () => {
     console.log('🌍 App fully mounted — push system activating')
+
+    // --- SAFARI DETECTION & BLOCK ---
+    if (!('Notification' in window)) {
+      console.log('📵 Notifications NOT supported in this browser (iPhone Safari tab).')
+      return
+    }
+
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+
+    if (isSafari) {
+      const isPWA = window.matchMedia('(display-mode: standalone)').matches
+      if (!isPWA) {
+        console.log('📵 Safari detected — push only works in PWA (Add to Home Screen).')
+        return
+      }
+    }
 
     if (!('serviceWorker' in navigator)) {
       console.log('❌ No service worker support')
@@ -13,15 +28,12 @@ export default defineNuxtPlugin(() => {
     const config = useRuntimeConfig()
     const user = useSupabaseUser()
 
-    // Wait only until hydration is done (not indefinitely)
     await nextTick()
-
     console.log('👤 Supabase user:', user.value)
 
-    // If permission is already granted → register silently
+    // If permission already granted → register SW
     if (Notification.permission === 'granted') {
       console.log('🔔 Permission already granted — registering SW')
-
       await registerSW(config)
     } else {
       console.log('🔕 Permission NOT granted — waiting for user toggle')
