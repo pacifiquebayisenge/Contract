@@ -12,9 +12,7 @@
             <n-image
               width="60"
               :src="
-                name.charAt(0) === 'S'
-                  ? '/memojis/paci/eye-roll.png'
-                  : '/memojis/jeje/eye-roll.png'
+                name.charAt(0) === 'S' ? '/memojis/paci/eye-roll.png' : '/memojis/jeje/eye-roll.png'
               "
             />
           </div>
@@ -23,17 +21,16 @@
           <div class="avatar-image front">
             <n-image
               width="60"
-              :src="
-                name.charAt(0) === 'S'
-                  ? '/memojis/jeje/lucky.png'
-                  : '/memojis/paci/lucky.png'
-              "
+              :src="name.charAt(0) === 'S' ? '/memojis/jeje/lucky.png' : '/memojis/paci/lucky.png'"
             />
           </div>
         </div>
       </div>
     </div>
-    <span>Did {{ name }} use <span class="special">contract </span> again ???</span>
+    <span style="text-align: center"
+      >Did <span class="special">{{ name }}</span> use <span class="special">contract </span> again
+      ???</span
+    >
 
     <button class="button-3D button-3D-colorfull-warning" @click="updateStreak()">
       Unbelievable !
@@ -42,52 +39,52 @@
 </template>
 
 <script setup>
-import { useThemeStore } from "~/stores/theme";
-import { useUserStore } from "~/stores/user";
-import { useStreakStore } from "~/stores/streak";
+import { useStreakStore } from '~/stores/streak'
+import { useThemeStore } from '~/stores/theme'
+import { useUserStore } from '~/stores/user'
 
 const { name } = defineProps({
   name: {
     type: String,
-    default: "Name",
+    default: 'Name',
   },
-});
+})
 
-const emit = defineEmits(["close"]);
+const emit = defineEmits(['close'])
 
-const themeStore = useThemeStore();
-const userStore = useUserStore();
-const streakStore = useStreakStore();
+const themeStore = useThemeStore()
+const userStore = useUserStore()
+const streakStore = useStreakStore()
 
 // Computed property for dynamic theme color
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
+const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
 
 // Computed property for dynamic light theme color
 const currentLightThemeColor = computed(() =>
   themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
     ? themeStore.getCurrentLightThemeColor
     : themeStore.getCurrentExtraLightThemeColor
-);
+)
 
 const insideBadgeRing = computed(
   () => themeStore.currentBadgeRingOption === themeStore.badgeRingOptions[0]
-);
+)
 
 const updateStreak = async () => {
-  const partner = userStore.partnerProfile;
+  const partner = userStore.partnerProfile
 
   if (!partner) {
-    console.warn("Partner profile not loaded yet");
-    return;
+    console.warn('Partner profile not loaded yet')
+    return
   }
 
   // if ((partner.streak ?? 0) < 3) {
   // } else {
   // 	console.log("BLOCKED: streak >= 3");
   // }
-  await streakStore.updateStreak();
-  emit("close");
-};
+  await streakStore.updateStreak()
+  emit('close')
+}
 </script>
 
 <style lang="scss" scoped>
@@ -137,7 +134,9 @@ const updateStreak = async () => {
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-        transition: transform 0.3s ease, opacity 0.3s ease;
+        transition:
+          transform 0.3s ease,
+          opacity 0.3s ease;
       }
 
       /* Back: angry one */
@@ -187,16 +186,22 @@ const updateStreak = async () => {
     border-radius: 0.8rem;
     transform: translateY(-0.4rem);
     transition: all 0.1s ease;
-    box-shadow: 0 0.4rem 0 #b9baba, 0 0.4rem 0.6rem rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 0.4rem 0 #b9baba,
+      0 0.4rem 0.6rem rgba(0, 0, 0, 0.1);
 
     &:hover {
       transform: translateY(-0.5rem);
-      box-shadow: 0 0.5rem 0 #b9baba, 0 0.5rem 0.6rem rgba(0, 0, 0, 0.1);
+      box-shadow:
+        0 0.5rem 0 #b9baba,
+        0 0.5rem 0.6rem rgba(0, 0, 0, 0.1);
     }
 
     &:active {
       transform: translateY(0);
-      box-shadow: 0 0 0 #b9baba, 0 0 0 rgba(0, 0, 0, 0.1);
+      box-shadow:
+        0 0 0 #b9baba,
+        0 0 0 rgba(0, 0, 0, 0.1);
     }
 
     &,
@@ -214,18 +219,24 @@ const updateStreak = async () => {
         background: #cceada;
         border-color: #aad3bb;
         color: #2c7a4d; // Darker text for contrast
-        box-shadow: 0 0.4rem 0 #aad3bb, 0 0.4rem 0.6rem rgba(0, 0, 0, 0.1);
+        box-shadow:
+          0 0.4rem 0 #aad3bb,
+          0 0.4rem 0.6rem rgba(0, 0, 0, 0.1);
 
         &:hover {
           color: #fff;
           background-color: #36ad6a;
-          box-shadow: 0 0.5rem 0 #aad3bb, 0 0.5rem 0.6rem rgba(0, 0, 0, 0.1);
+          box-shadow:
+            0 0.5rem 0 #aad3bb,
+            0 0.5rem 0.6rem rgba(0, 0, 0, 0.1);
         }
 
         &:active {
           color: #fff;
           background-color: #36ad6a;
-          box-shadow: 0 0 0 #aad3bb, 0 0 0 rgba(0, 0, 0, 0.1);
+          box-shadow:
+            0 0 0 #aad3bb,
+            0 0 0 rgba(0, 0, 0, 0.1);
         }
 
         &:focus {
@@ -238,18 +249,24 @@ const updateStreak = async () => {
         background: #ffe5cc; // light orange background
         border-color: #ffb366; // medium orange border
         color: #cc5200; // dark orange text for contrast
-        box-shadow: 0 0.4rem 0 #ffb366, 0 0.4rem 0.6rem rgba(0, 0, 0, 0.1);
+        box-shadow:
+          0 0.4rem 0 #ffb366,
+          0 0.4rem 0.6rem rgba(0, 0, 0, 0.1);
 
         &:hover {
           color: #fff;
           background-color: #ff8000; // strong orange
-          box-shadow: 0 0.5rem 0 #ffb366, 0 0.5rem 0.6rem rgba(0, 0, 0, 0.1);
+          box-shadow:
+            0 0.5rem 0 #ffb366,
+            0 0.5rem 0.6rem rgba(0, 0, 0, 0.1);
         }
 
         &:active {
           color: #fff;
           background-color: #e67300; // slightly darker pressed orange
-          box-shadow: 0 0 0 #ffb366, 0 0 0 rgba(0, 0, 0, 0.1);
+          box-shadow:
+            0 0 0 #ffb366,
+            0 0 0 rgba(0, 0, 0, 0.1);
         }
 
         &:focus {
@@ -263,18 +280,24 @@ const updateStreak = async () => {
         background: #ffd6d6;
         border-color: #ffb3b3;
         color: #d03050;
-        box-shadow: 0 0.4rem 0 #ffb3b3, 0 0.4rem 0.6rem rgba(0, 0, 0, 0.1); // Converted from 4px and 6px
+        box-shadow:
+          0 0.4rem 0 #ffb3b3,
+          0 0.4rem 0.6rem rgba(0, 0, 0, 0.1); // Converted from 4px and 6px
 
         &:hover {
           color: #fff;
           background-color: #de576d;
-          box-shadow: 0 0.5rem 0 #ffb3b3, 0 0.5rem 0.6rem rgba(0, 0, 0, 0.1); // Converted from 5px and 6px
+          box-shadow:
+            0 0.5rem 0 #ffb3b3,
+            0 0.5rem 0.6rem rgba(0, 0, 0, 0.1); // Converted from 5px and 6px
         }
 
         &:active {
           color: #fff;
           background-color: #de576d;
-          box-shadow: 0 0 0 #ffb3b3, 0 0 0 rgba(0, 0, 0, 0.1);
+          box-shadow:
+            0 0 0 #ffb3b3,
+            0 0 0 rgba(0, 0, 0, 0.1);
         }
 
         &:focus {
