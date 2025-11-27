@@ -53,8 +53,8 @@ export const useStreakStore = defineStore('streak', {
       await $fetch('/api/send-notification', {
         method: 'POST',
         body: {
-          title: 'Streak Updated!',
-          body: `Unbelievable !! You used Contract again 😒`,
+          title: 'Unbelievable !!',
+          body: ` You used Contract again 😒`,
         },
       })
     },
