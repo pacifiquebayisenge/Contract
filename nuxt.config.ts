@@ -52,7 +52,7 @@ export default defineNuxtConfig({
     },
   },
 
-  css: ['assets/main.scss', 'assets/css/tailwind.css', 'assets/css/pwa-standalone.css'],
+  css: ['assets/main.scss', 'assets/css/tailwind.css'],
 
   ssr: false,
   dirs: ['utils'],
@@ -181,10 +181,9 @@ export default defineNuxtConfig({
       theme_color: '#ffffff',
       background_color: '#ffffff',
       display: 'standalone',
-      display_override: ['standalone', 'fullscreen'],
-      start_url: '/?standalone=true', // Add query param to track PWA launches
-      scope: '/', // This must include ALL your routes
-      id: '/?standalone=true',
+      start_url: '/',
+      scope: '/',
+      id: '/',
       orientation: 'portrait-primary',
       categories: ['business', 'productivity'],
       icons: [
