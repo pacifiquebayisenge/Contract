@@ -111,7 +111,7 @@ export default defineNuxtConfig({
 
     workbox: {
       navigateFallback: '/index.html',
-      importScripts: ['/custom-sw.js'],
+      importScripts: ['custom-sw.js'],
       globPatterns: ['**/*.{js,css,html,png,svg,ico,json,woff2,woff,ttf,eot}'],
       cleanupOutdatedCaches: true,
       clientsClaim: true,
