@@ -123,7 +123,7 @@ export default defineNuxtConfig({
     },
 
     workbox: {
-      navigateFallback: '/index.html',
+      navigateFallback: '/',
       navigateFallbackDenylist: [
         /^\/_/,
         /\/api\//,
@@ -135,8 +135,7 @@ export default defineNuxtConfig({
       cleanupOutdatedCaches: true,
       clientsClaim: true,
       skipWaiting: true,
-      // Add these to handle SPA navigation better
-      navigationPreload: true,
+
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
