@@ -36,9 +36,9 @@ export default defineNuxtConfig({
   },
 
   anime: {
-    composables: true, // Allows use of useAnime() composable
-    autoImport: true, // Auto-imports composables globally (if composables: true)
-    provide: true, // Provides $anime globally (default: true)
+    composables: true,
+    autoImport: true,
+    provide: true,
   },
 
   runtimeConfig: {
@@ -60,7 +60,6 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: 'Ugovor',
-
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         {
@@ -76,10 +75,11 @@ export default defineNuxtConfig({
           property: 'og:description',
           content: 'Contract management application',
         },
-
         { name: 'mobile-web-app-capable', content: 'yes' },
-        { name: 'apple-mobile-web-app-status-bar-style', content: 'white' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
         { name: 'apple-mobile-web-app-title', content: 'Ugovor' },
+        { name: 'theme-color', content: '#ffffff' },
       ],
     },
   },
@@ -97,16 +97,12 @@ export default defineNuxtConfig({
 
   pwa: {
     registerType: 'autoUpdate',
-    navigateFallback: null, // IMPORTANT: do not serve cached fallback for auth routes
-    navigateFallbackDenylist: [/\/auth\//, /supabase/],
-
-    srcDir: 'public',
-    filename: 'sw.js',
 
     devOptions: {
-      enabled: false,
+      enabled: true,
       type: 'module',
     },
+
     client: {
       installPrompt: true,
       periodicSyncForUpdates: 20,
@@ -114,8 +110,9 @@ export default defineNuxtConfig({
 
     workbox: {
       navigateFallback: '/',
-      importScripts: ['custom-sw.js'],
+      importScripts: ['/sw-push.js'],
       globPatterns: ['**/*.{js,css,html,png,svg,ico,json,woff2,woff,ttf,eot}'],
+      globIgnores: ['**/sw-push.js'],
       cleanupOutdatedCaches: true,
       clientsClaim: true,
       skipWaiting: true,
@@ -127,7 +124,7 @@ export default defineNuxtConfig({
             cacheName: 'google-fonts-cache',
             expiration: {
               maxEntries: 10,
-              maxAgeSeconds: 60 * 60 * 24 * 365, // 365 days
+              maxAgeSeconds: 60 * 60 * 24 * 365,
             },
           },
         },
@@ -138,7 +135,18 @@ export default defineNuxtConfig({
             cacheName: 'gstatic-fonts-cache',
             expiration: {
               maxEntries: 10,
-              maxAgeSeconds: 60 * 60 * 24 * 365, // 365 days
+              maxAgeSeconds: 60 * 60 * 24 * 365,
+            },
+          },
+        },
+        {
+          urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'supabase-cache',
+            expiration: {
+              maxEntries: 50,
+              maxAgeSeconds: 60 * 60,
             },
           },
         },
@@ -155,57 +163,68 @@ export default defineNuxtConfig({
       start_url: '/',
       scope: '/',
       id: '/',
+      orientation: 'portrait-primary',
       categories: ['business', 'productivity'],
       icons: [
         {
-          src: 'icons/icon-48x48.png',
+          src: '/icons/icon-48x48.png',
           sizes: '48x48',
           type: 'image/png',
+          purpose: 'any',
         },
         {
-          src: 'icons/icon-72x72.png',
+          src: '/icons/icon-72x72.png',
           sizes: '72x72',
           type: 'image/png',
+          purpose: 'any',
         },
         {
-          src: 'icons/icon-96x96.png',
+          src: '/icons/icon-96x96.png',
           sizes: '96x96',
           type: 'image/png',
+          purpose: 'any',
         },
         {
-          src: 'icons/icon-128x128.png',
+          src: '/icons/icon-128x128.png',
           sizes: '128x128',
           type: 'image/png',
+          purpose: 'any',
         },
         {
-          src: 'icons/icon-144x144.png',
+          src: '/icons/icon-144x144.png',
           sizes: '144x144',
           type: 'image/png',
+          purpose: 'any',
         },
         {
-          src: 'icons/icon-152x152.png',
+          src: '/icons/icon-152x152.png',
           sizes: '152x152',
           type: 'image/png',
+          purpose: 'any',
         },
         {
-          src: 'icons/icon-192x192.png',
+          src: '/icons/icon-192x192.png',
           sizes: '192x192',
           type: 'image/png',
+          purpose: 'any maskable',
         },
         {
-          src: 'icons/icon-256x256.png',
+          src: '/icons/icon-256x256.png',
           sizes: '256x256',
           type: 'image/png',
+          purpose: 'any',
         },
         {
-          src: 'icons/icon-384x384.png',
+          src: '/icons/icon-384x384.png',
           sizes: '384x384',
           type: 'image/png',
+          purpose: 'any',
         },
         {
-          src: 'icons/icon-512x512.png',
+          src: '/icons/icon-512x512.png',
           sizes: '512x512',
           type: 'image/png',
+          purpose: 'any maskable',
         },
       ],
     },
@@ -216,5 +235,12 @@ export default defineNuxtConfig({
       include: ['naive-ui', 'lodash-es'],
     },
     logLevel: 'info',
+  },
+
+  // Suppress the #app-manifest warning
+  nitro: {
+    experimental: {
+      appManifest: false,
+    },
   },
 })
