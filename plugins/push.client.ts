@@ -9,7 +9,8 @@ export default defineNuxtPlugin(async () => {
   const user = useSupabaseUser()
 
   // Wait until user.value is not null
-  await until(user).not.toBe(null) // <── THIS FIXES PRODUCTION
+  // Wait for hydration (until user is not undefined)
+  await until(() => toValue(user)).not.toBe(undefined)
 
   const config = useRuntimeConfig()
 
