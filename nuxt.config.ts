@@ -35,6 +35,12 @@ export default defineNuxtConfig({
     },
   },
 
+  router: {
+    options: {
+      hashMode: true,
+    },
+  },
+
   anime: {
     composables: true, // Allows use of useAnime() composable
     autoImport: true, // Auto-imports composables globally (if composables: true)
