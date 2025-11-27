@@ -32,24 +32,23 @@
 </template>
 
 <script setup>
-import { NModalProvider } from "naive-ui";
-import BottomMenuBar from "~/components/BottomMenuBar.vue";
-import PWAInstallPrompt from "~/components/PWAInstallPrompt.vue";
-import PWAUpdateDialog from "~/components/PWAUpdateDialog.vue";
-import TopNavBar from "~/components/TopNavBar.vue";
+import { NModalProvider } from 'naive-ui'
+import BottomMenuBar from '~/components/BottomMenuBar.vue'
+import PWAInstallPrompt from '~/components/PWAInstallPrompt.vue'
+import PWAUpdateDialog from '~/components/PWAUpdateDialog.vue'
+import TopNavBar from '~/components/TopNavBar.vue'
 
-const nuxtApp = useNuxtApp();
-const authLoading = nuxtApp.$authLoading;
+const nuxtApp = useNuxtApp()
+const authLoading = nuxtApp.$authLoading
 
 useHead({
   meta: [
     {
-      name: "viewport",
-      content:
-        "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
+      name: 'viewport',
+      content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
     },
   ],
-});
+})
 </script>
 
 <style lang="scss">
