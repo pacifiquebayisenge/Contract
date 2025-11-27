@@ -52,7 +52,7 @@ export default defineNuxtConfig({
     },
   },
 
-  css: ['assets/main.scss', 'assets/css/tailwind.css'],
+  css: ['assets/main.scss', 'assets/css/tailwind.css', 'assets/css/pwa-standalone.css'],
 
   ssr: false,
   dirs: ['utils'],
