@@ -18,29 +18,6 @@
 
         <PWAUpdateDialog />
         <PWAInstallPrompt />
-        <NavDebuuger />
-
-        <div
-          id="debug-overlay"
-          style="
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 99999;
-            background: rgba(0, 0, 0, 0.8);
-            color: #0f0;
-            font-size: 12px;
-            padding: 10px;
-            max-height: 50vh;
-            overflow-y: auto;
-            pointer-events: none;
-            border-radius: 0 0 10px 0;
-            font-family: monospace;
-          "
-        >
-          <strong>🔧 DEBUG LOGS:</strong><br />
-          <pre id="debug-log" />
-        </div>
 
         <div
           class="fixed bottom-[40px] left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent"
@@ -57,7 +34,6 @@
 <script setup>
 import { NModalProvider } from 'naive-ui'
 import BottomMenuBar from '~/components/BottomMenuBar.vue'
-import NavDebuuger from '~/components/NavDebuuger.vue'
 import PWAInstallPrompt from '~/components/PWAInstallPrompt.vue'
 import PWAUpdateDialog from '~/components/PWAUpdateDialog.vue'
 import TopNavBar from '~/components/TopNavBar.vue'
@@ -73,21 +49,6 @@ useHead({
     },
   ],
 })
-
-if (import.meta.client) {
-  const originalLog = console.log.bind(console)
-  console.log = (...args) => {
-    originalLog(...args) // Keep normal logging
-    const logEl = document.getElementById('debug-log')
-    if (logEl) {
-      const timestamp = new Date().toLocaleTimeString()
-      logEl.textContent += `[${timestamp}] ${args.map((a) => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' ')}\n`
-      logEl.scrollTop = logEl.scrollHeight // Auto-scroll
-    }
-  }
-  console.warn = console.log.bind(console) // Capture warnings too
-  console.error = console.log.bind(console) // Capture errors
-}
 </script>
 
 <style lang="scss">
