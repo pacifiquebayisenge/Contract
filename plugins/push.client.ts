@@ -1,8 +1,15 @@
+import { until } from '@vueuse/core'
+
 export default defineNuxtPlugin(async () => {
   if (!('serviceWorker' in navigator)) {
     console.log('❌ No service worker support')
     return
   }
+  // Wait for Supabase to finish hydrating the user session
+  const user = useSupabaseUser()
+
+  // Wait until user.value is not null
+  await until(user).not.toBe(null) // <── THIS FIXES PRODUCTION
 
   const config = useRuntimeConfig()
 
