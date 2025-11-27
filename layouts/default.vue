@@ -18,6 +18,7 @@
 
         <PWAUpdateDialog />
         <PWAInstallPrompt />
+        <NavDebuuger />
 
         <div
           class="fixed bottom-[40px] left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent"
@@ -34,6 +35,7 @@
 <script setup>
 import { NModalProvider } from 'naive-ui'
 import BottomMenuBar from '~/components/BottomMenuBar.vue'
+import NavDebuuger from '~/components/NavDebuuger.vue'
 import PWAInstallPrompt from '~/components/PWAInstallPrompt.vue'
 import PWAUpdateDialog from '~/components/PWAUpdateDialog.vue'
 import TopNavBar from '~/components/TopNavBar.vue'
