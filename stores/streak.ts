@@ -49,6 +49,14 @@ export const useStreakStore = defineStore('streak', {
         console.log('Streak updated:', `${data[0].firstname}: streak ${data[0].streak}`)
         userStore.partnerProfile!.streak = this.value
       }
+
+      await $fetch('/api/send-notification', {
+        method: 'POST',
+        body: {
+          title: 'Streak Updated!',
+          body: `Unbelievable !! You used Contract again 😒`,
+        },
+      })
     },
 
     async resetStreak() {
