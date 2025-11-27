@@ -59,6 +59,14 @@ div#app-container {
   overflow: hidden;
   height: 100vh;
 
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+
+  display: flex;
+  flex-direction: column;
+  overscroll-behavior: none;
+
   & > div {
     background-color: white;
     background-clip: padding-box;
