@@ -23,7 +23,7 @@
 		:style="cssVariables"
 		:class="{ 'cursor-pointer': clickable }"
 		@click="clickable && triggerAnimation()"
-		:aria-label="label || 'Animated icon'"
+		:aria-label="label.toString() || 'Animated icon'"
 	>
 		<!-- 
       Dynamic icon component - accepts any Heroicon or custom SVG component
@@ -36,7 +36,10 @@
 				width: `${size}px`,
 				height: `${size}px`,
 				color: iconColor,
-				filter: phase === 'explode' ? `drop-shadow(0 0 12px ${accentColor})` : 'none',
+				filter:
+					phase === 'explode'
+						? `drop-shadow(0 0 12px ${props.label > -1 ? props.accentColor : '#c52222'})`
+						: 'none',
 			}"
 		/>
 
@@ -51,11 +54,11 @@
 			:style="{
 				width: `${particle.size}px`,
 				height: `${particle.size}px`,
-				backgroundColor: accentColor,
+				backgroundColor: props.label > -1 ? props.accentColor : '#c52222',
 				boxShadow: `
-          0 0 ${particle.size * 2}px ${accentColor}, 
-          0 0 ${particle.size * 4}px ${accentColor}, 
-          0 0 ${particle.size * 6}px ${accentColor}
+          0 0 ${particle.size * 2}px ${props.label > -1 ? props.accentColor : '#c52222'}, 
+          0 0 ${particle.size * 4}px ${props.label > -1 ? props.accentColor : '#c52222'}, 
+          0 0 ${particle.size * 6}px ${props.label > -1 ? props.accentColor : '#c52222'}
         `,
 				'--particle-x': `${Math.cos((particle.angle * Math.PI) / 180) * particle.distance}px`,
 				'--particle-y': `${Math.sin((particle.angle * Math.PI) / 180) * particle.distance}px`,
@@ -66,22 +69,25 @@
 
 	<!-- Optional label below the icon -->
 	<span
-		v-if="label"
 		class="text-base text-gray-400 text-center"
 		:class="['transition-colors duration-200', animationClass]"
 		:style="{
 			fontSize: '1rem',
 			lineHeight: '1.5rem',
 			color: iconColor,
-			filter: phase === 'explode' ? `drop-shadow(0 0 12px ${accentColor})` : 'none',
+			filter:
+				phase === 'explode'
+					? `drop-shadow(0 0 12px ${props.label > -1 ? props.accentColor : '#c52222'})`
+					: 'none',
 		}"
 	>
-		{{ label }}
+		{{ formatCountToMs(label) }}
 	</span>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch, type Component } from 'vue'
+import { formatCountToMs } from '~/utils/formatCountToMs'
 
 // ============================================
 // TYPE DEFINITIONS
@@ -110,7 +116,7 @@ interface Props {
 	/** Vue component for the icon (e.g., Heroicon) */
 	icon: Component
 	/** Label displayed below the icon */
-	label: string | number
+	label: number
 	/** Accent color for animation and particles (hex) */
 	accentColor?: string
 	/** Idle color when not animating (hex) */
@@ -231,14 +237,14 @@ const cssVariables = computed(() => ({
 
 const iconColor = computed(() => {
 	if (phase.value === 'idle') return props.idleColor
-	if (phase.value === 'explode') return props.accentColor
+	if (phase.value === 'explode') return props.label > -1 ? props.accentColor : '#c52222'
 
 	const phaseIndex = ['vibrate-slow', 'vibrate-medium', 'vibrate-fast', 'vibrate-intense'].indexOf(
 		phase.value
 	)
 	const progress = phaseIndex / 3
 
-	return progress > 0.5 ? props.accentColor : props.idleColor
+	return progress > 0.5 ? (props.label > -1 ? props.accentColor : '#c52222') : props.idleColor
 })
 
 const animationClass = computed(() => {

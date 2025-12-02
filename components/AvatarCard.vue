@@ -63,7 +63,7 @@
 							:size="14"
 							idle-color="#8f9192"
 							accent-color="#3b82f6"
-							:label="formatCountToMs(profile?.seen) || 0"
+							:label="profile?.seen || 0"
 						/>
 						<!-- <span class="text-base opacity-55">{{ formatCountToMs(profile?.seen || 0) }}</span> -->
 					</div>
@@ -82,6 +82,7 @@
 							accent-color="#f97316"
 							:label="profile?.streak || 0"
 						/>
+
 						<!-- <span class="text-base opacity-55">{{ profile?.streak || 0 }}</span> -->
 					</div>
 					<div class="flex gap-x-1 justify-center items-center">
@@ -96,8 +97,8 @@
 							:vibrate-duration="250"
 							:size="14"
 							idle-color="#8f9192"
-							:accent-color="banknotesIconColor"
-							:label="formatCountToMs(profile?.credit) || 0"
+							accent-color="#22c55e"
+							:label="profile?.credit || 0"
 						/>
 						<!-- <span class="text-base opacity-55">{{ formatCountToMs(profile?.credit) || 0 }}</span> -->
 					</div>
@@ -131,7 +132,6 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { BanknotesIcon, EyeIcon, FireIcon } from '@heroicons/vue/24/outline'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
-import { formatCountToMs } from '~/utils/formatCountToMs'
 import AnimatedIcon from './AnimatedIcon.vue'
 import ContractModal from './ContractModal.vue'
 
@@ -177,8 +177,6 @@ const insideBadgeRing = computed(
 	() => themeStore.currentBadgeRingOption === themeStore.badgeRingOptions[0]
 )
 
-let banknotesIconColor = '#22c55e'
-
 // TODO: live updates
 
 watch(
@@ -199,7 +197,6 @@ watch(
 	() => props.profile?.credit,
 	(newVal, oldVal) => {
 		console.log(newVal, oldVal)
-		banknotesIconColor = oldVal < newVal ? '#22c55e' : '#c52222'
 		if (oldVal !== undefined && newVal !== oldVal) banknotesIcon.value?.trigger()
 	}
 )

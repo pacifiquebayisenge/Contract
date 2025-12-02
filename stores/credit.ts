@@ -18,7 +18,6 @@ export const useCreditStore = defineStore('credit', {
 		// user will get credit increase everyday
 		async updateCredit(n: number) {
 			const newCredit = this.value + n
-			this.setCredit(newCredit)
 
 			const userStore = useUserStore()
 			const supabase = useSupabaseClient<Database>()
@@ -37,21 +36,22 @@ export const useCreditStore = defineStore('credit', {
 				return
 			}
 
+			this.setCredit(newCredit)
+
 			if (data && data.length > 0) {
 				console.log('Credit updated:', `${data[0].firstname}: credit ${data[0].credit}`)
 				userStore.profile!.credit = this.value
 			}
 		},
 
-		// user will get credit increase everyday
-		async reduceCredit(n: number) {
+		async reducePartnerCredit(n: number) {
 			const supabase = useSupabaseClient<Database>()
 			const userStore = useUserStore()
 
 			const partner = userStore.partnerProfile
 
 			if (!partner) {
-				console.error('partnerProfile is not loaded, cannot update streak.')
+				console.error('partnerProfile is not loaded, cannot update credit.')
 				return
 			}
 

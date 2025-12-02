@@ -35,7 +35,7 @@
 			again???
 		</span>
 
-		<button class="button-3D button-3D-colorfull-warning" @click="updateStreak()">
+		<button class="button-3D button-3D-colorfull-warning" @click="updatePartnerStreak()">
 			Unbelievable !
 		</button>
 	</div>
@@ -73,7 +73,7 @@ const insideBadgeRing = computed(
 	() => themeStore.currentBadgeRingOption === themeStore.badgeRingOptions[0]
 )
 
-const updateStreak = async () => {
+const updatePartnerStreak = async () => {
 	const partner = userStore.partnerProfile
 
 	if (!partner) {
@@ -86,7 +86,7 @@ const updateStreak = async () => {
 	// 	console.log("BLOCKED: streak >= 3");
 	// }
 	emit('close')
-	streakStore.updateStreak()
+	streakStore.updatePartnerStreak()
 }
 </script>
 

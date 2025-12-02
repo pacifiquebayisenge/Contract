@@ -19,7 +19,7 @@ export const useViolationStore = defineStore('violation', {
 			this.value = n
 		},
 
-		async updateViolation() {
+		async updatePartnerViolation() {
 			const supabase = useSupabaseClient<Database>()
 			const userStore = useUserStore()
 			const creditStore = useCreditStore()
@@ -51,7 +51,7 @@ export const useViolationStore = defineStore('violation', {
 				console.log('Violation updated:', `${data[0].firstname}: violation ${data[0].violation}`)
 				userStore.partnerProfile!.violation = newViolation
 
-				await creditStore.reduceCredit(100)
+				await creditStore.reducePartnerCredit(100)
 			}
 
 			await $fetch('/api/send-notification', {
@@ -97,9 +97,8 @@ export const useViolationStore = defineStore('violation', {
 
 		init() {
 			const userStore = useUserStore()
-			// partner !! only when partner uses his violation
-			const partner = userStore.partnerProfile
-			const violation = partner?.violation ?? 0
+
+			const violation = userStore.profile!.violation ?? 0
 			this.setViolation(violation)
 		},
 	},

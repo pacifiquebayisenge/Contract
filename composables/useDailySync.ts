@@ -35,7 +35,7 @@ export function useNewDaySync() {
 
 		// Apply credit and reset streak
 		await creditStore.updateCredit(passed * 100)
-		await streakStore.resetStreak()
+		await streakStore.resetPartnerStreak()
 	}
 
 	return {

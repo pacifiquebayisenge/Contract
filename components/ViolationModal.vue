@@ -34,7 +34,7 @@
 			again ???
 		</span>
 
-		<button class="button-3D button-3D-colorfull-error" @click="updateViolation()">
+		<button class="button-3D button-3D-colorfull-error" @click="updatePartnerViolation()">
 			Shamefull !
 		</button>
 	</div>
@@ -72,7 +72,7 @@ const insideBadgeRing = computed(
 	() => themeStore.currentBadgeRingOption === themeStore.badgeRingOptions[0]
 )
 
-const updateViolation = async () => {
+const updatePartnerViolation = async () => {
 	const partner = userStore.partnerProfile
 
 	if (!partner) {
@@ -82,7 +82,7 @@ const updateViolation = async () => {
 
 	emit('close')
 
-	violationStore.updateViolation()
+	violationStore.updatePartnerViolation()
 }
 </script>
 
