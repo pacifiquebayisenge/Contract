@@ -1,21 +1,28 @@
 <template>
-	<div class="home-page-container invisible-scroll page-bottom-padding">
-		<AvatarCard :profile="userStore.profile" :pseudo="pseudoStore.myPseudo" />
-		<AvatarCard :profile="userStore.partnerProfile" :pseudo="pseudoStore.partnerPseudo" />
+	<div class="home-page-container invisible-scroll page-bottom-padding animate-item">
+		<AvatarCard class="animate-item" :profile="userStore.profile" :pseudo="pseudoStore.myPseudo" />
+		<AvatarCard
+			class="animate-item"
+			:profile="userStore.partnerProfile"
+			:pseudo="pseudoStore.partnerPseudo"
+		/>
 	</div>
 </template>
 
 <script setup>
 import { onMounted } from 'vue'
 import AvatarCard from '~/components/AvatarCard.vue'
+import { usePageAnimation } from '~/composables/usePageAnimation'
 import { usePseudoStore } from '~/stores/pseudo'
 import { useUserStore } from '~/stores/user'
 
 const userStore = useUserStore()
 const pseudoStore = usePseudoStore()
 
-onMounted(async () => {
-	// countStore.updateSeenCount();
+const { animatePageEnter } = usePageAnimation()
+
+onMounted(() => {
+	animatePageEnter() // <-- THIS TRIGGERS THE ANIMATION
 })
 </script>
 

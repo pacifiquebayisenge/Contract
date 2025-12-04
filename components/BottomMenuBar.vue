@@ -1,359 +1,354 @@
 <template>
-  <div>
-    <div class="bottom-menu-bar">
-      <div class="items flex space-between justify-center">
-        <div class="item" @click="activateAccountDrawer()">
-          <div class="icon">
-            <NIcon class="text-base opacity-55" :size="35" :component="UserIcon" />
-          </div>
-        </div>
-        <div class="item">
-          <div class="icon">
-            <NIcon class="text-base opacity-55" :size="35" :component="InboxIcon" />
-          </div>
-        </div>
-        <div class="item" @click="activateSettingsDrawer()">
-          <div class="icon">
-            <NIcon class="text-base opacity-55" :size="35" :component="Cog6ToothIcon" />
-          </div>
-        </div>
-      </div>
-    </div>
+	<div>
+		<div class="bottom-menu-bar">
+			<div class="items flex space-between justify-center">
+				<div class="item" @click="activateAccountDrawer()">
+					<div class="icon">
+						<NIcon class="text-base opacity-55" :size="35" :component="UserIcon" />
+					</div>
+				</div>
+				<div class="item">
+					<div class="icon">
+						<NIcon class="text-base opacity-55" :size="35" :component="InboxIcon" />
+					</div>
+				</div>
+				<div class="item" @click="activateSettingsDrawer()">
+					<div class="icon">
+						<NIcon class="text-base opacity-55" :size="35" :component="Cog6ToothIcon" />
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <!-- account drawer -->
-    <n-drawer
-      v-model:show="showAccount"
-      :height="450"
-      placement="bottom"
-      :auto-focus="false"
-      :block-scroll="true"
-      :trap-focus="false"
-      style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
-    >
-      <n-drawer-content title="Account">
-        <div class="drawer-body invisible-scroll">
-          <div class="account-items px-5 mb-16">
-            <n-collapse arrow-placement="right" class="mb-16">
-              <n-collapse-item title="names" name="1">
-                <div class="px-3">
-                  <n-input
-                    v-model:value="inputValue.firstname"
-                    class="bg-[#0000000a] rounded-[1rem] my-5"
-                    type="text"
-                    placeholder="Firstname"
-                  />
+		<!-- account drawer -->
+		<n-drawer
+			v-model:show="showAccount"
+			:height="450"
+			placement="bottom"
+			:auto-focus="false"
+			:block-scroll="true"
+			:trap-focus="false"
+			style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
+		>
+			<n-drawer-content title="Account">
+				<div class="drawer-body invisible-scroll">
+					<div class="account-items px-5 mb-16">
+						<n-collapse arrow-placement="right" class="mb-16">
+							<n-collapse-item title="names" name="1">
+								<div class="px-3">
+									<n-input
+										v-model:value="inputValue.firstname"
+										class="bg-[#0000000a] rounded-[1rem] my-5"
+										type="text"
+										placeholder="Firstname"
+									/>
 
-                  <n-input
-                    v-model:value="inputValue.lastname"
-                    class="bg-[#0000000a] rounded-[1rem] my-5"
-                    type="text"
-                    placeholder="Lastname"
-                  />
+									<n-input
+										v-model:value="inputValue.lastname"
+										class="bg-[#0000000a] rounded-[1rem] my-5"
+										type="text"
+										placeholder="Lastname"
+									/>
 
-                  <n-input
-                    v-model:value="inputValue.partnerPseudo"
-                    class="bg-[#0000000a] rounded-[1rem] my-5"
-                    type="text"
-                    placeholder="Partner Pseudo"
-                  />
+									<n-input
+										v-model:value="inputValue.partnerPseudo"
+										class="bg-[#0000000a] rounded-[1rem] my-5"
+										type="text"
+										placeholder="Partner Pseudo"
+									/>
 
-                  <button class="button-3D button-3D-colorfull my-6" @click="saveChanges">
-                    Save
-                  </button>
-                  <n-divider />
-                </div>
-              </n-collapse-item>
-            </n-collapse>
+									<button class="button-3D button-3D-colorfull my-6" @click="saveChanges">
+										Save
+									</button>
+									<n-divider />
+								</div>
+							</n-collapse-item>
+						</n-collapse>
 
-            <button class="button-3D button-3D-colorfull-error my-6" @click="logout">
-              Logout
-            </button>
-          </div>
-        </div>
-      </n-drawer-content>
-    </n-drawer>
+						<button class="button-3D button-3D-colorfull-error my-6" @click="logout">Logout</button>
+					</div>
+				</div>
+			</n-drawer-content>
+		</n-drawer>
 
-    <!-- settings drawer -->
-    <n-drawer
-      v-model:show="showSettings"
-      :height="400"
-      placement="bottom"
-      :block-scroll="true"
-      :trap-focus="false"
-      style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
-    >
-      <n-drawer-content title="Settings">
-        <div class="drawer-body invisible-scroll">
-          <div class="settings-items px-5">
-            <n-collapse arrow-placement="right">
-              <n-collapse-item title="Theme" name="1">
-                <div class="px-3">
-                  <span>Primary</span>
-                  <ThemeSwitcher />
+		<!-- settings drawer -->
+		<n-drawer
+			v-model:show="showSettings"
+			:height="400"
+			placement="bottom"
+			:block-scroll="true"
+			:trap-focus="false"
+			style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
+		>
+			<n-drawer-content title="Settings">
+				<div class="drawer-body invisible-scroll">
+					<div class="settings-items px-5">
+						<n-collapse arrow-placement="right">
+							<n-collapse-item title="Theme" name="1">
+								<div class="px-3">
+									<span>Primary</span>
+									<ThemeSwitcher />
 
-                  <n-divider />
+									<n-divider />
 
-                  <span>Badge</span>
-                  <BadgeSwitcher />
+									<span>Badge</span>
+									<BadgeSwitcher />
 
-                  <n-divider />
-                </div>
-              </n-collapse-item>
-              <n-collapse-item title="Notifications" name="2">
-                <div class="px-3">
-                  <n-space vertical>
-                    <span>Push Notifications</span>
+									<n-divider />
+								</div>
+							</n-collapse-item>
+							<n-collapse-item title="Notifications" name="2">
+								<div class="px-3">
+									<n-space vertical>
+										<span>Push Notifications</span>
 
-                    <n-switch
-                      v-model:value="notificationsEnabled"
-                      :loading="loading"
-                      @update:value="toggleNotifications"
-                    >
-                      <template #checked>Enabled</template>
-                      <template #unchecked>Disabled</template>
-                    </n-switch>
+										<n-switch
+											v-model:value="notificationsEnabled"
+											:loading="loading"
+											@update:value="toggleNotifications"
+										>
+											<template #checked>Enabled</template>
+											<template #unchecked>Disabled</template>
+										</n-switch>
 
-                    <n-text depth="3" style="font-size: 12px">
-                      {{ statusText }}
-                    </n-text>
-                  </n-space>
-                </div>
-              </n-collapse-item>
-            </n-collapse>
-          </div>
-        </div>
-      </n-drawer-content>
-    </n-drawer>
-  </div>
+										<n-text depth="3" style="font-size: 12px">
+											{{ statusText }}
+										</n-text>
+									</n-space>
+								</div>
+							</n-collapse-item>
+						</n-collapse>
+					</div>
+				</div>
+			</n-drawer-content>
+		</n-drawer>
+	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted } from "vue";
-import { Cog6ToothIcon, InboxIcon, UserIcon } from "@heroicons/vue/24/outline";
-import { usePseudoStore } from "~/stores/pseudo";
-import { useThemeStore } from "~/stores/theme";
-import { useUserStore } from "~/stores/user";
+import { computed, onMounted, reactive, ref } from 'vue'
+import { Cog6ToothIcon, InboxIcon, UserIcon } from '@heroicons/vue/24/outline'
+import { usePseudoStore } from '~/stores/pseudo'
+import { useThemeStore } from '~/stores/theme'
+import { useUserStore } from '~/stores/user'
 
-const themeStore = useThemeStore();
-const userStore = useUserStore();
-const pseudoStore = usePseudoStore();
+const themeStore = useThemeStore()
+const userStore = useUserStore()
+const pseudoStore = usePseudoStore()
 
 const {
-  permission,
-  notificationsEnabled,
-  loading,
-  isSupported,
-  loadStoredPermission,
-  loadStoredEnabled,
-  saveEnabled,
-  requestPermission,
-  disableNotifications,
-} = usePushNotifications();
+	permission,
+	notificationsEnabled,
+	loading,
+	isSupported,
+	loadStoredPermission,
+	loadStoredEnabled,
+	saveEnabled,
+	requestPermission,
+	disableNotifications,
+} = usePushNotifications()
 
-const { logout } = useAuth();
+const { logout } = useAuth()
 
-const showSettings = ref(false);
-const showAccount = ref(false);
+const showSettings = ref(false)
+const showAccount = ref(false)
 
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor);
+const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
 
 const statusText = computed(() => {
-  if (!isSupported.value) {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
-    if (isIOS && !isStandalone) {
-      return "⚠️ iOS: Please install app (Add to Home Screen) to enable notifications";
-    }
-    return "⚠️ Notifications not supported in this browser";
-  }
-  if (loading.value) return "Processing...";
-  if (!notificationsEnabled.value) return "Notifications are disabled";
-  if (permission.value === "denied")
-    return "Browser blocked notifications. Please enable in browser settings.";
-  if (permission.value === "granted") return "Notifications are enabled";
-  return "Notifications ready to enable";
-});
+	if (!isSupported.value) {
+		const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+		const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+		if (isIOS && !isStandalone) {
+			return '⚠️ iOS: Please install app (Add to Home Screen) to enable notifications'
+		}
+		return '⚠️ Notifications not supported in this browser'
+	}
+	if (loading.value) return 'Processing...'
+	if (!notificationsEnabled.value) return 'Notifications are disabled'
+	if (permission.value === 'denied')
+		return 'Browser blocked notifications. Please enable in browser settings.'
+	if (permission.value === 'granted') return 'Notifications are enabled'
+	return 'Notifications ready to enable'
+})
 
 const inputValue = reactive({
-  firstname: "",
-  lastname: "",
-  partnerPseudo: "",
-});
+	firstname: '',
+	lastname: '',
+	partnerPseudo: '',
+})
 
 onMounted(() => {
-  loadStoredPermission();
-  loadStoredEnabled();
-});
+	loadStoredPermission()
+	loadStoredEnabled()
+})
 
 const toggleNotifications = async (val: boolean) => {
-  console.log(`🔄 Toggle notifications: ${val}`);
+	console.log(`🔄 Toggle notifications: ${val}`)
 
-  // Check if notifications are supported
-  if (!isSupported.value) {
-    console.warn("⚠️ Notifications not supported");
-    notificationsEnabled.value = false;
-    return;
-  }
+	// Check if notifications are supported
+	if (!isSupported.value) {
+		console.warn('⚠️ Notifications not supported')
+		notificationsEnabled.value = false
+		return
+	}
 
-  saveEnabled(val); // Always save user preference
+	saveEnabled(val) // Always save user preference
 
-  // User turned notifications OFF
-  if (!val) {
-    console.log("🔕 Turning OFF notifications");
-    await disableNotifications();
-    return;
-  }
+	// User turned notifications OFF
+	if (!val) {
+		console.log('🔕 Turning OFF notifications')
+		await disableNotifications()
+		return
+	}
 
-  console.log("🔔 User toggled ON notifications");
+	console.log('🔔 User toggled ON notifications')
 
-  // CASE 1 → Browser already allowed notifications
-  if (Notification.permission === "granted") {
-    console.log("📬 Browser already granted permission → registering subscription");
-    const result = await requestPermission();
-    if (result !== "granted") {
-      console.log("⚠ Failed to set up subscription");
-      saveEnabled(false);
-      notificationsEnabled.value = false;
-    }
-    return;
-  }
+	// CASE 1 → Browser already allowed notifications
+	if (Notification.permission === 'granted') {
+		console.log('📬 Browser already granted permission → registering subscription')
+		const result = await requestPermission()
+		if (result !== 'granted') {
+			console.log('⚠ Failed to set up subscription')
+			saveEnabled(false)
+			notificationsEnabled.value = false
+		}
+		return
+	}
 
-  // CASE 2 → Browser previously blocked this site
-  if (Notification.permission === "denied") {
-    console.log("❌ Browser is blocking notifications");
-    // Keep switch ON but show message that browser blocked it
-    return;
-  }
+	// CASE 2 → Browser previously blocked this site
+	if (Notification.permission === 'denied') {
+		console.log('❌ Browser is blocking notifications')
+		// Keep switch ON but show message that browser blocked it
+		return
+	}
 
-  // CASE 3 → User never answered before ("default")
-  if (Notification.permission === "default") {
-    console.log("🟡 Permission is default → showing permission popup");
+	// CASE 3 → User never answered before ("default")
+	if (Notification.permission === 'default') {
+		console.log('🟡 Permission is default → showing permission popup')
 
-    const result = await requestPermission();
+		const result = await requestPermission()
 
-    if (result !== "granted") {
-      console.log("⚠ User dismissed or denied permission → switch OFF");
-      saveEnabled(false);
-      notificationsEnabled.value = false;
-    }
+		if (result !== 'granted') {
+			console.log('⚠ User dismissed or denied permission → switch OFF')
+			saveEnabled(false)
+			notificationsEnabled.value = false
+		}
 
-    return;
-  }
-};
+		return
+	}
+}
 
 const originalValues = reactive({
-  firstname: "",
-  lastname: "",
-  partnerPseudo: "",
-});
+	firstname: '',
+	lastname: '',
+	partnerPseudo: '',
+})
 
 const activateSettingsDrawer = () => {
-  showSettings.value = true;
-};
+	showSettings.value = true
+}
 
 const activateAccountDrawer = () => {
-  showAccount.value = true;
-  // Load values from the userStore
-  inputValue.firstname = userStore.profile?.firstname ?? "";
-  inputValue.lastname = userStore.profile?.lastname ?? "";
-  inputValue.partnerPseudo = pseudoStore.partnerPseudo ?? "";
+	showAccount.value = true
+	// Load values from the userStore
+	inputValue.firstname = userStore.profile?.firstname ?? ''
+	inputValue.lastname = userStore.profile?.lastname ?? ''
+	inputValue.partnerPseudo = pseudoStore.partnerPseudo ?? ''
 
-  // Save original values to compare later
-  originalValues.firstname = inputValue.firstname;
-  originalValues.lastname = inputValue.lastname;
-  originalValues.partnerPseudo = inputValue.partnerPseudo;
-};
+	// Save original values to compare later
+	originalValues.firstname = inputValue.firstname
+	originalValues.lastname = inputValue.lastname
+	originalValues.partnerPseudo = inputValue.partnerPseudo
+}
 
 const getChangedFields = (originalValues: any, currentValues: any) => {
-  return Object.fromEntries(
-    Object.entries(currentValues).filter(([key, value]) => value !== originalValues[key])
-  );
-};
+	return Object.fromEntries(
+		Object.entries(currentValues).filter(([key, value]) => value !== originalValues[key])
+	)
+}
 
 const saveChanges = async () => {
-  const changed = getChangedFields(originalValues, inputValue);
+	const changed = getChangedFields(originalValues, inputValue)
 
-  if (changed.firstname || changed.lastname) {
-    await userStore.updateProfile(
-      changed.firstname as string,
-      changed.lastname as string
-    );
-  }
+	if (changed.firstname || changed.lastname) {
+		await userStore.updateProfile(changed.firstname as string, changed.lastname as string)
+	}
 
-  if (changed.partnerPseudo) {
-    await pseudoStore.updatePartnerPseudo(changed.partnerPseudo as string);
-  }
+	if (changed.partnerPseudo) {
+		await pseudoStore.updatePartnerPseudo(changed.partnerPseudo as string)
+	}
 
-  showAccount.value = false;
-};
+	showAccount.value = false
+}
 </script>
 
 <style lang="scss">
 .bottom-menu-bar {
-  padding: 0.5rem 1.5rem;
-  background-color: rgba(255, 255, 255, 0.8);
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(3px);
-  border-radius: 2rem;
+	padding: 0.5rem 1.5rem;
+	background-color: rgba(255, 255, 255, 0.8);
+	border-top: 1px solid rgba(0, 0, 0, 0.08);
+	box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+	backdrop-filter: blur(3px);
+	border-radius: 2rem;
 
-  .items {
-    gap: 4rem;
+	.items {
+		gap: 4rem;
 
-    .item {
-      cursor: pointer;
-      transition: opacity 0.2s ease;
+		.item {
+			cursor: pointer;
+			transition: opacity 0.2s ease;
 
-      &:hover {
-        opacity: 0.8;
-      }
+			&:hover {
+				opacity: 0.8;
+			}
 
-      .icon {
-        margin: 1rem;
-      }
-    }
-  }
+			.icon {
+				margin: 1rem;
+			}
+		}
+	}
 }
 
 .n-input {
-  height: 5rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+	height: 5rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 
-  &:hover,
-  &:focus,
-  &:focus-within {
-    --n-border-hover: transparent !important;
-    --n-border-focus: transparent !important;
-    --n-box-shadow-focus: transparent !important;
-    box-shadow: none !important;
-    border: none !important;
-    --n-caret-color: v-bind(currentThemeColor) !important;
-    outline: none !important;
-  }
+	&:hover,
+	&:focus,
+	&:focus-within {
+		--n-border-hover: transparent !important;
+		--n-border-focus: transparent !important;
+		--n-box-shadow-focus: transparent !important;
+		box-shadow: none !important;
+		border: none !important;
+		--n-caret-color: v-bind(currentThemeColor) !important;
+		outline: none !important;
+	}
 }
 
 input {
-  padding: 0.5rem 1.5rem;
-  border-radius: 1rem;
-  border: none;
-  outline: none;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #555555;
-  transition: padding 0.3s 0.2s ease;
-  resize: none;
+	padding: 0.5rem 1.5rem;
+	border-radius: 1rem;
+	border: none;
+	outline: none;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: #555555;
+	transition: padding 0.3s 0.2s ease;
+	resize: none;
 }
 
 .n-collapse .n-collapse-item .n-collapse-item__header .n-collapse-item__header-main {
-  font-weight: 700;
+	font-weight: 700;
 }
 
 .drawer-body {
-  height: 100%;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 2rem;
+	height: 100%;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	padding-bottom: 2rem;
 }
 </style>

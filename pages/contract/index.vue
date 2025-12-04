@@ -1,14 +1,23 @@
 <template>
-	<div class="contract-page-container">
-		<div class="action-buttons py-8 px-16 mb-8 flex gap-8">
-			<button class="button-3D button-3D-colorfull" @click="showNewDialog = !showNewDialog">
+	<div class="contract-page-container animate-item">
+		<div class="action-buttons py-3 px-16 mb-3 flex gap-8 animate-item">
+			<button
+				class="button-3D button-3D-colorfull animate-item"
+				@click="showNewDialog = !showNewDialog"
+			>
 				New
 			</button>
 		</div>
 
-		<div class="scroll-container invisible-scroll page-bottom-padding">
+		<div class="scroll-container invisible-scroll page-bottom-padding animate-item">
 			<n-infinite-scroll :distance="10" @load="handleLoad">
-				<ContractItem v-for="(item, index) in items" :key="index" :index="index" :item="item" />
+				<ContractItem
+					v-for="(item, index) in items"
+					:key="index"
+					:index="index"
+					:item="item"
+					class="animate-item"
+				/>
 			</n-infinite-scroll>
 		</div>
 
@@ -41,6 +50,7 @@
 
 <script setup lang="ts">
 import ContractItem from '~/components/ContractItem.vue'
+import { usePageAnimation } from '~/composables/usePageAnimation'
 import { useThemeStore } from '~/stores/theme'
 
 let showNewDialog = ref(false)
@@ -63,6 +73,12 @@ const insideBadgeRing = computed(
 function handleLoad() {
 	// count.value += 1;
 }
+
+const { animatePageEnter } = usePageAnimation()
+
+onMounted(() => {
+	animatePageEnter() // <-- THIS TRIGGERS THE ANIMATION
+})
 
 const items = [
 	{

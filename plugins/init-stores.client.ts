@@ -1,6 +1,6 @@
 // init stores
 export default defineNuxtPlugin(() => {
-  const themeStore = useThemeStore()
+	const themeStore = useThemeStore()
 
-  themeStore.init()
+	themeStore.init()
 })

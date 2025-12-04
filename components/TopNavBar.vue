@@ -1,119 +1,112 @@
 <template>
-  <n-tabs
-    class="mx-8 px-12 flex justify-center themed-tabs"
-    type="line"
-    animated
-    :value="activeTab"
-    @update:value="handleTabChange"
-  >
-    <n-tab-pane
-      v-for="(tab, index) in tabs"
-      :key="index"
-      class="text-gray-700"
-      :name="tab.name"
-      :tab="tab.name"
-    />
-  </n-tabs>
+	<n-tabs
+		class="mx-8 px-12 flex justify-center themed-tabs"
+		type="line"
+		animated
+		:value="activeTab"
+		@update:value="handleTabChange"
+	>
+		<n-tab-pane
+			v-for="(tab, index) in tabs"
+			:key="index"
+			class="text-gray-700"
+			:name="tab.name"
+			:tab="tab.name"
+		/>
+	</n-tabs>
 </template>
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useTabTransition } from '~/composables/useTabTransition'
 import { useThemeStore } from '~/stores/theme'
 
 const route = useRoute()
 const themeStore = useThemeStore()
 
-const tabs = ref([
-  { name: 'Home', path: '/' },
-  { name: 'Contract', path: '/contract' },
-  { name: 'Memories', path: '/memories' },
-  { name: 'Stats', path: '/stats' },
-])
+const { tabs, updateDirection, setInitialTab } = useTabTransition()
 
-const activeTab = ref(tabs.value[0].name)
+const activeTab = ref(tabs[0].name)
 
-// Handle tab changes with proper navigation
 const handleTabChange = async (tabName) => {
-  const selectedTab = tabs.value.find((tab) => tab.name === tabName)
-  if (selectedTab && selectedTab.path !== route.path) {
-    activeTab.value = tabName
+	const selectedTab = tabs.find((tab) => tab.name === tabName)
+	if (selectedTab && selectedTab.path !== route.path) {
+		// Update direction BEFORE navigation
+		updateDirection(tabName)
+		activeTab.value = tabName
 
-    // Use navigateTo instead of router.push for better PWA support
-    await navigateTo(selectedTab.path)
-  }
+		await navigateTo(selectedTab.path)
+	}
 }
 
 // Watch route changes to update active tab
 watch(
-  () => route.path,
-  (newPath) => {
-    const currentTab = tabs.value.find((tab) => tab.path === newPath)
-    if (currentTab && currentTab.name !== activeTab.value) {
-      activeTab.value = currentTab.name
-    }
-  },
-  { immediate: true }
+	() => route.path,
+	(newPath) => {
+		const currentTab = tabs.find((tab) => tab.path === newPath)
+		if (currentTab && currentTab.name !== activeTab.value) {
+			activeTab.value = currentTab.name
+		}
+	},
+	{ immediate: true }
 )
 
 onMounted(() => {
-  // Set active tab based on current route
-  const currentTab = tabs.value.find((tab) => tab.path === route.path)
-  if (currentTab) {
-    activeTab.value = currentTab.name
-  }
+	const currentTab = tabs.find((tab) => tab.path === route.path)
+	if (currentTab) {
+		activeTab.value = currentTab.name
+		setInitialTab(currentTab.name)
+	}
 })
 
-// Computed property for dynamic theme color
 const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
 </script>
 
 <style lang="scss">
 .n-tabs-tab__label {
-  font-weight: 700;
+	font-weight: 700;
 }
 
-/* Dynamic theme-based styling */
 .themed-tabs .n-tabs-nav-scroll-content .n-tabs-bar {
-  border-color: v-bind(currentThemeColor) !important;
+	border-color: v-bind(currentThemeColor) !important;
 }
 
 .themed-tabs .n-tabs-tab__label {
-  color: rgb(49, 49, 49);
+	color: rgb(49, 49, 49);
 }
 
 .themed-tabs .n-tabs-tab--active .n-tabs-tab__label {
-  color: v-bind(currentThemeColor) !important;
+	color: v-bind(currentThemeColor) !important;
 }
 
 .themed-tabs .n-tabs-tab:hover .n-tabs-tab__label {
-  color: v-bind(currentThemeColor) !important;
-  opacity: 0.8;
+	color: v-bind(currentThemeColor) !important;
+	opacity: 0.8;
 }
 
-/* Alternative approach using CSS custom properties */
 .themed-tabs {
-  width: fit-content;
-  --theme-color: v-bind(currentThemeColor);
+	width: fit-content;
+	--theme-color: v-bind(currentThemeColor);
 
-  .n-tabs-pane-wrapper .n-tab-pane {
-    padding-top: 0.6rem;
-  }
+	.n-tabs-pane-wrapper .n-tab-pane {
+		padding-top: 0.6rem;
+	}
 }
 
 .themed-tabs .n-tabs-bar::after {
-  background-color: var(--theme-color) !important;
+	background-color: var(--theme-color) !important;
 }
 
 .themed-tabs .n-tabs-nav-scroll-content .n-tabs .n-tabs-bar {
-  background-color: var(--theme-color) !important;
+	background-color: var(--theme-color) !important;
 }
 .themed-tabs .n-tabs-nav-scroll-content .n-tabs-wrapper {
-  padding-left: 2rem;
-  padding-right: 2rem;
+	padding-left: 2rem;
+	padding-right: 2rem;
 }
 
 .n-tabs .n-tabs-bar {
-  background-color: var(--theme-color) !important;
+	background-color: var(--theme-color) !important;
 }
 </style>

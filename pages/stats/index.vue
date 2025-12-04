@@ -1,24 +1,30 @@
 <template>
-	<div class="stats-page-container">
-		<div class="content">
-			<div class="avatar-container py-8">
+	<div class="stats-page-container animate-item">
+		<div class="content animate-item">
+			<div class="avatar-container py-8 animate-item">
 				<!-- Left mirrored avatar -->
-				<div class="avatar-image mirror">
+				<div class="avatar-image mirror animate-item">
 					<n-image
 						style="transform: rotate(5deg) scaleX(-1)"
 						width="80"
 						src="/memojis/jeje/thinking.png"
+						class="animate-item"
 					/>
 				</div>
 
 				<!-- Right avatar -->
-				<div class="avatar-image">
-					<n-image style="transform: rotate(3deg)" width="81" src="/memojis/paci/thinking.png" />
+				<div class="avatar-image animate-item">
+					<n-image
+						style="transform: rotate(3deg)"
+						width="81"
+						src="/memojis/paci/thinking.png"
+						class="animate-item"
+					/>
 				</div>
 
 				<!-- Shadows (anchored to floor) -->
-				<div class="avatar-shadow left"></div>
-				<div class="avatar-shadow right"></div>
+				<div class="avatar-shadow left animate-item"></div>
+				<div class="avatar-shadow right animate-item"></div>
 			</div>
 
 			<p class="title">Please wait ...</p>
@@ -29,6 +35,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
+import { usePageAnimation } from '~/composables/usePageAnimation'
 import { useThemeStore } from '~/stores/theme'
 
 const themeStore = useThemeStore()
@@ -40,6 +47,12 @@ const currentLightThemeColor = computed(() =>
 )
 
 const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
+
+const { animatePageEnter } = usePageAnimation()
+
+onMounted(() => {
+	animatePageEnter() // <-- THIS TRIGGERS THE ANIMATION
+})
 </script>
 
 <style lang="scss" scoped>

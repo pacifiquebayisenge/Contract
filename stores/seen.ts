@@ -2,56 +2,56 @@ import type { Database } from '~/types/supabase.types'
 import { useUserStore } from './user'
 
 export const useSeenStore = defineStore('seen', {
-  state: () => ({
-    value: 0,
-  }),
+	state: () => ({
+		value: 0,
+	}),
 
-  getters: {
-    getSeenCount: (s) => s.value,
-  },
+	getters: {
+		getSeenCount: (s) => s.value,
+	},
 
-  actions: {
-    setSeen(n: number) {
-      this.value = n
-    },
+	actions: {
+		setSeen(n: number) {
+			this.value = n
+		},
 
-    async updateSeen() {
-      const userStore = useUserStore()
-      const supabase = useSupabaseClient<Database>()
+		async updateSeen() {
+			const userStore = useUserStore()
+			const supabase = useSupabaseClient<Database>()
 
-      const profile = userStore.profile
+			const profile = userStore.profile
 
-      if (!profile) {
-        console.error('Profile not loaded')
-        return
-      }
+			if (!profile) {
+				console.error('Profile not loaded')
+				return
+			}
 
-      const newSeen = this.value + 1
-      this.setSeen(newSeen)
+			const newSeen = this.value + 1
+			this.setSeen(newSeen)
 
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({
-          seen: newSeen,
-        })
-        .eq('id', profile.id)
-        .select('*')
+			const { data, error } = await supabase
+				.from('profiles')
+				.update({
+					seen: newSeen,
+				})
+				.eq('id', profile.id)
+				.select('*')
 
-      if (error) {
-        console.error('Failed to update seen:', error)
-        return
-      }
+			if (error) {
+				console.error('Failed to update seen:', error)
+				return
+			}
 
-      if (data && data.length > 0) {
-        console.log('Seen updated:', `${data[0].firstname}: seen ${data[0].seen}`)
-        userStore.profile!.seen = this.value
-      }
-    },
+			if (data && data.length > 0) {
+				console.log('Seen updated:', `${data[0].firstname}: seen ${data[0].seen}`)
+				userStore.profile!.seen = this.value
+			}
+		},
 
-    init() {
-      const userStore = useUserStore()
-      const seen = userStore.profile?.seen || 0
-      this.setSeen(seen)
-    },
-  },
+		init() {
+			const userStore = useUserStore()
+			const seen = userStore.profile?.seen || 0
+			this.setSeen(seen)
+		},
+	},
 })

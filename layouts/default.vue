@@ -1,34 +1,34 @@
 <template>
-  <NModalProvider>
-    <n-spin :show="authLoading.visible.value" size="large">
-      <div id="app-container" class="flex flex-col h-screen">
-        <div
-          class="sticky top-0 z-50 flex justify-center items-center py-2 bg-white rounded-t-3xl flex-shrink-0"
-          style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
-        >
-          <TopNavBar />
-        </div>
+	<NModalProvider>
+		<n-spin :show="authLoading.visible.value" size="large">
+			<div id="app-container" class="flex flex-col h-screen">
+				<div
+					class="sticky top-0 z-50 flex justify-center items-center py-2 bg-white rounded-t-3xl flex-shrink-0"
+					style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
+				>
+					<TopNavBar />
+				</div>
 
-        <!-- Scrollable page content only -->
-        <main class="flex-1 overflow-hidden bg-white">
-          <div class="h-full px-6 pt-[2rem] pb-18" style="padding-bottom: 15rem">
-            <slot />
-          </div>
-        </main>
+				<!-- Scrollable page content only -->
+				<main class="flex-1 overflow-hidden bg-white">
+					<div class="h-full px-6 pt-[2rem] pb-18" style="padding-bottom: 15rem">
+						<slot />
+					</div>
+				</main>
 
-        <PWAUpdateDialog />
-        <PWAInstallPrompt />
+				<PWAUpdateDialog />
+				<PWAInstallPrompt />
 
-        <div
-          class="fixed bottom-[40px] left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent"
-        >
-          <div class="pointer-events-auto">
-            <BottomMenuBar />
-          </div>
-        </div>
-      </div>
-    </n-spin>
-  </NModalProvider>
+				<div
+					class="fixed bottom-[40px] left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent"
+				>
+					<div class="pointer-events-auto">
+						<BottomMenuBar />
+					</div>
+				</div>
+			</div>
+		</n-spin>
+	</NModalProvider>
 </template>
 
 <script setup>
@@ -42,58 +42,58 @@ const nuxtApp = useNuxtApp()
 const authLoading = nuxtApp.$authLoading
 
 useHead({
-  meta: [
-    {
-      name: 'viewport',
-      content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
-    },
-  ],
+	meta: [
+		{
+			name: 'viewport',
+			content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
+		},
+	],
 })
 </script>
 
 <style lang="scss">
 div#app-container {
-  touch-action: none;
-  overflow: hidden;
-  height: 100vh;
+	touch-action: none;
+	overflow: hidden;
+	height: 100vh;
 
-  & > div {
-    background-color: white;
-    background-clip: padding-box;
-  }
+	& > div {
+		background-color: white;
+		background-clip: padding-box;
+	}
 
-  /* Ensure modal backdrops don't create scroll */
-  .n-modal-container {
-    position: fixed;
-    overflow: hidden;
-  }
+	/* Ensure modal backdrops don't create scroll */
+	.n-modal-container {
+		position: fixed;
+		overflow: hidden;
+	}
 
-  /* Prevent body scroll when modal is open */
-  body.modal-open {
-    overflow: hidden;
-  }
+	/* Prevent body scroll when modal is open */
+	body.modal-open {
+		overflow: hidden;
+	}
 }
 
 /* Main content scroll area */
 main {
-  scrollbar-width: thin;
-  scrollbar-color: #c1c1c1 transparent;
+	scrollbar-width: thin;
+	scrollbar-color: #c1c1c1 transparent;
 }
 
 main::-webkit-scrollbar {
-  width: 6px;
+	width: 6px;
 }
 
 main::-webkit-scrollbar-track {
-  background: transparent;
+	background: transparent;
 }
 
 main::-webkit-scrollbar-thumb {
-  background-color: #c1c1c1;
-  border-radius: 3px;
+	background-color: #c1c1c1;
+	border-radius: 3px;
 }
 
 main::-webkit-scrollbar-thumb:hover {
-  background-color: #a8a8a8;
+	background-color: #a8a8a8;
 }
 </style>
