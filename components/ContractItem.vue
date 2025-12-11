@@ -1,16 +1,20 @@
 <template>
 	<div
+		:id="props.item.id"
 		ref="card"
-		:style="{ borderRadius: '1rem !important', cursor: 'pointer' }"
+		:style="{ borderRadius: '2rem !important', cursor: 'pointer' }"
 		class="shadow-md my-8"
 	>
-		<n-card :style="{ borderRadius: '1rem !important' }">
-			<!-- ... rest of your template stays EXACTLY the same ... -->
+		<n-card :style="{ borderRadius: '2rem !important' }">
 			<div class="contract-item-content" @click="showActions = !showActions">
 				<div class="index">
-					<span class="text-2xl">{{ index + 1 }}</span>
+					<span class="text-2xl">{{ props.index + 1 }}</span>
 				</div>
-				<div class="text">{{ item.title }}</div>
+
+				<div class="text truncate">{{ props.item.title }}</div>
+
+				<!-- name: 'pending' | 'in-progress' | 'submitted' | 'in-review' | 'success' | 'failed' | 'expired' -->
+				<!-- <StatusBadge :name="props.item.state" /> -->
 			</div>
 
 			<n-collapse-transition :show="showActions">
@@ -19,8 +23,8 @@
 						<textarea
 							readonly
 							class="contract-description w-[100%] h-[15rem] bg-[#0000000a] py-4 px-6 rounded-[1rem]"
-							:name="'contract-rule-description-' + index"
-							:value="item.description"
+							:name="'contract-rule-description-' + props.index"
+							:value="props.item.description"
 						>
 						</textarea>
 
@@ -46,7 +50,10 @@
 			<template #footer>
 				<div class="flex gap-x-4 border-t border-gray-200 pt-2 footer">
 					<div class="flex gap-x-1 justify-center items-center">
-						<span>{{ formattedDate }} : {{ index % 2 ? 'Sukkel' : 'Domme' }} </span>
+						<span
+							>{{ formatTimeAgo(props.item.created_at) }} :
+							{{ userStore.getProfileById(props.item.author)?.firstname }}
+						</span>
 					</div>
 				</div>
 			</template>
@@ -55,7 +62,7 @@
 		<n-modal v-model:show="showEditDialog" :auto-focus="false" transform-origin="center">
 			<n-card
 				style="max-width: 80%"
-				:style="{ borderRadius: '1rem !important' }"
+				:style="{ borderRadius: '2rem !important' }"
 				:bordered="false"
 				size="huge"
 				role="dialog"
@@ -73,14 +80,14 @@
 					</div>
 				</div>
 
-				<EditContractItem :item="item" />
+				<EditContractItem :item="props.item" @close="showEditDialog = false" />
 			</n-card>
 		</n-modal>
 
 		<n-modal v-model:show="showDeleteDialog" transform-origin="center">
 			<n-card
 				style="width: 80%"
-				:style="{ borderRadius: '1rem !important' }"
+				:style="{ borderRadius: '2rem !important' }"
 				:bordered="false"
 				size="huge"
 				role="dialog"
@@ -98,7 +105,7 @@
 					</div>
 				</div>
 
-				<DeleteContractItem :item="item" />
+				<DeleteContractItem :item="props.item" @close="showDeleteDialog = false" />
 			</n-card>
 		</n-modal>
 	</div>
@@ -108,6 +115,8 @@
 import { computed, ref } from 'vue'
 import { PencilSquareIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import { useThemeStore } from '~/stores/theme'
+import { useUserStore } from '~/stores/user'
+import { formatTimeAgo } from '~/utils/formatDate'
 
 const props = defineProps({
 	index: {
@@ -120,13 +129,15 @@ const props = defineProps({
 			id: undefined,
 			title: undefined,
 			description: undefined,
+			author: undefined,
+			state: undefined,
+			created_at: undefined,
 		}),
 	},
 })
 
-const { item, index } = props
-
 const themeStore = useThemeStore()
+const userStore = useUserStore()
 
 const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
 
@@ -143,19 +154,6 @@ const insideBadgeRing = computed(
 let showActions = ref(false)
 let showEditDialog = ref(false)
 let showDeleteDialog = ref(false)
-
-const now = new Date()
-
-const parts = now
-	.toLocaleDateString('en-GB', {
-		weekday: 'short',
-		day: 'numeric',
-		month: 'long',
-		year: 'numeric',
-	})
-	.split(' ')
-
-const formattedDate = `${parts[0]}, ${parts.slice(1).join(' ')}`
 </script>
 
 <style lang="scss" scoped>
@@ -185,7 +183,7 @@ const formattedDate = `${parts[0]}, ${parts.slice(1).join(' ')}`
 
 .contract-item-content {
 	display: grid;
-	grid-template-columns: auto 1fr;
+	grid-template-columns: auto 1fr auto;
 	grid-template-rows: auto;
 	justify-content: center;
 	align-items: center;

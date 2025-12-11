@@ -1,5 +1,5 @@
 <template>
-	<div class="delete-contract-item-model">
+	<div class="edit-contract-item-modal">
 		<span>
 			Let's see what we can <span class="special">change</span> about contract rule
 			<span class="special">{{ index + 1 }}</span> ???
@@ -24,43 +24,37 @@
 			<div class="line" />
 		</div>
 
-		<button
-			class="button-3D button-3D-colorfull"
-			@click="$emit('update:modelValue', { id: item.id, title, description })"
-		>
+		<button class="button-3D button-3D-colorfull" @click="submit">
 			<span>Edit</span>
 		</button>
 	</div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useContractStore } from '~/stores/contract'
 import { useThemeStore } from '~/stores/theme'
 
 const props = defineProps({
 	modelValue: {
 		type: Object,
-		default: () => ({
-			id: '',
-			title: '',
-			description: '',
-		}),
+		default: () => ({}),
 	},
 	index: {
 		type: Number,
 		default: 0,
 	},
+
 	item: {
 		type: Object,
 		default: () => ({
-			id: '',
 			title: '',
 			description: '',
 		}),
 	},
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['close'])
 
 const { item } = props
 
@@ -68,35 +62,35 @@ const { item } = props
 const title = ref('')
 const description = ref('')
 
-// 1️⃣ populate on launch
-onMounted(() => {
-	title.value = item.title || ''
-	description.value = item.description || ''
-
-	// also initialize modelValue immediately
-	emit('update:modelValue', { ...item })
-})
-
-// 2️⃣ sync back to parent automatically
-watch([title, description], ([newTitle, newDescription]) => {
-	emit('update:modelValue', {
-		id: item.id,
-		title: newTitle,
-		description: newDescription,
-	})
-})
-
 const themeStore = useThemeStore()
+const contractStore = useContractStore()
+
 const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
 const currentLightThemeColor = computed(() =>
 	themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
 		? themeStore.getCurrentLightThemeColor
 		: themeStore.getCurrentExtraLightThemeColor
 )
+
+// 1️⃣ populate on launch
+onMounted(() => {
+	title.value = item.title || ''
+	description.value = item.description || ''
+	console.log(title.value, description.value)
+})
+
+const submit = async () => {
+	await contractStore.updateContractRule(item.id, {
+		title: title.value,
+		description: description.value,
+	})
+
+	emit('close')
+}
 </script>
 
 <style lang="scss" scoped>
-.delete-contract-item-model {
+.edit-contract-item-modal {
 	display: flex;
 	flex-direction: column;
 	align-items: center;

@@ -32,6 +32,10 @@ onMounted(() => {
 	flex-direction: column;
 	gap: 3rem;
 
+	& div:last-child {
+		margin-bottom: 25rem;
+	}
+
 	div.n-card {
 		border-radius: 2rem;
 

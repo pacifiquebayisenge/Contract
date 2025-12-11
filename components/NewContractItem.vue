@@ -9,6 +9,7 @@
 				placeholder="Contract rule..."
 				class="bg-[#0000000a] rounded-[1rem]"
 			/>
+
 			<div class="line" />
 		</div>
 
@@ -18,78 +19,52 @@
 				placeholder="Description of the rule"
 				class="h-[15rem] bg-[#0000000a] rounded-[1rem] w-[100%] max-w-[85rem]"
 			/>
+
 			<div class="line" />
 		</div>
 
-		<button
-			class="button-3D button-3D-colorfull"
-			@click="$emit('update:modelValue', { id: item.id, title, description })"
-		>
+		<button class="button-3D button-3D-colorfull" @click="submit">
 			<span>Submit</span>
 		</button>
 	</div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useContractStore } from '~/stores/contract'
 import { useThemeStore } from '~/stores/theme'
 
-const props = defineProps({
-	modelValue: {
-		type: Object,
-		default: () => ({
-			id: '',
-			title: '',
-			description: '',
-		}),
-	},
-	index: {
-		type: Number,
-		default: 0,
-	},
-	item: {
-		type: Object,
-		default: () => ({
-			id: '',
-			title: '',
-			description: '',
-		}),
-	},
-})
-
-const emit = defineEmits(['update:modelValue'])
-
-const { item } = props
-
-// local reactive copies
-const title = ref('')
-const description = ref('')
-
-// 1️⃣ populate on launch
-onMounted(() => {
-	title.value = item.title || ''
-	description.value = item.description || ''
-
-	// also initialize modelValue immediately
-	emit('update:modelValue', { ...item })
-})
-
-// 2️⃣ sync back to parent automatically
-watch([title, description], ([newTitle, newDescription]) => {
-	emit('update:modelValue', {
-		id: item.id,
-		title: newTitle,
-		description: newDescription,
-	})
-})
-
 const themeStore = useThemeStore()
+const contractStore = useContractStore()
+
+const emit = defineEmits(['close'])
+
 const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
 const currentLightThemeColor = computed(() =>
 	themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
 		? themeStore.getCurrentLightThemeColor
 		: themeStore.getCurrentExtraLightThemeColor
 )
+
+// local reactive copies
+const title = ref('')
+const description = ref('')
+
+// 2️⃣ sync back to parent automatically
+watch([title, description], ([newTitle, newDescription]) => {
+	console.log({
+		title: newTitle,
+		description: newDescription,
+	})
+})
+
+const submit = async () => {
+	if (!title.value || !description.value) return
+
+	await contractStore.addContractRule(title.value, description.value)
+
+	emit('close')
+}
 </script>
 
 <style lang="scss" scoped>

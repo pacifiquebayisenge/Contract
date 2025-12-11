@@ -31,7 +31,7 @@
 			style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
 		>
 			<n-drawer-content title="Account">
-				<div class="drawer-body invisible-scroll">
+				<div class="drawer-body invisible-scroll mb-16">
 					<div class="account-items px-5 mb-16">
 						<n-collapse arrow-placement="right" class="mb-16">
 							<n-collapse-item title="names" name="1">
@@ -74,7 +74,7 @@
 		<!-- settings drawer -->
 		<n-drawer
 			v-model:show="showSettings"
-			:height="400"
+			:height="450"
 			placement="bottom"
 			:block-scroll="true"
 			:trap-focus="false"
@@ -82,7 +82,7 @@
 		>
 			<n-drawer-content title="Settings">
 				<div class="drawer-body invisible-scroll">
-					<div class="settings-items px-5">
+					<div class="settings-items px-5 mb-24">
 						<n-collapse arrow-placement="right">
 							<n-collapse-item title="Theme" name="1">
 								<div class="px-3">
@@ -286,10 +286,10 @@ const saveChanges = async () => {
 <style lang="scss">
 .bottom-menu-bar {
 	padding: 0.5rem 1.5rem;
-	background-color: rgba(255, 255, 255, 0.8);
+	background-color: rgba(255, 255, 255, 0.6);
 	border-top: 1px solid rgba(0, 0, 0, 0.08);
 	box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
-	backdrop-filter: blur(3px);
+	backdrop-filter: blur(2px);
 	border-radius: 2rem;
 
 	.items {

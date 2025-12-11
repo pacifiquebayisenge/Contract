@@ -45,7 +45,7 @@ export const useStreakStore = defineStore('streak', {
 			}
 
 			if (data && data.length > 0) {
-				console.log('Streak updated:', `${data[0].firstname}: streak ${data[0].streak}`)
+				// console.log('Streak updated:', `${data[0].firstname}: streak ${data[0].streak}`)
 				userStore.partnerProfile!.streak = newStreak
 			}
 
@@ -95,7 +95,6 @@ export const useStreakStore = defineStore('streak', {
 
 			const streak = userStore.profile!.streak || 0
 			this.setStreak(streak)
-			console.log(streak)
 		},
 	},
 })

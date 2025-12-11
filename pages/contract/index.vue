@@ -9,15 +9,29 @@
 			</button>
 		</div>
 
-		<div class="scroll-container invisible-scroll page-bottom-padding animate-item">
-			<n-infinite-scroll :distance="10" @load="handleLoad">
+		<div class="filter-container my-6 px-8 py-4 invisible-scroll-component">
+			<StatusBadge name="pending" @click="test" />
+			<StatusBadge name="in-progress" />
+			<StatusBadge name="submitted" />
+			<StatusBadge name="in-review" />
+			<StatusBadge name="success" />
+			<StatusBadge name="failed" />
+			<StatusBadge name="expired" />
+		</div>
+
+		<div
+			class="scroll-container invisible-scroll page-bottom-padding animate-item contract-item-container"
+		>
+			<n-infinite-scroll :distance="10" class="contract-item-container" @load="handleLoad">
 				<ContractItem
-					v-for="(item, index) in items"
-					:key="index"
+					v-for="(item, index) in contractItems"
+					:key="item.id"
 					:index="index"
 					:item="item"
 					class="animate-item"
 				/>
+
+				<div v-if="!contractItems.length" class="empty-list">no items...</div>
 			</n-infinite-scroll>
 		</div>
 
@@ -37,12 +51,12 @@
 						:class="insideBadgeRing ? 'inside-ring' : 'outside-ring'"
 					>
 						<div class="avatar-image">
-							<n-image width="60" src="/memojis/jeje/idea.png" />
+							<n-image width="60" :src="getAvatarMood(fullName, 'idea')" />
 						</div>
 					</div>
 				</div>
 
-				<NewContractItem />
+				<NewContractItem @close="showNewDialog = false" />
 			</n-card>
 		</n-modal>
 	</div>
@@ -51,11 +65,24 @@
 <script setup lang="ts">
 import ContractItem from '~/components/ContractItem.vue'
 import { usePageAnimation } from '~/composables/usePageAnimation'
+import { useContractStore } from '~/stores/contract'
 import { useThemeStore } from '~/stores/theme'
+import { useUserStore } from '~/stores/user'
+import { getAvatarMood } from '~/utils/getAvatarImg'
+
+const themeStore = useThemeStore()
+const userStore = useUserStore()
+const contractStore = useContractStore()
 
 let showNewDialog = ref(false)
 
-const themeStore = useThemeStore()
+const profile = computed(() => userStore.profile)
+const contractItems = computed(() => contractStore.getContractList)
+
+const fullName = computed(() => {
+	if (!profile.value || !profile.value.firstname || !profile.value.lastname) return 'Full name ?'
+	return profile.value.firstname + ' ' + profile.value.lastname
+})
 
 // Computed property for dynamic theme color
 const currentLightThemeColor = computed(() =>
@@ -73,96 +100,36 @@ const insideBadgeRing = computed(
 function handleLoad() {
 	// count.value += 1;
 }
+const test = () => {
+	console.log('click')
+}
 
 const { animatePageEnter } = usePageAnimation()
 
 onMounted(() => {
 	animatePageEnter() // <-- THIS TRIGGERS THE ANIMATION
 })
-
-const items = [
-	{
-		id: '1',
-		title: 'contract rule title',
-		description: 'Description of the contract rule',
-	},
-	{
-		id: '2',
-		title: 'contract rule title',
-		description: 'Description of the contract rule',
-	},
-	{
-		id: '3',
-		title: 'contract rule title',
-		description: 'Description of the contract rule',
-	},
-	{
-		id: '4',
-		title: 'contract rule title',
-		description: 'Description of the contract rule',
-	},
-	{
-		id: '5',
-		title: 'contract rule title',
-		description: 'Description of the contract rule',
-	},
-	{
-		id: '6',
-		title: 'contract rule title',
-		description: 'Description of the contract rule',
-	},
-	{
-		id: '7',
-		title: 'contract rule title',
-		description: 'Description of the contract rule',
-	},
-	{
-		id: '8',
-		title: 'contract rule title',
-		description: 'Description of the contract rule',
-	},
-	{
-		id: '9',
-		title: 'contract rule title',
-		description: 'Description of the contract rule',
-	},
-	{
-		id: '10',
-		title: 'contract rule title',
-		description: 'Description of the contract rule',
-	},
-	{
-		id: '11',
-		title: 'contract rule title',
-		description: 'Description of the contract rule',
-	},
-	{
-		id: '12',
-		title: 'contract rule title',
-		description: 'Description of the contract rule',
-	},
-	{
-		id: '13',
-		title: 'contract rule title',
-		description: 'Description of the contract rule',
-	},
-	{
-		id: '14',
-		title: 'contract rule title',
-		description: 'Description of the contract rule',
-	},
-	{
-		id: '15',
-		title: 'contract rule title',
-		description: 'Description of the contract rule',
-	},
-]
 </script>
 
 <style lang="scss" scoped>
 .contract-page-container {
 	display: flex;
 	flex-direction: column;
+
+	.filter-container {
+		display: flex;
+		gap: 1rem;
+		overflow-x: scroll;
+	}
+
+	.scroll-container div div:last-child {
+		margin-bottom: 35rem;
+	}
+
+	.empty-list {
+		padding: 4rem;
+		text-align: center;
+	}
 }
 
 .avatar-container {

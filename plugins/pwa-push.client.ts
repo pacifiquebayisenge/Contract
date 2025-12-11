@@ -43,7 +43,6 @@ export default defineNuxtPlugin(() => {
 		const user = useSupabaseUser()
 
 		await nextTick()
-		console.log('👤 Supabase user:', user.value)
 
 		// Try to sync any pending subscriptions first
 		const { syncPendingSubscription } = usePushNotifications()

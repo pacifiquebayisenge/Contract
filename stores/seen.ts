@@ -43,7 +43,7 @@ export const useSeenStore = defineStore('seen', {
 			}
 
 			if (data && data.length > 0) {
-				console.log('Seen updated:', `${data[0].firstname}: seen ${data[0].seen}`)
+				// console.log('Seen updated:', `${data[0].firstname}: seen ${data[0].seen}`)
 				userStore.profile!.seen = this.value
 			}
 		},

@@ -209,7 +209,26 @@ body {
 
 .invisible-scroll {
 	overflow-y: scroll;
-	height: 100vh;
+	height: 100vh; // what is this doing here ???
+
+	// Hide scrollbar but keep scroll behavior
+	:deep(.n-scrollbar-container) {
+		scrollbar-width: none; // Firefox
+		-ms-overflow-style: none; // IE and Edge
+
+		&::-webkit-scrollbar {
+			display: none; // Chrome, Safari, Opera
+		}
+	}
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+	scrollbar-width: none;
+}
+
+.invisible-scroll-component {
+	overflow-y: scroll;
 
 	// Hide scrollbar but keep scroll behavior
 	:deep(.n-scrollbar-container) {
@@ -228,7 +247,7 @@ body {
 }
 
 .page-bottom-padding {
-	padding-bottom: 25rem;
+	// padding-bottom: 25rem;
 }
 
 /* Tab animation keyframes */

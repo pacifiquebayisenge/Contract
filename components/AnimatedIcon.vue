@@ -17,7 +17,6 @@
   iconRef.value?.trigger()
 -->
 <template>
-	<!-- Main container with relative positioning for particles -->
 	<div
 		class="relative inline-flex items-center justify-center"
 		:style="cssVariables"
@@ -67,7 +66,7 @@
 		/>
 	</div>
 
-	<!-- Optional label below the icon -->
+	<!--  label next to the icon -->
 	<span
 		class="text-base text-gray-400 text-center"
 		:class="['transition-colors duration-200', animationClass]"
@@ -147,7 +146,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-	label: '',
+	label: undefined,
 	accentColor: '#22c55e',
 	idleColor: '#6b7280',
 	particleCount: 70,

@@ -9,7 +9,7 @@
 						:class="insideBadgeRing ? 'inside-ring' : 'outside-ring'"
 					>
 						<div ref="avatarImg" class="avatar-image">
-							<n-image width="50" :src="fullName.charAt(0) === 'P' ? paciAvatar : jejeAvatar" />
+							<n-image width="50" :src="getRandomAvatarMood(fullName)" />
 						</div>
 					</div>
 				</div>
@@ -132,6 +132,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { BanknotesIcon, EyeIcon, FireIcon } from '@heroicons/vue/24/outline'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
+import { getRandomAvatarMood } from '~/utils/getAvatarImg'
 import AnimatedIcon from './AnimatedIcon.vue'
 import ContractModal from './ContractModal.vue'
 
@@ -196,7 +197,6 @@ watch(
 watch(
 	() => props.profile?.credit,
 	(newVal, oldVal) => {
-		console.log(newVal, oldVal)
 		if (oldVal !== undefined && newVal !== oldVal) banknotesIcon.value?.trigger()
 	}
 )
@@ -204,40 +204,6 @@ watch(
 let showActions = ref(false)
 let showContractDialog = ref(false)
 let showViolationDialog = ref(false)
-
-const memojiNames = [
-	'angry.png',
-	'cloudy.png',
-	'cringe.png',
-	'dizzy.png',
-	'eye-roll.png',
-	'goofy.png',
-	'happy.png',
-	'heart-eyes.png',
-	'idea.png',
-	'irritated.png',
-	'kiss.png',
-	'love.png',
-	'lucky.png',
-	'mad.png',
-	'mindblown.png',
-	'party.png',
-	'sad.png',
-	'shook.png',
-	'sleepy.png',
-	'star-eyes.png',
-	'tear-drop.png',
-	'tears-laughing.png',
-	'thinking.png',
-	'whisper.png',
-	'wink.png',
-]
-
-const jejeImgs = memojiNames.map((name) => `/memojis/jeje/${name}`)
-const paciImgs = memojiNames.map((name) => `/memojis/paci/${name}`)
-
-const paciAvatar = ref('')
-const jejeAvatar = ref('')
 
 // ---- NEW REFS for precise animation control ----
 const { $anime } = useNuxtApp()
@@ -247,12 +213,6 @@ const avatarImg = ref(null) // Avatar image
 const content = ref(null)
 
 onMounted(() => {
-	const randomIndex = Math.floor(Math.random() * paciImgs.length)
-	paciAvatar.value = paciImgs[randomIndex]
-
-	const randomIndex2 = Math.floor(Math.random() * jejeImgs.length)
-	jejeAvatar.value = jejeImgs[randomIndex2]
-
 	if (!card.value || !avatarBg.value || !avatarImg.value || !content.value) return
 
 	$anime

@@ -6,7 +6,6 @@ export const usePseudoStore = defineStore('pseudo', {
 		userId: null as string | null,
 		partnerId: null as string | null,
 
-		// Must be strings
 		myPseudo: null as string | null,
 		partnerPseudo: null as string | null,
 

@@ -48,7 +48,7 @@ export const useViolationStore = defineStore('violation', {
 			}
 
 			if (data && data.length > 0) {
-				console.log('Violation updated:', `${data[0].firstname}: violation ${data[0].violation}`)
+				// console.log('Violation updated:', `${data[0].firstname}: violation ${data[0].violation}`)
 				userStore.partnerProfile!.violation = newViolation
 
 				await creditStore.reducePartnerCredit(100)

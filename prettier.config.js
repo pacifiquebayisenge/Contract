@@ -25,6 +25,4 @@ export default {
 		'^~/',
 		'^[./]', // Relative imports last
 	],
-	importOrderSeparation: true,
-	importOrderSortSpecifiers: true,
 }

@@ -12,6 +12,29 @@ export const useUserStore = defineStore('user', {
 		ready: false,
 	}),
 
+	getters: {
+		getProfileById: (state) => {
+			return (id: string): ProfileRow | null => {
+				if (state.profile?.id === id) return state.profile
+				if (state.partnerProfile?.id === id) return state.partnerProfile
+				return null
+			}
+		},
+		getFullNameById: (state) => {
+			return (id: string): string => {
+				let profile: ProfileRow | null = null
+
+				if (state.profile?.id === id) profile = state.profile
+				else if (state.partnerProfile?.id === id) profile = state.partnerProfile
+
+				if (!profile) return 'Unknown User'
+
+				const parts = [profile.firstname, profile.lastname].filter(Boolean)
+				return parts.join(' ') || 'Unknown User'
+			}
+		},
+	},
+
 	actions: {
 		async init() {
 			const supabase = useSupabaseClient<Database>()
