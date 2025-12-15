@@ -71,9 +71,35 @@ export const useCreditStore = defineStore('credit', {
 				return
 			}
 
+			await this.logCreditUpdate(newCredit)
+
 			if (data && data.length > 0) {
 				console.log('Credit reduced:', `${data[0].firstname}: credit ${data[0].credit}`)
 				userStore.partnerProfile!.credit = newCredit
+			}
+		},
+
+		async logCreditUpdate(newCredit: number) {
+			const supabase = useSupabaseClient<Database>()
+			const userStore = useUserStore()
+
+			const partner = userStore.partnerProfile
+
+			if (!partner) {
+				console.error('Partner profile is not loaded, cannot log streak update.')
+				return
+			}
+
+			const { data, error } = await supabase.from('credit_history').insert({
+				user_id: partner.id,
+				credit_value: newCredit,
+				updated_by: userStore.profile!.id,
+				source_action: 'increment',
+			})
+
+			if (error) {
+				console.error('Failed to log credit update:', error)
+				return
 			}
 		},
 

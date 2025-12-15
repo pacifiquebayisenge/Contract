@@ -42,9 +42,35 @@ export const useSeenStore = defineStore('seen', {
 				return
 			}
 
+			await this.logSeenUpdate(newSeen)
+
 			if (data && data.length > 0) {
 				// console.log('Seen updated:', `${data[0].firstname}: seen ${data[0].seen}`)
 				userStore.profile!.seen = this.value
+			}
+		},
+
+		async logSeenUpdate(newSeen: number) {
+			const supabase = useSupabaseClient<Database>()
+			const userStore = useUserStore()
+
+			const partner = userStore.partnerProfile
+
+			if (!partner) {
+				console.error('Partner profile is not loaded, cannot log seen update.')
+				return
+			}
+
+			const { data, error } = await supabase.from('seen_history').insert({
+				user_id: userStore.profile!.id,
+				seen_value: newSeen,
+				updated_by: userStore.profile!.id,
+				source_action: 'increment',
+			})
+
+			if (error) {
+				console.error('Failed to log seen update:', error)
+				return
 			}
 		},
 
