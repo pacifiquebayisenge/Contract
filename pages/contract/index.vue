@@ -9,20 +9,24 @@
 			</button>
 		</div>
 
-		<div class="filter-container my-6 px-8 py-4 invisible-scroll-component">
-			<StatusBadge name="pending" @click="test" />
-			<StatusBadge name="in-progress" />
-			<StatusBadge name="submitted" />
-			<StatusBadge name="in-review" />
-			<StatusBadge name="success" />
-			<StatusBadge name="failed" />
-			<StatusBadge name="expired" />
+		<div class="filter-container my-2 px-8 py-4 invisible-scroll-component">
+			<StatusBadge version="Badge" @click="handleStatusClick" name="Pending" />
+			<StatusBadge version="Badge" @click="handleStatusClick" name="Progress" />
+			<StatusBadge version="Badge" @click="handleStatusClick" name="Submitted" />
+			<StatusBadge version="Badge" @click="handleStatusClick" name="Review" />
+			<StatusBadge version="Badge" @click="handleStatusClick" name="Success" />
+			<StatusBadge version="Badge" @click="handleStatusClick" name="Failed" />
+			<StatusBadge version="Badge" @click="handleStatusClick" name="Expired" />
 		</div>
 
 		<div
-			class="scroll-container invisible-scroll page-bottom-padding animate-item contract-item-container"
+			class="scroll-container invisible-scroll-component page-bottom-padding animate-item contract-item-container"
 		>
-			<n-infinite-scroll :distance="10" class="contract-item-container" @load="handleLoad">
+			<n-infinite-scroll
+				:distance="10"
+				class="contract-item-container invisible-scroll"
+				@load="handleLoad"
+			>
 				<ContractItem
 					v-for="(item, index) in contractItems"
 					:key="item.id"
@@ -73,11 +77,18 @@ import { getAvatarMood } from '~/utils/getAvatarImg'
 const themeStore = useThemeStore()
 const userStore = useUserStore()
 const contractStore = useContractStore()
+const { animatePageEnter } = usePageAnimation()
 
 let showNewDialog = ref(false)
+let filterItemRef = ref('')
 
 const profile = computed(() => userStore.profile)
-const contractItems = computed(() => contractStore.getContractList)
+
+const contractItems = computed(() => {
+	if (filterItemRef.value)
+		return contractStore.contractList.filter((item) => item.state === filterItemRef.value)
+	return contractStore.getContractList
+})
 
 const fullName = computed(() => {
 	if (!profile.value || !profile.value.firstname || !profile.value.lastname) return 'Full name ?'
@@ -100,11 +111,12 @@ const insideBadgeRing = computed(
 function handleLoad() {
 	// count.value += 1;
 }
-const test = () => {
-	console.log('click')
-}
 
-const { animatePageEnter } = usePageAnimation()
+function handleStatusClick(state: string) {
+	console.log('badge was clicked!', state)
+
+	filterItemRef.value = state
+}
 
 onMounted(() => {
 	animatePageEnter() // <-- THIS TRIGGERS THE ANIMATION
