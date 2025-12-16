@@ -248,12 +248,12 @@ const option = computed(() => {
 					...legendSquares.map((sq, i) => ({
 						type: 'rect',
 						left: lessW + padBetween + i * (legendTile + legendGap),
-						top: 0,
+						top: Math.floor(centerY - (legendTile - 5) / 2) + 5,
 						shape: {
 							x: 0,
 							y: 0,
-							width: legendTile,
-							height: legendTile,
+							width: legendTile - 5,
+							height: legendTile - 5,
 							r: Math.max(2, Math.floor(legendTile * 0.3)),
 						},
 						style: {
