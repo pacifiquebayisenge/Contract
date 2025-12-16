@@ -1,6 +1,6 @@
 <template>
 	<ClientOnly>
-		<VChart :option="option" autoresize style="height: 280px; width: 100%" />
+		<VChart :option="option" autoresize style="height: 300px; width: 100%" />
 	</ClientOnly>
 </template>
 
@@ -8,6 +8,7 @@
 import { computed } from 'vue'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
+import { formatCountToMs } from '~/utils/formatCountToMs'
 
 type CreditPoint = [string, number]
 type CreditSeries = { userId: string; data: CreditPoint[] }
@@ -38,35 +39,41 @@ const option = computed(() => {
 	const myColor = themeStore.getCurrentLightThemeColor
 	const otherColor = '#ff7a18'
 
-	const chartSeries = props.data.map((s) => {
-		const name = userStore.getProfileById(s.userId)?.firstname ?? 'Unknown'
-		const isMe = s.userId === myId
-		const color = isMe ? myColor : otherColor
+	// 🔹 Build + sort series so "me" is always first
+	const chartSeries = props.data
+		.map((s) => {
+			const isMe = s.userId === myId
+			const name = userStore.getProfileById(s.userId)?.firstname ?? (isMe ? 'Me' : 'Partner')
 
-		// ✅ only current month, sorted, NO zero fill
-		const filtered = (s.data || [])
-			.filter(([ts]) => isInCurrentMonth(ts))
-			.slice()
-			.sort((a, b) => String(a[0]).localeCompare(String(b[0])))
+			const color = isMe ? myColor : otherColor
 
-		return {
-			name,
-			type: 'line',
-			smooth: false,
-			connectNulls: false, // ✅ don’t bridge gaps
-			data: filtered,
-			lineStyle: { width: 3, color },
-			itemStyle: { color },
-			showSymbol: true,
-			symbol: 'circle',
-			symbolSize: 7,
-		}
-	})
+			const filtered = (s.data || [])
+				.filter(([ts]) => isInCurrentMonth(ts))
+				.slice()
+				.sort((a, b) => String(a[0]).localeCompare(String(b[0])))
+
+			return {
+				userId: s.userId,
+				isMe,
+				name,
+				type: 'line',
+				smooth: false,
+				connectNulls: false,
+				data: filtered,
+				lineStyle: { width: 3, color },
+				itemStyle: { color },
+				showSymbol: true,
+				symbol: 'circle',
+				symbolSize: 7,
+			}
+		})
+		.sort((a, b) => Number(b.isMe) - Number(a.isMe)) // ✅ me first
 
 	return {
 		animation: false,
 
-		grid: { left: 26, right: 16, top: 24, bottom: 54 },
+		// 🔹 extra bottom space for centered legend
+		grid: { left: 26, right: 16, top: 24, bottom: 72 },
 
 		xAxis: {
 			type: 'time',
@@ -78,17 +85,18 @@ const option = computed(() => {
 
 		yAxis: {
 			type: 'value',
-			axisLabel: { color: 'rgba(27,31,36,0.65)' },
+			axisLabel: { color: 'rgba(27,31,36,0.65)', formatter: (v: number) => formatCountToMs(v) }, // ✅ compact numbers
 			splitLine: { lineStyle: { color: 'rgba(27,31,36,0.08)' } },
 			axisLine: { show: false },
 			axisTick: { show: false },
 		},
 
+		// 🔹 centered legend at bottom
 		legend: {
-			bottom: 10,
-			left: 34,
+			bottom: 14,
+			left: 'center',
 			selectedMode: false,
-			itemGap: 20,
+			itemGap: 28,
 			itemWidth: 14,
 			itemHeight: 14,
 			icon: 'roundRect',
@@ -119,25 +127,25 @@ const option = computed(() => {
 				const dateStr = formatDDMMYYYY(x)
 
 				return `
-          <div style="
-            text-align:center;
-            background:rgba(255,255,255,0.94);
-            border:1px solid ${borderColor};
-            border-radius:12px;
-            padding:10px 14px;
-            box-shadow:0 8px 20px rgba(0,0,0,0.08);
-          ">
-            <div style="font-weight:600; margin-bottom:2px;">
-              ${p.seriesName}
-            </div>
-            <div style="font-size:11px; opacity:0.75; margin-bottom:6px;">
-              ${dateStr}
-            </div>
-            <div style="font-weight:700;">
-              ${Number(y).toLocaleString()} €
-            </div>
-          </div>
-        `
+					<div style="
+						text-align:center;
+						background:rgba(255,255,255,0.94);
+						border:1px solid ${borderColor};
+						border-radius:12px;
+						padding:10px 14px;
+						box-shadow:0 8px 20px rgba(0,0,0,0.08);
+					">
+						<div style="font-weight:600; margin-bottom:2px;">
+							${p.seriesName}
+						</div>
+						<div style="font-size:11px; opacity:0.75; margin-bottom:6px;">
+							${dateStr}
+						</div>
+						<div style="font-weight:700;">
+						€	${Number(y).toLocaleString()} 
+						</div>
+					</div>
+				`
 			},
 		},
 

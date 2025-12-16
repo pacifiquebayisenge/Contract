@@ -100,7 +100,7 @@ onMounted(async () => {
 	animatePageEnter() // <-- THIS TRIGGERS THE ANIMATION
 
 	await load()
-	console.log(creditDailySeries.value)
+	console.log(appOpensPerDay.value)
 	console.log('eventTypeCounts', eventTypeCounts.value)
 	console.log('streakPerDay points', streakPerDaySeries.value.length)
 	console.log('creditTimeline points', creditDailySeries.value.length)
