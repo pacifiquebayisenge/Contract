@@ -1,5 +1,5 @@
 <template>
-	<div class="card">
+	<div class="card font-color">
 		<h3>{{ title }}</h3>
 		<slot />
 	</div>
@@ -18,5 +18,6 @@ defineProps<{ title: string }>()
 }
 h3 {
 	margin-bottom: 12px;
+	font-weight: 500;
 }
 </style>

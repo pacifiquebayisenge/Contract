@@ -34,7 +34,7 @@
 		<!-- SUMMARY CARDS -->
 		<div class="stats-cards">
 			<StatCard title="Today's Contract Uses" :value="todayStreaks" />
-			<StatCard title="Credit Balance" :value="currentCredit + ' €'" />
+			<StatCard title="Credit Balance" :value="'€ ' + currentCredit" />
 			<StatCard title="Total Violations" :value="totalViolations" />
 			<StatCard title="App Opens Today" :value="todayOpens" />
 		</div>
@@ -42,11 +42,11 @@
 		<!-- CHARTS -->
 		<div class="charts">
 			<ChartCard title="Contract Usage per Day">
-				<StreakBarChart :data="streakPerDay" />
+				<StreakLineChart :data="streakPerDaySeries" />
 			</ChartCard>
 
 			<ChartCard title="Credit Over Time">
-				<CreditLineChart :data="creditTimeline" />
+				<CreditLineChart :data="creditDailySeries" />
 			</ChartCard>
 
 			<ChartCard title="App Opens (Heatmap)">
@@ -62,13 +62,13 @@ import ChartCard from '~/components/ChartCard.vue'
 import CreditLineChart from '~/components/CreditLineChart.vue'
 import SeenHeatmap from '~/components/SeenHeatmap.vue'
 import StatCard from '~/components/StatCard.vue'
-import StreakBarChart from '~/components/StreakBarChart.vue'
+import StreakLineChart from '~/components/StreakLineChart.vue'
 import { usePageAnimation } from '~/composables/usePageAnimation'
 import { useStats } from '~/composables/useStats'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 
-const { load, streakPerDay, creditTimeline, appOpensPerDay, eventTypeCounts } = useStats()
+const { load, streakPerDaySeries, creditDailySeries, appOpensPerDay, eventTypeCounts } = useStats()
 const userStore = useUserStore()
 
 const themeStore = useThemeStore()
@@ -81,11 +81,10 @@ function localYYYYMMDD(d = new Date()) {
 }
 const today = localYYYYMMDD()
 
-const todayStreaks = computed(() => streakPerDay.value.find((d) => d.day === today)?.count ?? 0)
-
-const todayOpens = computed(() => appOpensPerDay.value.find((d) => d.date === today)?.count ?? 0)
+const todayStreaks = computed(() => userStore.profile?.streak ?? 0)
 const currentCredit = computed(() => userStore.profile?.credit ?? 0)
 const totalViolations = computed(() => userStore.profile?.violation ?? 0)
+const todayOpens = computed(() => appOpensPerDay.value.find((d) => d.date === today)?.count ?? 0)
 
 const currentLightThemeColor = computed(() =>
 	themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
@@ -101,9 +100,10 @@ onMounted(async () => {
 	animatePageEnter() // <-- THIS TRIGGERS THE ANIMATION
 
 	await load()
+	console.log(creditDailySeries.value)
 	console.log('eventTypeCounts', eventTypeCounts.value)
-	console.log('streakPerDay points', streakPerDay.value.length)
-	console.log('creditTimeline points', creditTimeline.value.length)
+	console.log('streakPerDay points', streakPerDaySeries.value.length)
+	console.log('creditTimeline points', creditDailySeries.value.length)
 	console.log('appOpensPerDay points', appOpensPerDay.value.length)
 })
 </script>

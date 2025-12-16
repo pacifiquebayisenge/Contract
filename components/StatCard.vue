@@ -1,7 +1,7 @@
 <template>
 	<div class="card">
-		<div class="title">{{ title }}</div>
-		<div class="value">{{ value }}</div>
+		<div class="title font-color">{{ title }}</div>
+		<div class="value font-color">{{ value }}</div>
 	</div>
 </template>
 
@@ -21,10 +21,15 @@ defineProps<{
 }
 .title {
 	font-size: 12px;
+	font-weight: 500;
 	opacity: 0.6;
+	display: flex;
+	justify-content: center;
 }
 .value {
 	font-size: 24px;
 	font-weight: 600;
+	display: flex;
+	justify-content: center;
 }
 </style>
