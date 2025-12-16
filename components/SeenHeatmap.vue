@@ -92,53 +92,54 @@ const option = computed(() => {
 	const totalCells = firstDow + daysInMonth
 	const weeks = Math.ceil(totalCells / 7)
 
-	// lookup
+	// Lookup: date -> count
 	const valueByDate = new Map<string, number>()
 	for (const item of props.data || []) {
 		valueByDate.set(item.date, Number(item.count) || 0)
 	}
 
-	// ---- layout ----
+	/* ---------- layout ---------- */
 	const sidePadding = 12
-	const gap = 6
+	const gap = 8 // a bit more spacing between tiles
 
-	// space for month label + legend
 	const labelArea = 26
-	const legendArea = 24
+	const legendArea = 34
 	const extraTopPad = 8
-	const extraBottomPad = 24
+	const extraBottomPad = 14
 
 	const availableWidth = Math.max(0, wrapWidth.value - sidePadding * 2)
 
-	// Tile fills width, but slightly smaller (so it breathes)
+	// Fill width but slightly smaller so it breathes
 	const rawTile = weeks > 0 ? (availableWidth - gap * (weeks - 1)) / weeks : 10
-	const tile = Math.max(9, Math.floor(rawTile * 0.88)) // <- smaller
+	const tile = Math.max(9, Math.floor(rawTile * 0.88))
 	const radius = clamp(Math.floor(tile * 0.22), 2, 8)
-
-	const legendTile = Math.max(8, Math.floor(tile * 0.55))
-	const legendGap = 6
 
 	const gridWidth = tile * weeks + gap * (weeks - 1)
 	const gridHeight = tile * 7 + gap * 6
 
-	// Center grid horizontally
+	// Center horizontally
 	const extraX = Math.max(0, availableWidth - gridWidth)
 	const gridLeft = sidePadding + Math.floor(extraX / 2)
 
-	// Chart height to ALWAYS show full month (7 rows)
+	// Ensure full month visible
 	chartHeight.value = `${labelArea + extraTopPad + gridHeight + legendArea + extraBottomPad}px`
 
-	// ---- colors (your spec) ----
+	/* ---------- colors (your spec) ---------- */
 	const inactiveFill = '#eff2f5'
 	const inactiveBorder = '#e4e7eb'
 
+	// 4 shades:
+	// 1) current light theme color but a bit lighter
+	// 2) current light theme color
+	// 3) current light theme color a bit darker
+	// 4) current theme color
 	const lightBase = themeStore.getCurrentLightThemeColor
 	const base = themeStore.getCurrentThemeColor
 
-	const shade1 = mix(lightBase, '#ffffff', 0.18) // light, a bit lighter
-	const shade2 = lightBase // light
-	const shade3 = mix(lightBase, '#000000', 0.1) // light, a bit darker
-	const shade4 = base // theme base
+	const shade1 = mix(lightBase, '#ffffff', 0.18)
+	const shade2 = lightBase
+	const shade3 = mix(lightBase, '#000000', 0.1)
+	const shade4 = base
 
 	function activeColor(v: number) {
 		if (v <= 1) return shade1
@@ -147,12 +148,10 @@ const option = computed(() => {
 		return shade4
 	}
 
-	// ---- build cells ----
-	// We do NOT draw padding outside the month at all (no “35 days” look)
-	// Values:
-	//  -3 => padding (invisible)
-	//  -2 => future day (real day, but inactive)
-	// >=0 => real count
+	/* ---------- cells ---------- */
+	// v = -3 => padding outside month (not drawn)
+	// v = -2 => future day (drawn as inactive)
+	// v >= 0 => real day value
 	const cells: any[] = []
 	for (let w = 0; w < weeks; w++) {
 		for (let d = 0; d < 7; d++) {
@@ -160,16 +159,15 @@ const option = computed(() => {
 			const dayOfMonth = idx - firstDow + 1
 
 			if (dayOfMonth < 1 || dayOfMonth > daysInMonth) {
-				cells.push([w, d, -3, '', 0]) // invisible padding
+				cells.push([w, d, -3, '', 0]) // outside month: invisible
 				continue
 			}
 
 			const date = localYYYYMMDD(new Date(year, month, dayOfMonth))
 			const isFuture = date > todayStr ? 1 : 0
 
-			// future days: show as inactive style, but no tooltip
 			if (isFuture) {
-				cells.push([w, d, -2, date, 1])
+				cells.push([w, d, -2, date, 1]) // future: inactive, no tooltip
 				continue
 			}
 
@@ -178,14 +176,28 @@ const option = computed(() => {
 		}
 	}
 
-	// ---- legend (non-clickable) ----
+	/* ---------- legend (non-clickable, centered) ---------- */
 	const legendSquares = [
-		{ color: inactiveFill }, // 0
+		{ color: inactiveFill },
 		{ color: shade1 },
 		{ color: shade2 },
 		{ color: shade3 },
 		{ color: shade4 },
 	]
+
+	const legendTile = Math.max(8, Math.floor(tile * 0.55))
+	const legendGap = 6
+
+	const lessText = 'Less'
+	const moreText = 'More'
+	const textW = (s: string) => Math.ceil(s.length * 7) // rough but good enough for centering
+	const lessW = textW(lessText)
+	const moreW = textW(moreText)
+
+	const squaresW = legendSquares.length * legendTile + (legendSquares.length - 1) * legendGap
+	const padBetween = 10
+
+	const centerY = Math.ceil(legendTile / 2)
 
 	return {
 		animation: false,
@@ -213,23 +225,30 @@ const option = computed(() => {
 				silent: true,
 			},
 
-			// Legend: "Less [□ □ □ □ □] More" (NOT clickable)
+			// Legend centered: Less [squares] More
 			{
 				type: 'group',
-				right: sidePadding,
+				left: 'center',
 				bottom: 8,
 				silent: true,
 				children: [
 					{
 						type: 'text',
 						left: 0,
-						top: 0,
-						style: { text: 'Less', fill: 'rgba(27,31,36,0.65)', fontSize: 12 },
+						top: centerY,
+						style: {
+							text: lessText,
+							fill: 'rgba(27,31,36,0.65)',
+							fontSize: 12,
+							fontWeight: 500,
+							verticalAlign: 'middle',
+						},
 					},
+
 					...legendSquares.map((sq, i) => ({
 						type: 'rect',
-						left: 34 + i * (legendTile + legendGap),
-						top: 1, // aligns with text baseline
+						left: lessW + padBetween + i * (legendTile + legendGap),
+						top: 0,
 						shape: {
 							x: 0,
 							y: 0,
@@ -243,17 +262,24 @@ const option = computed(() => {
 							lineWidth: 1,
 						},
 					})),
+
 					{
 						type: 'text',
-						left: 34 + legendSquares.length * (tile * 0.75 + 6) + 6,
-						top: 0,
-						style: { text: 'More', fill: 'rgba(27,31,36,0.65)', fontSize: 12 },
+						left: lessW + padBetween + squaresW + padBetween,
+						top: centerY,
+						style: {
+							text: moreText,
+							fill: 'rgba(27,31,36,0.65)',
+							fontSize: 12,
+							fontWeight: 500,
+							verticalAlign: 'middle',
+						},
 					},
 				],
 			},
 		],
 
-		// Subtle tooltip on click (no hover)
+		// Subtle tooltip on click only
 		tooltip: {
 			triggerOn: 'click',
 			backgroundColor: 'rgba(255,255,255,0.92)',
@@ -288,24 +314,19 @@ const option = computed(() => {
 					const date = api.value(3)
 					const isFuture = api.value(4) === 1
 
-					// padding outside the month: draw nothing (cut where it should)
+					// Outside month: draw nothing
 					if (v === -3) return null
 
 					const cs = params.coordSys
 					const x = cs.x + w * (tile + gap)
 					const y = cs.y + d * (tile + gap)
 
-					// future days + zero days => inactive style
 					const fill = !date || isFuture || v === 0 ? inactiveFill : activeColor(v)
 
 					return {
 						type: 'rect',
 						shape: { x, y, width: tile, height: tile, r: radius },
-						style: {
-							fill,
-							stroke: inactiveBorder,
-							lineWidth: 1,
-						},
+						style: { fill, stroke: inactiveBorder, lineWidth: 1 },
 					}
 				},
 			},
