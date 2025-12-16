@@ -49,8 +49,6 @@ export const useStreakStore = defineStore('streak', {
 				userStore.partnerProfile!.streak = newStreak
 			}
 
-			await this.logStreakUpdate(newStreak)
-
 			await $fetch('/api/send-notification', {
 				method: 'POST',
 				body: {
@@ -89,30 +87,6 @@ export const useStreakStore = defineStore('streak', {
 			if (data && data.length > 0) {
 				console.log('Streak reset:', `${data[0].firstname}: streak ${data[0].streak}`)
 				userStore.partnerProfile!.streak = newStreak
-			}
-		},
-
-		async logStreakUpdate(newStreak: number) {
-			const supabase = useSupabaseClient<Database>()
-			const userStore = useUserStore()
-
-			const partner = userStore.partnerProfile
-
-			if (!partner) {
-				console.error('Partner profile is not loaded, cannot update streak.')
-				return
-			}
-
-			const { data, error } = await supabase.from('streak_history').insert({
-				user_id: partner.id,
-				streak_value: newStreak,
-				updated_by: userStore.profile!.id,
-				source_action: 'increment',
-			})
-
-			if (error) {
-				console.error('Failed to log streak update:', error)
-				return
 			}
 		},
 

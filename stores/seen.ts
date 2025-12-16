@@ -42,7 +42,7 @@ export const useSeenStore = defineStore('seen', {
 				return
 			}
 
-			await this.logSeenUpdate(newSeen)
+			await this.logSeenUpdate()
 
 			if (data && data.length > 0) {
 				// console.log('Seen updated:', `${data[0].firstname}: seen ${data[0].seen}`)
@@ -50,7 +50,7 @@ export const useSeenStore = defineStore('seen', {
 			}
 		},
 
-		async logSeenUpdate(newSeen: number) {
+		async logSeenUpdate() {
 			const supabase = useSupabaseClient<Database>()
 			const userStore = useUserStore()
 
@@ -61,11 +61,10 @@ export const useSeenStore = defineStore('seen', {
 				return
 			}
 
-			const { data, error } = await supabase.from('seen_history').insert({
-				user_id: userStore.profile!.id,
-				seen_value: newSeen,
-				updated_by: userStore.profile!.id,
-				source_action: 'increment',
+			const { data, error } = await supabase.from('user_events').insert({
+				actor_id: userStore.profile!.id,
+				target_id: userStore.profile!.id,
+				event_type: 'app_open',
 			})
 
 			if (error) {
