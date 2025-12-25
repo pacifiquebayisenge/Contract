@@ -16,9 +16,9 @@
 
 				<div ref="content" class="content">
 					<div class="title">
-						<span class="text-5xl">{{ pseudo }}</span>
+						<span class="text-5xl font-color">{{ pseudo }}</span>
 					</div>
-					<div class="text">
+					<div class="text font-color">
 						{{ fullName }}
 					</div>
 				</div>
@@ -28,7 +28,7 @@
 				<div class="avatar-card-content-actions pl-40">
 					<div class="content">
 						<div class="title">
-							<span class="font-bold">action's</span>
+							<span class="font-bold font-color">action's</span>
 						</div>
 						<div class="action-buttons py-8">
 							<button
@@ -107,9 +107,18 @@
 		</n-card>
 
 		<n-modal v-model:show="showContractDialog" transform-origin="center">
-			<n-card style="max-width: 80%" :bordered="false" size="huge" role="dialog">
+			<n-card
+				:style="{ borderRadius: '2rem !important' }"
+				style="max-width: 80%"
+				:bordered="false"
+				size="huge"
+				role="dialog"
+			>
 				<template #header>
-					<span style="font-weight: bold; display: flex; justify-content: center">
+					<span
+						style="font-weight: bold; display: flex; justify-content: center"
+						class="font-color"
+					>
 						Contract use
 					</span>
 				</template>
@@ -119,8 +128,16 @@
 		</n-modal>
 
 		<n-modal v-model:show="showViolationDialog" transform-origin="center">
-			<n-card style="width: 80%" :bordered="false" size="huge" role="dialog">
-				<span style="font-weight: bold; display: flex; justify-content: center"> Violation </span>
+			<n-card
+				:style="{ borderRadius: '2rem !important' }"
+				style="width: 80%"
+				:bordered="false"
+				size="huge"
+				role="dialog"
+			>
+				<span style="font-weight: bold; display: flex; justify-content: center" class="font-color">
+					Violation
+				</span>
 				<ViolationModal :name="pseudo" @close="showViolationDialog = false" />
 			</n-card>
 		</n-modal>

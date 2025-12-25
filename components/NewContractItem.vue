@@ -1,13 +1,13 @@
 <template>
 	<div class="new-contract-item-model">
-		<span> Ah ! A new <span class="special">contract rule !!</span> </span>
+		<span class="font-color"> Ah ! A new <span class="special">contract rule !!</span> </span>
 
 		<div class="field">
 			<input
 				v-model="title"
 				type="text"
 				placeholder="Contract rule..."
-				class="bg-[#0000000a] rounded-[1rem]"
+				class="bg-[#0000000a] rounded-[1rem] font-color"
 			/>
 
 			<div class="line" />
@@ -17,14 +17,14 @@
 			<textarea
 				v-model="description"
 				placeholder="Description of the rule"
-				class="h-[15rem] bg-[#0000000a] rounded-[1rem] w-[100%] max-w-[85rem]"
+				class="h-[15rem] bg-[#0000000a] rounded-[1rem] w-[100%] max-w-[85rem] font-color"
 			/>
 
 			<div class="line" />
 		</div>
 
 		<button class="button-3D button-3D-colorfull" @click="submit">
-			<span>Submit</span>
+			<span class="font-color">Submit</span>
 		</button>
 	</div>
 </template>

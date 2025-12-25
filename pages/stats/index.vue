@@ -81,10 +81,18 @@ function localYYYYMMDD(d = new Date()) {
 }
 const today = localYYYYMMDD()
 
+// for the current user
 const todayStreaks = computed(() => userStore.profile?.streak ?? 0)
 const currentCredit = computed(() => userStore.profile?.credit ?? 0)
 const totalViolations = computed(() => userStore.profile?.violation ?? 0)
-const todayOpens = computed(() => appOpensPerDay.value.find((d) => d.date === today)?.count ?? 0)
+
+const todayOpens = computed(() => {
+	const id = userStore.userId
+	if (!id) return 0
+
+	const day = appOpensPerDay.value.find((d) => d.date === today)
+	return day?.users?.[id] ?? 0
+})
 
 const currentLightThemeColor = computed(() =>
 	themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]

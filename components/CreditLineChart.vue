@@ -37,7 +37,7 @@ function isInCurrentMonth(dateInput: string) {
 const option = computed(() => {
 	const myId = userStore.userId
 	const myColor = themeStore.getCurrentLightThemeColor
-	const otherColor = '#ff7a18'
+	const otherColor = '#ffb780'
 
 	// 🔹 Build + sort series so "me" is always first
 	const chartSeries = props.data

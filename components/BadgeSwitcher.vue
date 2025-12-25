@@ -1,7 +1,7 @@
 <!-- components/ThemeSwitcher.vue -->
 <template>
 	<div class="badge-switcher justify-center py-5">
-		<span>badge ring</span>
+		<span class="font-color">badge ring</span>
 		<div>
 			<n-switch
 				v-model:value="badgeRingActive"
@@ -17,7 +17,7 @@
 			</n-switch>
 		</div>
 
-		<span>color</span>
+		<span class="font-color">color</span>
 		<div>
 			<n-switch
 				v-model:value="lightThemeActive"

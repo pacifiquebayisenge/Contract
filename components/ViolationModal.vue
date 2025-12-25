@@ -26,7 +26,7 @@
 			</div>
 		</div>
 
-		<span style="text-align: center">
+		<span style="text-align: center" class="font-color">
 			Did
 			<span class="special">{{ name }}</span>
 			violate a

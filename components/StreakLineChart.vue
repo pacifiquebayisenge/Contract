@@ -49,7 +49,7 @@ const option = computed(() => {
 
 	const myId = userStore.userId
 	const myColor = themeStore.getCurrentLightThemeColor // ✅ light theme color
-	const otherColor = '#ff7a18' // ✅ vibrant orange
+	const otherColor = '#ffb780' // ✅ vibrant orange
 	const thresholdColor = '#ff2d2d' // ✅ vibrant red
 
 	// Build user series (only points that exist; no zero-fill)

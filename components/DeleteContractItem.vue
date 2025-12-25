@@ -1,11 +1,11 @@
 <template>
 	<div class="delete-contract-item-modal">
-		<span
+		<span class="font-color"
 			>Are you <span class="special">sure </span> you want to delete contract rule
 			<span class="special">{{ index + 1 }} </span> ???</span
 		>
 
-		<span>{{ item.title }}</span>
+		<span class="font-color">{{ item.title }}</span>
 
 		<button class="button-3D button-3D-colorfull-error" @click="submit">Delete</button>
 	</div>

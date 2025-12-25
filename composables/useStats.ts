@@ -1,5 +1,7 @@
 import { computed, ref } from 'vue'
 
+// type HeatmapDay = { date: string; users: Record<string, number> }
+
 type HeatmapItem = { date: string; count: number }
 
 type CreditPoint = [string, number]
@@ -143,6 +145,25 @@ export function useStats() {
 
 		return out
 	})
+
+	// APP OPENS PER DAY (heatmap-ready shape)
+	// const appOpensPerDay = computed<HeatmapDay[]>(() => {
+	// 	const map: Record<string, Record<string, number>> = {}
+
+	// 	events.value
+	// 		.filter((e) => e.event_type === 'app_open')
+	// 		.forEach((e) => {
+	// 			const day = localYYYYMMDDFromTimestamp(e.created_at)
+	// 			const uid = e.actor_id // ✅ IMPORTANT (not user_id)
+
+	// 			if (!uid) return
+
+	// 			map[day] ||= {}
+	// 			map[day][uid] = (map[day][uid] || 0) + 1
+	// 		})
+
+	// 	return Object.entries(map).map(([date, users]) => ({ date, users }))
+	// })
 
 	// APP OPENS PER DAY (heatmap-ready shape)
 	const appOpensPerDay = computed<HeatmapItem[]>(() => {

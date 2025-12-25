@@ -2,7 +2,7 @@
 	<div class="contract-page-container animate-item">
 		<div class="action-buttons py-3 px-16 mb-3 flex gap-8 animate-item">
 			<button
-				class="button-3D button-3D-colorfull animate-item"
+				class="button-3D button-3D-colorfull animate-item font-color"
 				@click="showNewDialog = !showNewDialog"
 			>
 				New

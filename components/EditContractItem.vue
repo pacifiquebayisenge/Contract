@@ -1,6 +1,6 @@
 <template>
 	<div class="edit-contract-item-modal">
-		<span>
+		<span class="font-color">
 			Let's see what we can <span class="special">change</span> about contract rule
 			<span class="special">{{ index + 1 }}</span> ???
 		</span>
@@ -10,7 +10,7 @@
 				v-model="title"
 				type="text"
 				placeholder="Contract rule..."
-				class="bg-[#0000000a] rounded-[1rem]"
+				class="bg-[#0000000a] rounded-[1rem] font-color"
 			/>
 			<div class="line" />
 		</div>
@@ -19,13 +19,13 @@
 			<textarea
 				v-model="description"
 				placeholder="Description of the rule"
-				class="h-[15rem] bg-[#0000000a] rounded-[1rem] w-[100%] max-w-[85rem]"
+				class="h-[15rem] bg-[#0000000a] rounded-[1rem] w-[100%] max-w-[85rem] font-color"
 			/>
 			<div class="line" />
 		</div>
 
 		<button class="button-3D button-3D-colorfull" @click="submit">
-			<span>Edit</span>
+			<span class="font-color">Edit</span>
 		</button>
 	</div>
 </template>

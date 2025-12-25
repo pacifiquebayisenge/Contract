@@ -4,17 +4,22 @@
 			<div class="items flex space-between justify-center">
 				<div class="item" @click="activateAccountDrawer()">
 					<div class="icon">
-						<NIcon class="text-base opacity-55" :size="35" :component="UserIcon" />
+						<NIcon class="text-base opacity-55" :size="30" :component="UserIcon" />
 					</div>
 				</div>
 				<div class="item">
 					<div class="icon">
-						<NIcon class="text-base opacity-55" :size="35" :component="InboxIcon" />
+						<NIcon class="text-base opacity-55" :size="30" :component="ShoppingBagIcon" />
+					</div>
+				</div>
+				<div class="item">
+					<div class="icon">
+						<NIcon class="text-base opacity-55" :size="30" :component="InboxIcon" />
 					</div>
 				</div>
 				<div class="item" @click="activateSettingsDrawer()">
 					<div class="icon">
-						<NIcon class="text-base opacity-55" :size="35" :component="Cog6ToothIcon" />
+						<NIcon class="text-base opacity-55" :size="30" :component="Cog6ToothIcon" />
 					</div>
 				</div>
 			</div>
@@ -57,7 +62,10 @@
 										placeholder="Partner Pseudo"
 									/>
 
-									<button class="button-3D button-3D-colorfull my-6" @click="saveChanges">
+									<button
+										class="button-3D button-3D-colorfull my-6 font-color"
+										@click="saveChanges"
+									>
 										Save
 									</button>
 									<n-divider />
@@ -127,7 +135,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { Cog6ToothIcon, InboxIcon, UserIcon } from '@heroicons/vue/24/outline'
+import { Cog6ToothIcon, InboxIcon, ShoppingBagIcon, UserIcon } from '@heroicons/vue/24/outline'
 import { usePseudoStore } from '~/stores/pseudo'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
@@ -293,7 +301,7 @@ const saveChanges = async () => {
 	border-radius: 2rem;
 
 	.items {
-		gap: 4rem;
+		gap: 2rem;
 
 		.item {
 			cursor: pointer;

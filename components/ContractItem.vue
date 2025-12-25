@@ -11,7 +11,7 @@
 					<span class="text-2xl">{{ props.index + 1 }}</span>
 				</div>
 
-				<div class="text truncate">{{ props.item.title }}</div>
+				<div class="text truncate font-color">{{ props.item.title }}</div>
 
 				<!-- name: 'pending' | 'in-progress' | 'submitted' | 'in-review' | 'success' | 'failed' | 'expired' -->
 				<!-- <StatusBadge version="Dot" :name="item.state" /> -->
@@ -22,7 +22,7 @@
 					<div class="content">
 						<textarea
 							readonly
-							class="contract-description w-[100%] h-[15rem] bg-[#0000000a] py-4 px-6 rounded-[1rem]"
+							class="contract-description w-[100%] h-[15rem] bg-[#0000000a] py-4 px-6 rounded-[1rem] font-color"
 							:name="'contract-rule-description-' + props.index"
 							:value="props.item.description"
 						>
@@ -218,7 +218,6 @@ let showDeleteDialog = ref(false)
 	.text {
 		font-weight: 600;
 		font-size: 1.6rem;
-		color: #535353;
 	}
 }
 
