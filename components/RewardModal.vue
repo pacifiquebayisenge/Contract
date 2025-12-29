@@ -1,5 +1,5 @@
 <template>
-	<div class="contract-modal">
+	<div class="reward-modal">
 		<div class="avatar-container py-8">
 			<div
 				class="avatar"
@@ -7,26 +7,13 @@
 				:class="insideBadgeRing ? 'inside-ring' : 'outside-ring'"
 			>
 				<div class="avatar-stack">
-					<!-- Back (angry) -->
-					<div class="avatar-image back">
+					<div class="avatar-image">
 						<n-image
-							width="60"
+							width="55"
 							:src="
 								profile.firstname.charAt(0) === 'P'
-									? '/memojis/jeje/eye-roll.png'
-									: '/memojis/paci/eye-roll.png'
-							"
-						/>
-					</div>
-
-					<!-- Front (ashamed) -->
-					<div class="avatar-image front">
-						<n-image
-							width="60"
-							:src="
-								profile.firstname.charAt(0) === 'P'
-									? '/memojis/paci/lucky.png'
-									: '/memojis/jeje/lucky.png'
+									? '/memojis/paci/wink.png'
+									: '/memojis/jeje/wink.png'
 							"
 						/>
 					</div>
@@ -36,21 +23,42 @@
 		<span style="text-align: center" class="font-color">
 			Did
 			<span class="special">{{ pseudo }}</span>
-			use
-			<span class="special">contract </span>
-			again???
+			earned a
+			<span class="special">reward</span>
+			???
 		</span>
 
-		<button class="button-3D button-3D-colorfull-warning" @click="updatePartnerStreak()">
-			Unbelievable !
+		<div class="field w-[100%] max-w-[85rem]">
+			<textarea
+				v-model="description"
+				:placeholder="`Description of why ${profile.firstname} earned a reward ...`"
+				class="h-[15rem] bg-[#0000000a] rounded-[1rem] w-[100%] max-w-[85rem] font-color"
+			/>
+
+			<div class="line" />
+		</div>
+
+		<div class="field">
+			<input
+				v-model="reward"
+				type="number"
+				placeholder="Amount of reward"
+				class="bg-[#0000000a] rounded-[1rem] font-color"
+			/>
+
+			<div class="line" />
+		</div>
+
+		<button class="button-3D button-3D-colorfull-success" @click="partnerReward()">
+			Amazing !
 		</button>
 	</div>
 </template>
 
 <script setup>
-import { useStreakStore } from '~/stores/streak'
+import { watch } from 'vue'
+import { useCreditStore } from '~/stores/credit'
 import { useThemeStore } from '~/stores/theme'
-import { useUserStore } from '~/stores/user'
 
 const props = defineProps({
 	pseudo: {
@@ -66,8 +74,11 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 
 const themeStore = useThemeStore()
-const userStore = useUserStore()
-const streakStore = useStreakStore()
+const creditStore = useCreditStore()
+
+const description = ref('')
+const reward = ref()
+const valid = ref(false)
 
 // Computed property for dynamic theme color
 const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
@@ -83,25 +94,34 @@ const insideBadgeRing = computed(
 	() => themeStore.currentBadgeRingOption === themeStore.badgeRingOptions[0]
 )
 
-const updatePartnerStreak = async () => {
-	const partner = userStore.partnerProfile
+watch(description, (newVal) => {
+	valid.value = newVal.trim().length
+})
+
+// round to the nearest 100
+const nearestHundred = (num) => {
+	num = Math.max(100, Math.min(num, 1000)) // clamp tussen 100 en 1000
+	return Math.round(num / 100) * 100
+}
+
+const partnerReward = async () => {
+	if (!description.value || !reward.value) return
+	const partner = props.profile
 
 	if (!partner) {
 		console.warn('Partner profile not loaded yet')
 		return
 	}
 
-	// if ((partner.streak ?? 0) < 3) {
-	// } else {
-	// 	console.log("BLOCKED: streak >= 3");
-	// }
+	console.log(description.value, nearestHundred(reward.value))
+
 	emit('close')
-	streakStore.updatePartnerStreak()
+	creditStore.increasePartnerCredit(nearestHundred(reward.value), description.value)
 }
 </script>
 
 <style lang="scss" scoped>
-.contract-modal {
+.reward-modal {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -131,47 +151,10 @@ const updatePartnerStreak = async () => {
 				outline: 2px solid rgba(0, 0, 0, 0.1);
 				outline-offset: 3px;
 			}
+
 			&.inside-ring {
 				outline: 2px solid rgba(0, 0, 0, 0.1);
 				outline-offset: -5px;
-			}
-
-			.avatar-stack {
-				position: relative;
-				width: 100%;
-				height: 100%;
-			}
-
-			.avatar-image {
-				position: absolute;
-				left: 50%;
-				top: 50%;
-				transform: translate(-50%, -50%);
-				transition:
-					transform 0.3s ease,
-					opacity 0.3s ease;
-			}
-
-			/* Back: angry one */
-			.avatar-image.back {
-				z-index: 1;
-				transform: translate(-23%, -55%) rotate(10deg);
-				opacity: 0.85;
-			}
-
-			/* Front: ashamed one */
-			.avatar-image.front {
-				z-index: 2;
-				transform: translate(-71%, -25%) rotate(5deg) scale(0.9);
-				opacity: 1;
-			}
-
-			/* Optional hover: slight interaction */
-			&:hover .avatar-image.back {
-				transform: translate(-35%, -75%) rotate(14deg) scale(1.05);
-			}
-			&:hover .avatar-image.front {
-				transform: translate(-60%, -20%) rotate(8deg) scale(0.88);
 			}
 		}
 	}
@@ -325,6 +308,54 @@ const updatePartnerStreak = async () => {
 				span {
 					font-weight: bold;
 				}
+			}
+		}
+	}
+
+	input,
+	textarea {
+		padding: 0.5rem 1.5rem;
+		border-radius: 1rem;
+		border: none;
+		outline: none;
+		font-size: 1.5rem;
+		font-weight: 600;
+		color: #555555;
+		transition: padding 0.3s 0.2s ease;
+		resize: none;
+		// sibling magic ;o
+		&:focus + .line {
+			&:after {
+				transform: scaleX(1);
+			}
+		}
+	}
+
+	.field {
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+
+		.line {
+			width: 100%;
+			height: 3px;
+			position: absolute;
+			bottom: -8px;
+			background: white;
+
+			&:after {
+				content: ' ';
+				position: absolute;
+				float: right;
+				width: 100%;
+				height: 3px;
+
+				transform: scalex(0);
+				transition: transform 0.3s ease;
+
+				background: v-bind(currentLightThemeColor);
 			}
 		}
 	}

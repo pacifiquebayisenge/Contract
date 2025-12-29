@@ -32,11 +32,19 @@
 						</div>
 						<div class="action-buttons py-8">
 							<button
+								class="button-3D button-3D-colorfull-success"
+								@click="showRewardDialog = !showRewardDialog"
+							>
+								Reward
+							</button>
+
+							<button
 								class="button-3D button-3D-colorfull-warning"
 								@click="showContractDialog = !showContractDialog"
 							>
 								Contract
 							</button>
+
 							<button
 								class="button-3D button-3D-colorfull-error"
 								@click="showViolationDialog = !showViolationDialog"
@@ -106,6 +114,27 @@
 			</template>
 		</n-card>
 
+		<n-modal v-model:show="showRewardDialog" transform-origin="center">
+			<n-card
+				:style="{ borderRadius: '2rem !important' }"
+				style="max-width: 80%"
+				:bordered="false"
+				size="huge"
+				role="dialog"
+			>
+				<template #header>
+					<span
+						style="font-weight: bold; display: flex; justify-content: center"
+						class="font-color"
+					>
+						Reward
+					</span>
+				</template>
+
+				<RewardModal :profile="profile" :pseudo="pseudo" @close="showRewardDialog = false" />
+			</n-card>
+		</n-modal>
+
 		<n-modal v-model:show="showContractDialog" transform-origin="center">
 			<n-card
 				:style="{ borderRadius: '2rem !important' }"
@@ -123,7 +152,7 @@
 					</span>
 				</template>
 
-				<ContractModal :name="pseudo" @close="showContractDialog = false" />
+				<ContractModal :profile="profile" :pseudo="pseudo" @close="showContractDialog = false" />
 			</n-card>
 		</n-modal>
 
@@ -138,7 +167,7 @@
 				<span style="font-weight: bold; display: flex; justify-content: center" class="font-color">
 					Violation
 				</span>
-				<ViolationModal :name="pseudo" @close="showViolationDialog = false" />
+				<ViolationModal :profile="profile" :pseudo="pseudo" @close="showViolationDialog = false" />
 			</n-card>
 		</n-modal>
 	</div>
@@ -151,7 +180,6 @@ import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 import { getRandomAvatarMood } from '~/utils/getAvatarImg'
 import AnimatedIcon from './AnimatedIcon.vue'
-import ContractModal from './ContractModal.vue'
 
 const props = defineProps({
 	profile: {
@@ -219,6 +247,7 @@ watch(
 )
 
 let showActions = ref(false)
+let showRewardDialog = ref(false)
 let showContractDialog = ref(false)
 let showViolationDialog = ref(false)
 

@@ -77,6 +77,53 @@ export const useCreditStore = defineStore('credit', {
 			}
 		},
 
+		async increasePartnerCredit(n: number, description: string) {
+			const supabase = useSupabaseClient<Database>()
+			const userStore = useUserStore()
+
+			const partner = userStore.partnerProfile
+
+			if (!partner) {
+				console.error('partnerProfile is not loaded, cannot update credit.')
+				return
+			}
+
+			const newCredit = partner.credit! + n
+
+			const { data, error } = await supabase
+				.from('profiles')
+				.update({
+					credit: newCredit,
+				})
+				.eq('id', partner.id)
+
+				.select('*')
+
+			await supabase.rpc('give_credits', {
+				p_receiver_id: partner.id,
+				p_amount: n,
+				p_description: description,
+			})
+
+			if (error) {
+				console.error('Failed to increase credit:', error)
+				return
+			}
+
+			if (data && data.length > 0) {
+				console.log('Credit increase:', `${data[0].firstname}: credit ${data[0].credit}`)
+				userStore.partnerProfile!.credit = newCredit
+			}
+
+			await $fetch('/api/send-notification', {
+				method: 'POST',
+				body: {
+					title: 'Amazing !! 😇',
+					body: ` you've earned a reward 🥳 `,
+				},
+			})
+		},
+
 		init() {
 			const userStore = useUserStore()
 			const credit = userStore.profile!.credit || 0

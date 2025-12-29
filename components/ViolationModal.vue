@@ -11,7 +11,11 @@
 					<div class="avatar-image back">
 						<n-image
 							width="60"
-							:src="name.charAt(0) === 'S' ? '/memojis/paci/angry.png' : '/memojis/jeje/angry.png'"
+							:src="
+								profile.firstname.charAt(0) === 'P'
+									? '/memojis/jeje/angry.png'
+									: '/memojis/paci/angry.png'
+							"
 						/>
 					</div>
 
@@ -19,7 +23,11 @@
 					<div class="avatar-image front">
 						<n-image
 							width="60"
-							:src="name.charAt(0) === 'S' ? '/memojis/jeje/sad.png' : '/memojis/paci/sad.png'"
+							:src="
+								profile.firstname.charAt(0) === 'P'
+									? '/memojis/paci/sad.png'
+									: '/memojis/jeje/sad.png'
+							"
 						/>
 					</div>
 				</div>
@@ -28,7 +36,7 @@
 
 		<span style="text-align: center" class="font-color">
 			Did
-			<span class="special">{{ name }}</span>
+			<span class="special">{{ pseudo }}</span>
 			violate a
 			<span class="special">contract rule</span>
 			again ???
@@ -45,10 +53,14 @@ import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 import { useViolationStore } from '~/stores/violation'
 
-const { name } = defineProps({
-	name: {
+const props = defineProps({
+	pseudo: {
 		type: String,
-		default: 'Name',
+		default: 'pseudo',
+	},
+	profile: {
+		type: Object,
+		default: () => ({}),
 	},
 })
 
