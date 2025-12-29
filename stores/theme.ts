@@ -1,4 +1,5 @@
 // stores/theme.ts
+// TODO: clean up
 import { defineStore } from 'pinia'
 
 export type ThemeName = 'sage-green' | 'dark-blue' | 'light-pink'
@@ -35,7 +36,7 @@ export const useThemeStore = defineStore('theme', {
 		themeColors: {
 			'sage-green': '#8A9A86',
 			'dark-blue': '#1E3A8A',
-			'light-pink': '#F9A8D4',
+			'light-pink': '#FAD0E8',
 		},
 		lightThemeColors: {
 			'sage-green': '#D4DDD2',

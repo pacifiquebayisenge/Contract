@@ -42,8 +42,15 @@ import { useThemeStore } from '~/stores/theme'
 
 const themeStore = useThemeStore()
 
-const lightThemeActive = ref(false)
 const badgeRingActive = ref(false)
+const lightThemeActive = ref(false)
+
+// TODO: clean up
+onMounted(() => {
+	console.log(themeStore.getCurrentBadgeRingOption)
+	badgeRingActive.value = themeStore.getCurrentBadgeRingOption === 'inside' ? true : false
+	lightThemeActive.value = themeStore.currentLightThemeOption === 'light-color' ? true : false
+})
 
 const handleBadgeRing = (value: boolean) => {
 	const badgeRingOption = value ? themeStore.badgeRingOptions[0] : themeStore.badgeRingOptions[1]

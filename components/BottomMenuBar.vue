@@ -105,6 +105,7 @@
 									<n-divider />
 								</div>
 							</n-collapse-item>
+
 							<n-collapse-item title="Notifications" name="2">
 								<div class="px-3">
 									<n-space vertical>
