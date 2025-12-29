@@ -114,7 +114,7 @@
 			</template>
 		</n-card>
 
-		<n-modal v-model:show="showRewardDialog" transform-origin="center">
+		<n-modal v-model:show="showRewardDialog" :auto-focus="false" transform-origin="center">
 			<n-card
 				:style="{ borderRadius: '2rem !important' }"
 				style="max-width: 80%"

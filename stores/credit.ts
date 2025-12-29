@@ -119,7 +119,8 @@ export const useCreditStore = defineStore('credit', {
 				method: 'POST',
 				body: {
 					title: 'Amazing !! 😇',
-					body: ` you've earned a reward 🥳 `,
+					body: ` you've earned a reward 🥳 
+					${description}`,
 				},
 			})
 		},
