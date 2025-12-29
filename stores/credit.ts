@@ -118,7 +118,7 @@ export const useCreditStore = defineStore('credit', {
 			await $fetch('/api/send-notification', {
 				method: 'POST',
 				body: {
-					title: "Amazing !! 😇 you've earned a reward 🥳",
+					title: "you've earned a reward 🥳",
 					body: `${description}`,
 				},
 			})
