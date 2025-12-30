@@ -1,6 +1,6 @@
 <template>
 	<n-tabs
-		class="mx-8 px-12 flex justify-center themed-tabs"
+		class="mx-8 px-12 flex justify-center themed-tabs invisible-scroll-component"
 		type="line"
 		animated
 		:value="activeTab"

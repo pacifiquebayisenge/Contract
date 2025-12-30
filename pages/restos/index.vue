@@ -1,5 +1,5 @@
 <template>
-	<div class="memories-page-container animate-item">
+	<div class="restos-page-container animate-item">
 		<div class="content animate-item">
 			<div class="avatar-container py-8 animate-item">
 				<!-- Left mirrored avatar -->
@@ -56,7 +56,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.memories-page-container {
+.restos-page-container {
 	display: flex;
 	align-items: center;
 	justify-content: center;
