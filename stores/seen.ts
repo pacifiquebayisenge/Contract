@@ -22,7 +22,7 @@ export const useSeenStore = defineStore('seen', {
 			const profile = userStore.profile
 
 			if (!profile) {
-				console.error('Profile not loaded')
+				console.error('❌ Profile not loaded')
 				return
 			}
 
@@ -38,14 +38,13 @@ export const useSeenStore = defineStore('seen', {
 				.select('*')
 
 			if (error) {
-				console.error('Failed to update seen:', error)
+				console.error('❌ Failed to update seen:', error)
 				return
 			}
 
 			await this.logSeenUpdate()
 
 			if (data && data.length > 0) {
-				// console.log('Seen updated:', `${data[0].firstname}: seen ${data[0].seen}`)
 				userStore.profile!.seen = this.value
 			}
 		},
@@ -54,10 +53,8 @@ export const useSeenStore = defineStore('seen', {
 			const supabase = useSupabaseClient<Database>()
 			const userStore = useUserStore()
 
-			const partner = userStore.partnerProfile
-
-			if (!partner) {
-				console.error('Partner profile is not loaded, cannot log seen update.')
+			if (!userStore.profile?.id) {
+				console.error('❌ User profile is not loaded, cannot log app open.')
 				return
 			}
 
@@ -68,7 +65,7 @@ export const useSeenStore = defineStore('seen', {
 			})
 
 			if (error) {
-				console.error('Failed to log seen update:', error)
+				console.error('❌ Failed to log app open event:', error)
 				return
 			}
 		},

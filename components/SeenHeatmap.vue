@@ -57,6 +57,11 @@ function localYYYYMMDD(d: Date) {
 	return `${y}-${m}-${day}`
 }
 
+function formatDDMMYYYY(yyyyMmDd: string) {
+	const [y, m, d] = yyyyMmDd.split('-')
+	return `${d}-${m}-${y}`
+}
+
 function hexToRgb(hex: string) {
 	const n = parseInt(hex.replace('#', ''), 16)
 	return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }
@@ -212,18 +217,6 @@ const option = computed(() => {
 
 		graphic: [
 			// Month label
-			{
-				type: 'text',
-				left: gridLeft,
-				top: 6,
-				style: {
-					text: monthLabel,
-					fontSize: 12,
-					fontWeight: 600,
-					fill: 'rgba(27,31,36,0.70)',
-				},
-				silent: true,
-			},
 
 			// Legend centered: Less [squares] More
 			{
@@ -282,19 +275,42 @@ const option = computed(() => {
 		// Subtle tooltip on click only
 		tooltip: {
 			triggerOn: 'click',
-			backgroundColor: 'rgba(255,255,255,0.92)',
-			borderColor: 'rgba(27,31,36,0.10)',
-			borderWidth: 1,
-			padding: [8, 10],
-			textStyle: { fontSize: 12, color: 'rgba(27,31,36,0.80)' },
-			extraCssText: 'border-radius:10px; box-shadow: 0 8px 20px rgba(0,0,0,0.08);',
+			backgroundColor: 'transparent',
+			borderWidth: 0,
+			padding: 0,
+			extraCssText: 'box-shadow:none;',
+
 			formatter: (p: any) => {
-				const date = p.data?.[3]
-				const v = p.data?.[2]
+				const date = p.data?.[3] as string | undefined
+				const v = Number(p.data?.[2] ?? 0)
 				const isFuture = p.data?.[4] === 1
-				const isPadding = v === -3
+				const isPadding = p.data?.[2] === -3
+
 				if (!date || isFuture || isPadding) return ''
-				return `${date}<br/>${v} app opens`
+
+				// Use your current theme color for the border + small accents
+				const borderColor = themeStore.getCurrentLightThemeColor
+				const dateStr = formatDDMMYYYY(date)
+
+				return `
+			<div style="
+				text-align:center;
+				background:rgba(255,255,255,0.94);
+				border:1px solid ${borderColor};
+				border-radius:12px;
+				padding:10px 14px;
+				box-shadow:0 8px 20px rgba(0,0,0,0.08);
+				min-width:140px;
+			">
+				<div style="font-size:11px; opacity:0.75; margin-bottom:6px;">
+					${dateStr}
+				</div>
+				
+				<div style="font-size:11px; opacity:0.72; margin-top:4px;">
+					 ${v} app opens
+				</div>
+			</div>
+		`
 			},
 		},
 

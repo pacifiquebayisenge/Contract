@@ -93,7 +93,7 @@ export const useStreakStore = defineStore('streak', {
 		init() {
 			const userStore = useUserStore()
 
-			const streak = userStore.profile!.streak || 0
+			const streak = userStore.profile?.streak ?? 0
 			this.setStreak(streak)
 		},
 	},

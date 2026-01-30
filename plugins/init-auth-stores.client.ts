@@ -15,9 +15,6 @@ export default defineNuxtPlugin(() => {
 	watch(
 		authUser,
 		async (u) => {
-			if (!u || !u.sub) return
-
-			if (initialized) return
 			initialized = true
 
 			// init stores safely

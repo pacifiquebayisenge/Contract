@@ -126,7 +126,7 @@ export const useCreditStore = defineStore('credit', {
 
 		init() {
 			const userStore = useUserStore()
-			const credit = userStore.profile!.credit || 0
+			const credit = userStore.profile?.credit ?? 0
 
 			this.setCredit(credit)
 		},
