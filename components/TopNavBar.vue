@@ -1,6 +1,6 @@
 <template>
 	<n-tabs
-		class="mx-8 px-12 flex justify-center themed-tabs invisible-scroll-component"
+		class="my-2 mx-4 px-8 flex justify-center themed-tabs invisible-scroll-component"
 		type="line"
 		animated
 		:value="activeTab"
@@ -108,5 +108,17 @@ const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
 
 .n-tabs .n-tabs-bar {
 	background-color: var(--theme-color) !important;
+}
+
+n-tabs.n-tabs--top
+	> .n-tabs-nav
+	.n-tabs-nav-scroll-wrapper.n-tabs-nav-scroll-wrapper--shadow-end::after,
+.n-tabs.n-tabs--top
+	> .n-tabs-nav
+	.n-tabs-nav-scroll-wrapper.n-tabs-nav-scroll-wrapper--shadow-start::before,
+.n-tabs.n-tabs--top
+	> .n-tabs-nav
+	.n-tabs-nav-scroll-wrapper.n-tabs-nav-scroll-wrapper--shadow-end::after {
+	box-shadow: unset;
 }
 </style>
