@@ -32,9 +32,9 @@ function dayIndex(dateStr: string) {
 	return Math.floor(+d / 86400000)
 }
 
-function currentMonthBounds() {
+function lastTwoMonthsBounds() {
 	const now = new Date()
-	const start = new Date(now.getFullYear(), now.getMonth(), 1)
+	const start = new Date(now.getFullYear(), now.getMonth() - 1, 1)
 	const end = new Date(now.getFullYear(), now.getMonth() + 1, 1)
 	return {
 		start,
@@ -45,7 +45,7 @@ function currentMonthBounds() {
 }
 
 const option = computed(() => {
-	const { start, end, min, max } = currentMonthBounds()
+	const { start, end, min, max } = lastTwoMonthsBounds()
 
 	const myId = userStore.userId
 	const myColor = themeStore.getCurrentLightThemeColor // ✅ light theme color

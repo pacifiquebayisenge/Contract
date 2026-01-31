@@ -4,8 +4,9 @@
 		<div class="stats-cards">
 			<StatCard title="Today's Contract Uses" :value="todayStreaks" />
 			<StatCard title="Credit Balance" :value="'€ ' + currentCredit" />
+
 			<StatCard title="Total Violations" :value="totalViolations" />
-			<StatCard title="App Opens Today" :value="todayOpens" />
+			<StatCard title="App Opens Today" :value="appOpensToday" />
 		</div>
 
 		<!-- CHARTS -->
@@ -37,7 +38,16 @@ import { useStats } from '~/composables/useStats'
 // import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 
-const { load, streakPerDaySeries, creditDailySeries, appOpensPerDay, eventTypeCounts } = useStats()
+const {
+	load,
+	loadStreakEvents,
+	loadCreditEvents,
+	streakPerDaySeries,
+	creditDailySeries,
+	appOpensPerDay,
+	eventTypeCounts,
+	appOpensToday,
+} = useStats()
 const userStore = useUserStore()
 // const themeStore = useThemeStore()
 
@@ -53,7 +63,13 @@ const currentMonth = computed(() => new Date().toLocaleDateString('default', { m
 
 // for the current user
 const todayStreaks = computed(() => userStore.profile?.streak ?? 0)
-const currentCredit = computed(() => userStore.profile?.credit ?? 0)
+const currentCredit = computed(() =>
+	(userStore.profile?.credit ?? 0).toLocaleString('fr-BE', {
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 0,
+	})
+)
+
 const totalViolations = computed(() => userStore.profile?.violation ?? 0)
 
 const todayOpens = computed(() => {
@@ -80,13 +96,14 @@ onMounted(async () => {
 	animatePageEnter()
 
 	await load()
+	await loadStreakEvents()
+	await loadCreditEvents()
 
-	console.log('📊 Stats loaded!')
-	console.log('📈 appOpensPerDay:', appOpensPerDay.value)
-	console.log('📊 eventTypeCounts:', eventTypeCounts.value)
-	console.log('📈 streakPerDay points:', streakPerDaySeries.value.length)
-	console.log('💰 creditTimeline points:', creditDailySeries.value.length)
-	console.log('📱 appOpensPerDay points:', appOpensPerDay.value.length)
+	// console.log('📈 appOpensPerDay:', appOpensPerDay.value)
+	// console.log('📊 eventTypeCounts:', eventTypeCounts.value)
+	// console.log('📈 streakPerDay points:', streakPerDaySeries.value.length)
+	// console.log('💰 creditTimeline points:', creditDailySeries.value.length)
+	// console.log('📱 appOpensPerDay points:', appOpensPerDay.value.length)
 })
 </script>
 

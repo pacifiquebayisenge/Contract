@@ -28,10 +28,14 @@ function formatDDMMYYYY(dateInput: string | number | Date) {
 	return `${dd}-${mm}-${yyyy}`
 }
 
-function isInCurrentMonth(dateInput: string) {
-	const d = new Date(dateInput)
+function isInLastTwoMonths(dateInput: string) {
+	const date = new Date(dateInput)
 	const now = new Date()
-	return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
+	const isCurrentMonth =
+		date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth()
+	const isLastMonth =
+		date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() - 1
+	return isCurrentMonth || isLastMonth
 }
 
 const option = computed(() => {
@@ -47,10 +51,17 @@ const option = computed(() => {
 
 			const color = isMe ? myColor : otherColor
 
-			const filtered = (s.data || [])
-				.filter(([ts]) => isInCurrentMonth(ts))
-				.slice()
-				.sort((a, b) => String(a[0]).localeCompare(String(b[0])))
+			// Aggregate data by week
+			const weeklyData = s.data.reduce((acc, [date, value]) => {
+				const weekStart = new Date(date)
+				weekStart.setDate(weekStart.getDate() - weekStart.getDay()) // Start of week (Sunday)
+				const weekKey = weekStart.toISOString().slice(0, 10)
+
+				acc[weekKey] = (acc[weekKey] || 0) + value
+				return acc
+			}, {})
+
+			const data = Object.entries(weeklyData).map(([weekStart, total]) => [weekStart, total])
 
 			return {
 				userId: s.userId,
@@ -59,7 +70,7 @@ const option = computed(() => {
 				type: 'line',
 				smooth: false,
 				connectNulls: false,
-				data: filtered,
+				data,
 				lineStyle: { width: 3, color },
 				itemStyle: { color },
 				showSymbol: true,
@@ -124,28 +135,32 @@ const option = computed(() => {
 				if (x == null) return ''
 
 				const borderColor = p.color || 'rgba(27,31,36,0.18)'
-				const dateStr = formatDDMMYYYY(x)
+				const date = new Date(x)
+				const month = date.toLocaleString('default', { month: 'long' })
+				const year = date.getFullYear()
+				const weekNumber = Math.ceil(date.getDate() / 7)
+				const quarterLabel = `Q${weekNumber}`
 
 				return `
-					<div style="
-						text-align:center;
-						background:rgba(255,255,255,0.94);
-						border:1px solid ${borderColor};
-						border-radius:12px;
-						padding:10px 14px;
-						box-shadow:0 8px 20px rgba(0,0,0,0.08);
-					">
-						<div style="font-weight:600; margin-bottom:2px;">
-							${p.seriesName}
-						</div>
-						<div style="font-size:11px; opacity:0.75; margin-bottom:6px;">
-							${dateStr}
-						</div>
-						<div style="font-weight:700;">
-						€	${Number(y).toLocaleString()} 
-						</div>
-					</div>
-				`
+    <div style="
+      text-align:center;
+      background:rgba(255,255,255,0.94);
+      border:1px solid ${borderColor};
+      border-radius:12px;
+      padding:10px 14px;
+      box-shadow:0 8px 20px rgba(0,0,0,0.08);
+    ">
+      <div style="font-weight:600; margin-bottom:2px;">
+        ${p.seriesName}
+      </div>
+      <div style="font-size:11px; opacity:0.75; margin-bottom:6px;">
+        ${quarterLabel} ${month} ${year}
+      </div>
+      <div style="font-weight:700;">
+ 				 € ${Number(y).toLocaleString('fr-BE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} 
+			</div>
+    </div>
+  `
 			},
 		},
 

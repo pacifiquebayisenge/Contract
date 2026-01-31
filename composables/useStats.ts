@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue'
+import { useUserStore } from '#imports'
 
 type HeatmapItem = { date: string; count: number }
 type CreditPoint = [string, number]
@@ -11,6 +12,9 @@ function localYYYYMMDDFromTimestamp(ts: string) {
 export function useStats() {
 	const supabase = useSupabaseClient()
 	const events = ref<any[]>([])
+	const streakEvents = ref<any[]>([])
+	const creditEvents = ref<any[]>([])
+	const userStore = useUserStore()
 
 	const load = async () => {
 		const { data, error } = await supabase
@@ -24,10 +28,49 @@ export function useStats() {
 			return
 		}
 
-		// Log app_open events specifically
-		const appOpenEvents = data?.filter((e: any) => e.event_type === 'app_open') || []
-
 		events.value = data || []
+	}
+
+	const loadStreakEvents = async () => {
+		const now = new Date()
+		const firstDayOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+		const firstDayOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+
+		const { data, error } = await supabase
+			.from('user_events')
+			.select('*')
+			.eq('event_type', 'streak_use')
+			.gte('created_at', firstDayOfLastMonth.toISOString())
+			.lt('created_at', firstDayOfNextMonth.toISOString())
+			.order('created_at', { ascending: true })
+
+		if (error) {
+			streakEvents.value = []
+			return
+		}
+
+		streakEvents.value = data || []
+	}
+
+	const loadCreditEvents = async () => {
+		const now = new Date()
+		const firstDayOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+		const firstDayOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+
+		const { data, error } = await supabase
+			.from('user_events')
+			.select('*')
+			.in('event_type', ['credit_gain', 'credit_spent'])
+			.gte('created_at', firstDayOfLastMonth.toISOString())
+			.lt('created_at', firstDayOfNextMonth.toISOString())
+			.order('created_at', { ascending: true })
+
+		if (error) {
+			creditEvents.value = []
+			return
+		}
+
+		creditEvents.value = data || []
 	}
 
 	const eventTypeCounts = computed(() => {
@@ -38,11 +81,11 @@ export function useStats() {
 		return counts
 	})
 
-	// STREAK PER DAY
+	// STREAK PER DAY - Last 2 months
 	const streakPerDaySeries = computed(() => {
 		const map: Record<string, Record<string, number>> = {}
 
-		events.value
+		streakEvents.value
 			.filter((e) => e.event_type === 'streak_use')
 			.forEach((e) => {
 				const userId = String(e.target_id ?? 'unknown')
@@ -60,13 +103,15 @@ export function useStats() {
 		}))
 	})
 
-	// CREDIT BALANCE (timeline points)
+	// CREDIT BALANCE - Last 2 months
 	const creditDailySeries = computed<CreditSeries[]>(() => {
 		const now = new Date()
-		const start = new Date(now.getFullYear(), now.getMonth(), 1)
-		const end = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+
+		// Last day is today
 		const lastDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
 
+		// Generate all days from start to today
+		const start = new Date(now.getFullYear(), now.getMonth() - 1, 1)
 		const days: string[] = []
 		for (let d = new Date(start); d <= lastDay; d.setDate(d.getDate() + 1)) {
 			const y = d.getFullYear()
@@ -75,8 +120,7 @@ export function useStats() {
 			days.push(`${y}-${m}-${dd}`)
 		}
 
-		const rows = events.value
-			.filter((e) => ['credit_gain', 'credit_spent'].includes(e.event_type))
+		const rows = creditEvents.value
 			.filter((e) => e.balance !== null && e.balance !== undefined)
 			.slice()
 			.sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)))
@@ -91,13 +135,6 @@ export function useStats() {
 
 			const createdAt = new Date(String(e.created_at))
 
-			if (createdAt < start) {
-				seed[userId] = balance
-				continue
-			}
-
-			if (createdAt >= end) continue
-
 			const y = createdAt.getFullYear()
 			const m = String(createdAt.getMonth() + 1).padStart(2, '0')
 			const dd = String(createdAt.getDate()).padStart(2, '0')
@@ -107,13 +144,13 @@ export function useStats() {
 			perDay[userId][dayKey] = balance
 		}
 
-		const userIds = new Set<string>([...Object.keys(seed), ...Object.keys(perDay)])
+		const userIds = new Set<string>([...Object.keys(perDay)])
 
 		const out: CreditSeries[] = []
 
 		for (const userId of userIds) {
 			const dayMap = perDay[userId] || {}
-			let last: number | null = seed[userId] ?? null
+			let last: number | null = null
 
 			const points: CreditPoint[] = []
 
@@ -150,11 +187,31 @@ export function useStats() {
 		return result
 	})
 
+	const appOpensToday = computed(() => {
+		let myAppOpensToday = 0
+
+		const today = new Date().toISOString().slice(0, 10)
+
+		const appOpenEvents = events.value.filter((e) => e.event_type === 'app_open')
+
+		appOpenEvents.forEach((e) => {
+			const eventDate = e.created_at.slice(0, 10)
+			if (eventDate === today && e.actor_id === userStore.userId) {
+				myAppOpensToday++
+			}
+		})
+
+		return myAppOpensToday
+	})
+
 	return {
 		load,
+		loadStreakEvents,
+		loadCreditEvents,
 		streakPerDaySeries,
 		creditDailySeries,
 		appOpensPerDay,
+		appOpensToday,
 		eventTypeCounts,
 	}
 }
