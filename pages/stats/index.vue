@@ -59,7 +59,7 @@ function localDDMMYYYY(d = new Date()) {
 }
 
 const today = localDDMMYYYY()
-const currentMonth = computed(() => new Date().toLocaleDateString('default', { month: 'long' }))
+const currentMonth = computed(() => new Date().toLocaleDateString('en', { month: 'long' }))
 
 // for the current user
 const todayStreaks = computed(() => userStore.profile?.streak ?? 0)

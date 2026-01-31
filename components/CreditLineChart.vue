@@ -136,7 +136,7 @@ const option = computed(() => {
 
 				const borderColor = p.color || 'rgba(27,31,36,0.18)'
 				const date = new Date(x)
-				const month = date.toLocaleString('default', { month: 'long' })
+				const month = date.toLocaleString('en', { month: 'long' })
 				const year = date.getFullYear()
 				const weekNumber = Math.ceil(date.getDate() / 7)
 				const quarterLabel = `Q${weekNumber}`
