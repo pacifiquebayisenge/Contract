@@ -20,13 +20,15 @@ import { GraphicComponent, GridComponent, TooltipComponent } from 'echarts/compo
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { useThemeStore } from '~/stores/theme'
+import { useUserStore } from '~/stores/user'
 
 use([CanvasRenderer, CustomChart, GridComponent, TooltipComponent, GraphicComponent])
 
-type HeatmapItem = { date: string; count: number }
+type HeatmapItem = { date: string; count: number; userId: string }
 const props = defineProps<{ data: HeatmapItem[] }>()
 
 const themeStore = useThemeStore()
+const userStore = useUserStore()
 const ready = ref(false)
 
 const wrap = ref<HTMLElement | null>(null)
@@ -98,9 +100,9 @@ const option = computed(() => {
 	const weeks = Math.ceil(totalCells / 7)
 
 	// Lookup: date -> count
-	const valueByDate = new Map<string, number>()
+	const valueByDate = new Map<string, { count: number; userId: string }>()
 	for (const item of props.data || []) {
-		valueByDate.set(item.date, Number(item.count) || 0)
+		valueByDate.set(item.date, { count: Number(item.count) || 0, userId: item.userId })
 	}
 
 	/* ---------- layout ---------- */
@@ -176,8 +178,12 @@ const option = computed(() => {
 				continue
 			}
 
-			const value = valueByDate.get(date) ?? 0
-			cells.push([w, d, value, date, 0])
+			const value = valueByDate.get(date)
+			if (value) {
+				cells.push([w, d, value.count, date, 0, value.userId])
+			} else {
+				cells.push([w, d, 0, date, 0, null])
+			}
 		}
 	}
 
@@ -292,25 +298,44 @@ const option = computed(() => {
 				const borderColor = themeStore.getCurrentLightThemeColor
 				const dateStr = formatDDMMYYYY(date)
 
+				// Get the user name and total count
+				const myName = userStore.getProfileById(userStore.userId!)?.firstname
+				const partnerName = userStore.getProfileById(
+					props.data.find((e) => e.userId !== userStore.userId)?.userId!
+				)?.firstname
+
+				const myCount =
+					props.data.filter((e) => e.date === date && e.userId === userStore.userId)[0]?.count || 0
+				const partnerCount =
+					props.data.filter((e) => e.date === date && e.userId !== userStore.userId)[0]?.count || 0
+				const totalCount = v
+
 				return `
-			<div style="
-				text-align:center;
-				background:rgba(255,255,255,0.94);
-				border:1px solid ${borderColor};
-				border-radius:12px;
-				padding:10px 14px;
-				box-shadow:0 8px 20px rgba(0,0,0,0.08);
-				min-width:140px;
-			">
-				<div style="font-size:11px; opacity:0.75; margin-bottom:6px;">
-					${dateStr}
-				</div>
-				
-				<div style="font-size:11px; opacity:0.72; margin-top:4px;">
-					 ${v} app opens
-				</div>
-			</div>
-		`
+      <div style="
+        text-align:center;
+        background:rgba(255,255,255,0.94);
+        border:1px solid ${borderColor};
+        border-radius:12px;
+        padding:10px 14px;
+        box-shadow:0 8px 20px rgba(0,0,0,0.08);
+        min-width:140px;
+      ">
+			<div style="font-weight:600; margin-bottom:6px;">
+          ${totalCount} app openings
+        </div>
+
+        <div style="font-size:11px; opacity:0.75; margin-bottom:6px;">
+          ${dateStr}
+        </div>
+        
+        <div style="font-size:11px; opacity:0.72; margin-top:4px;">
+         ${myName} : ${myCount} 
+        </div>
+        <div style="font-size:11px; opacity:0.72; margin-top:4px;">
+          ${partnerName} : ${partnerCount} 
+        </div>
+      </div>
+    `
 			},
 		},
 

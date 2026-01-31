@@ -4,6 +4,9 @@
 		<div class="stats-cards">
 			<StatCard title="Today's Contract Uses" :value="todayStreaks" />
 			<StatCard title="Credit Balance" :value="'€ ' + currentCredit" />
+			<!-- <div>
+				<Vue3Countup :end-val="currentCreditNumber" :options="countupOptions" />
+			</div> -->
 
 			<StatCard title="Total Violations" :value="totalViolations" />
 			<StatCard title="App Opens Today" :value="appOpensToday" />
@@ -19,7 +22,7 @@
 				<CreditLineChart :data="creditDailySeries" />
 			</ChartCard>
 
-			<ChartCard :title="`App Opens: ${currentMonth}`">
+			<ChartCard title="App Opens for this Month">
 				<SeenHeatmap :data="appOpensPerDay" />
 			</ChartCard>
 		</div>
@@ -28,6 +31,7 @@
 
 <script lang="ts" setup>
 import { computed, onMounted } from 'vue'
+import { Vue3Countup } from 'vue3-countup'
 import ChartCard from '~/components/ChartCard.vue'
 import CreditLineChart from '~/components/CreditLineChart.vue'
 import SeenHeatmap from '~/components/SeenHeatmap.vue'
@@ -42,6 +46,8 @@ const {
 	load,
 	loadStreakEvents,
 	loadCreditEvents,
+	loadAppOpenEvents,
+
 	streakPerDaySeries,
 	creditDailySeries,
 	appOpensPerDay,
@@ -59,7 +65,17 @@ function localDDMMYYYY(d = new Date()) {
 }
 
 const today = localDDMMYYYY()
-const currentMonth = computed(() => new Date().toLocaleDateString('en', { month: 'long' }))
+
+const countupOptions = {
+	useEasing: true,
+	useGrouping: true,
+	separator: ',',
+	decimal: '.',
+	prefix: '€ ',
+	suffix: '',
+}
+
+const currentCreditNumber = ref(0)
 
 // for the current user
 const todayStreaks = computed(() => userStore.profile?.streak ?? 0)
@@ -98,6 +114,9 @@ onMounted(async () => {
 	await load()
 	await loadStreakEvents()
 	await loadCreditEvents()
+	await loadAppOpenEvents()
+
+	currentCreditNumber.value = userStore.profile?.credit ?? 0
 
 	// console.log('📈 appOpensPerDay:', appOpensPerDay.value)
 	// console.log('📊 eventTypeCounts:', eventTypeCounts.value)

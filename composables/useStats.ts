@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 import { useUserStore } from '#imports'
 
-type HeatmapItem = { date: string; count: number }
+type HeatmapItem = { date: string; count: number; userId: string }
 type CreditPoint = [string, number]
 type CreditSeries = { userId: string; data: CreditPoint[] }
 
@@ -14,6 +14,7 @@ export function useStats() {
 	const events = ref<any[]>([])
 	const streakEvents = ref<any[]>([])
 	const creditEvents = ref<any[]>([])
+	const appOpenEvents = ref<any[]>([])
 	const userStore = useUserStore()
 
 	const load = async () => {
@@ -71,6 +72,29 @@ export function useStats() {
 		}
 
 		creditEvents.value = data || []
+	}
+
+	const loadAppOpenEvents = async () => {
+		const now = new Date()
+		const year = now.getFullYear()
+		const month = now.getMonth() + 1
+		const firstDayOfMonth = new Date(year, month - 1, 1)
+		const firstDayOfNextMonth = new Date(year, month, 1)
+
+		const { data, error } = await supabase
+			.from('user_events')
+			.select('*')
+			.eq('event_type', 'app_open')
+			.gte('created_at', firstDayOfMonth.toISOString())
+			.lt('created_at', firstDayOfNextMonth.toISOString())
+			.order('created_at', { ascending: true })
+
+		if (error) {
+			appOpenEvents.value = []
+			return
+		}
+
+		appOpenEvents.value = data || []
 	}
 
 	const eventTypeCounts = computed(() => {
@@ -169,20 +193,24 @@ export function useStats() {
 	})
 
 	// APP OPENS PER DAY (heatmap-ready shape)
+	// APP OPENS PER DAY (heatmap-ready shape)
 	const appOpensPerDay = computed<HeatmapItem[]>(() => {
-		const map: Record<string, number> = {}
+		const map: Record<string, Record<string, number>> = {}
 
-		const appOpenEvents = events.value.filter((e) => e.event_type === 'app_open')
-
-		appOpenEvents.forEach((e) => {
+		appOpenEvents.value.forEach((e) => {
 			const day = localYYYYMMDDFromTimestamp(e.created_at)
-			map[day] = (map[day] || 0) + 1
+			const userId = e.actor_id
+
+			map[userId] ||= {}
+			map[userId][day] = (map[userId][day] || 0) + 1
 		})
 
-		const result = Object.entries(map).map(([date, count]) => ({
-			date,
-			count,
-		}))
+		const result: HeatmapItem[] = []
+		Object.entries(map).forEach(([userId, dayMap]) => {
+			Object.entries(dayMap).forEach(([date, count]) => {
+				result.push({ date, count, userId })
+			})
+		})
 
 		return result
 	})
@@ -192,9 +220,7 @@ export function useStats() {
 
 		const today = new Date().toISOString().slice(0, 10)
 
-		const appOpenEvents = events.value.filter((e) => e.event_type === 'app_open')
-
-		appOpenEvents.forEach((e) => {
+		appOpenEvents.value.forEach((e) => {
 			const eventDate = e.created_at.slice(0, 10)
 			if (eventDate === today && e.actor_id === userStore.userId) {
 				myAppOpensToday++
@@ -208,6 +234,7 @@ export function useStats() {
 		load,
 		loadStreakEvents,
 		loadCreditEvents,
+		loadAppOpenEvents,
 		streakPerDaySeries,
 		creditDailySeries,
 		appOpensPerDay,
