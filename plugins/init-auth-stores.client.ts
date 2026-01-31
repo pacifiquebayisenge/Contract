@@ -1,5 +1,3 @@
-let initialized = false
-
 export default defineNuxtPlugin(() => {
 	const authUser = useSupabaseUser()
 
@@ -11,11 +9,13 @@ export default defineNuxtPlugin(() => {
 	const creditStore = useCreditStore()
 
 	const { handleNewDay } = useNewDaySync()
+	const initialized = ref(false)
 
 	watch(
 		authUser,
 		async (u) => {
-			initialized = true
+			if (!u?.sub || initialized.value) return
+			initialized.value = true
 
 			// init stores safely
 			if (!userStore.ready) await userStore.init()
