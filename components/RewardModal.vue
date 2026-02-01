@@ -100,7 +100,7 @@ watch(description, (newVal) => {
 
 // round to the nearest 100
 const nearestHundred = (num) => {
-	num = Math.max(100, Math.min(num, 1000)) // clamp tussen 100 en 1000
+	num = Math.max(100, Math.min(num, 1000)) // clamp tussen 100 en 1 000
 	return Math.round(num / 100) * 100
 }
 

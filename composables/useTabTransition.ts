@@ -2,8 +2,9 @@
 const tabs = [
 	{ name: 'Home', path: '/' },
 	{ name: 'Contract', path: '/contract' },
-	{ name: 'Memories', path: '/memories' },
 	{ name: 'Stats', path: '/stats' },
+	{ name: 'Shop', path: '/shop' },
+	{ name: 'Memories', path: '/memories' },
 	{ name: 'Wishes', path: '/wishes' },
 	{ name: 'Restos', path: '/restos' },
 ]

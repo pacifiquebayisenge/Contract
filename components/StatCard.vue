@@ -21,6 +21,7 @@ const isCurrency = computed(() => (props.currency ? '€ ' : ''))
 const countupOptions = {
 	useEasing: true,
 	useGrouping: true,
+	duration: '2.5',
 	separator: ' ',
 	decimal: '.',
 	prefix: isCurrency.value,

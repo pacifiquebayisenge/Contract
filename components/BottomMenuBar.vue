@@ -4,22 +4,22 @@
 			<div class="items flex space-between justify-center">
 				<div class="item" @click="activateAccountDrawer()">
 					<div class="icon">
-						<NIcon class="text-base opacity-55" :size="30" :component="UserIcon" />
+						<NIcon class="text-base opacity-55" :size="35" :component="UserIcon" />
 					</div>
 				</div>
-				<div class="item">
+				<!-- <div class="item">
 					<div class="icon">
 						<NIcon class="text-base opacity-55" :size="30" :component="ShoppingBagIcon" />
 					</div>
-				</div>
+				</div> -->
 				<div class="item">
 					<div class="icon">
-						<NIcon class="text-base opacity-55" :size="30" :component="InboxIcon" />
+						<NIcon class="text-base opacity-55" :size="35" :component="InboxIcon" />
 					</div>
 				</div>
 				<div class="item" @click="activateSettingsDrawer()">
 					<div class="icon">
-						<NIcon class="text-base opacity-55" :size="30" :component="Cog6ToothIcon" />
+						<NIcon class="text-base opacity-55" :size="35" :component="Cog6ToothIcon" />
 					</div>
 				</div>
 			</div>
