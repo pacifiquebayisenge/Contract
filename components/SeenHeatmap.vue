@@ -148,10 +148,10 @@ const option = computed(() => {
 	const shade3 = mix(lightBase, '#000000', 0.1)
 	const shade4 = base
 
-	function activeColor(v: number) {
-		if (v <= 1) return shade1
-		if (v <= 3) return shade2
-		if (v <= 6) return shade3
+	function activeColor(totalCount: number) {
+		if (totalCount <= 1) return shade1
+		if (totalCount <= 25) return shade2
+		if (totalCount <= 50) return shade3
 		return shade4
 	}
 
@@ -288,6 +288,7 @@ const option = computed(() => {
 
 			formatter: (p: any) => {
 				const date = p.data?.[3] as string | undefined
+
 				const v = Number(p.data?.[2] ?? 0)
 				const isFuture = p.data?.[4] === 1
 				const isPadding = p.data?.[2] === -3
@@ -306,9 +307,11 @@ const option = computed(() => {
 
 				const myCount =
 					props.data.filter((e) => e.date === date && e.userId === userStore.userId)[0]?.count || 0
+
 				const partnerCount =
 					props.data.filter((e) => e.date === date && e.userId !== userStore.userId)[0]?.count || 0
-				const totalCount = v
+
+				const totalCount = myCount + partnerCount
 
 				return `
       <div style="
@@ -327,12 +330,13 @@ const option = computed(() => {
         <div style="font-size:11px; opacity:0.75; margin-bottom:6px;">
           ${dateStr}
         </div>
-        
+
         <div style="font-size:11px; opacity:0.72; margin-top:4px;">
-         ${myName} : ${myCount} 
+         ${myName} : ${myCount || 0}
         </div>
         <div style="font-size:11px; opacity:0.72; margin-top:4px;">
-          ${partnerName} : ${partnerCount} 
+
+       ${partnerName ? `${partnerName} : ${partnerCount || 0}` : ''}
         </div>
       </div>
     `
@@ -354,6 +358,15 @@ const option = computed(() => {
 					const v = api.value(2)
 					const date = api.value(3)
 					const isFuture = api.value(4) === 1
+					const myCount =
+						props.data.filter((e) => e.date === date && e.userId === userStore.userId)[0]?.count ||
+						0
+
+					const partnerCount =
+						props.data.filter((e) => e.date === date && e.userId !== userStore.userId)[0]?.count ||
+						0
+
+					const totalCount = myCount + partnerCount
 
 					// Outside month: draw nothing
 					if (v === -3) return null
@@ -362,7 +375,8 @@ const option = computed(() => {
 					const x = cs.x + w * (tile + gap)
 					const y = cs.y + d * (tile + gap)
 
-					const fill = !date || isFuture || v === 0 ? inactiveFill : activeColor(v)
+					const fill =
+						!date || isFuture || totalCount === 0 ? inactiveFill : activeColor(totalCount)
 
 					return {
 						type: 'rect',

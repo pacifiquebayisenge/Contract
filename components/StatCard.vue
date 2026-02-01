@@ -1,15 +1,31 @@
 <template>
 	<div class="card">
 		<div class="title font-color">{{ title }}</div>
-		<div class="value font-color">{{ value }}</div>
+		<div class="value font-color">
+			<Vue3Countup :number="value" :more-options="countupOptions" />
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-defineProps<{
+import { Vue3Countup } from 'vue3-countup'
+
+const props = defineProps<{
 	title: string
-	value: string | number
+	value: number
+	currency?: boolean
 }>()
+
+const isCurrency = computed(() => (props.currency ? '€ ' : ''))
+
+const countupOptions = {
+	useEasing: true,
+	useGrouping: true,
+	separator: ' ',
+	decimal: '.',
+	prefix: isCurrency.value,
+	suffix: '',
+}
 </script>
 
 <style scoped>

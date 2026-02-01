@@ -3,10 +3,7 @@
 		<!-- SUMMARY CARDS -->
 		<div class="stats-cards">
 			<StatCard title="Today's Contract Uses" :value="todayStreaks" />
-			<StatCard title="Credit Balance" :value="'€ ' + currentCredit" />
-			<!-- <div>
-				<Vue3Countup :end-val="currentCreditNumber" :options="countupOptions" />
-			</div> -->
+			<StatCard title="Credit Balance" :value="currentCredit" :currency="true" />
 
 			<StatCard title="Total Violations" :value="totalViolations" />
 			<StatCard title="App Opens Today" :value="appOpensToday" />
@@ -31,7 +28,6 @@
 
 <script lang="ts" setup>
 import { computed, onMounted } from 'vue'
-import { Vue3Countup } from 'vue3-countup'
 import ChartCard from '~/components/ChartCard.vue'
 import CreditLineChart from '~/components/CreditLineChart.vue'
 import SeenHeatmap from '~/components/SeenHeatmap.vue'
@@ -57,54 +53,20 @@ const {
 const userStore = useUserStore()
 // const themeStore = useThemeStore()
 
-function localDDMMYYYY(d = new Date()) {
-	const y = d.getFullYear()
-	const m = String(d.getMonth() + 1).padStart(2, '0')
-	const day = String(d.getDate()).padStart(2, '0')
-	return `${day}-${m}-${y}`
-}
+// function localDDMMYYYY(d = new Date()) {
+// 	const y = d.getFullYear()
+// 	const m = String(d.getMonth() + 1).padStart(2, '0')
+// 	const day = String(d.getDate()).padStart(2, '0')
+// 	return `${day}-${m}-${y}`
+// }
 
-const today = localDDMMYYYY()
-
-const countupOptions = {
-	useEasing: true,
-	useGrouping: true,
-	separator: ',',
-	decimal: '.',
-	prefix: '€ ',
-	suffix: '',
-}
-
-const currentCreditNumber = ref(0)
+// const today = localDDMMYYYY()
 
 // for the current user
 const todayStreaks = computed(() => userStore.profile?.streak ?? 0)
-const currentCredit = computed(() =>
-	(userStore.profile?.credit ?? 0).toLocaleString('fr-BE', {
-		minimumFractionDigits: 0,
-		maximumFractionDigits: 0,
-	})
-)
+const currentCredit = computed(() => userStore.profile?.credit ?? 0)
 
 const totalViolations = computed(() => userStore.profile?.violation ?? 0)
-
-const todayOpens = computed(() => {
-	const day = appOpensPerDay.value.find((d) => d.date === today)
-	// console.log('🎯 Found day object:', day)
-
-	const count = day?.count ?? 0
-	// console.log('🔢 Final count:', count)
-
-	return count
-})
-
-// const currentLightThemeColor = computed(() =>
-// 	themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
-// 		? themeStore.getCurrentLightThemeColor
-// 		: themeStore.getCurrentExtraLightThemeColor
-// )
-
-// const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
 
 const { animatePageEnter } = usePageAnimation()
 
@@ -115,8 +77,6 @@ onMounted(async () => {
 	await loadStreakEvents()
 	await loadCreditEvents()
 	await loadAppOpenEvents()
-
-	currentCreditNumber.value = userStore.profile?.credit ?? 0
 
 	// console.log('📈 appOpensPerDay:', appOpensPerDay.value)
 	// console.log('📊 eventTypeCounts:', eventTypeCounts.value)
