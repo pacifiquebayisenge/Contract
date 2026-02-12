@@ -4,22 +4,22 @@
 			<div class="items flex space-between justify-center">
 				<div class="item" @click="activateAccountDrawer()">
 					<div class="icon">
-						<NIcon class="text-base opacity-55" :size="35" :component="UserIcon" />
+						<NIcon class="text-base opacity-55" :size="30" :component="UserIcon" />
 					</div>
 				</div>
-				<!-- <div class="item">
-					<div class="icon">
-						<NIcon class="text-base opacity-55" :size="30" :component="ShoppingBagIcon" />
-					</div>
-				</div> -->
 				<div class="item">
 					<div class="icon">
-						<NIcon class="text-base opacity-55" :size="35" :component="InboxIcon" />
+						<NIcon class="text-base opacity-55" :size="30" :component="WalletIcon" />
+					</div>
+				</div>
+				<div class="item" @click="activateInboxDrawer()">
+					<div class="icon">
+						<NIcon class="text-base opacity-55" :size="30" :component="InboxIcon" />
 					</div>
 				</div>
 				<div class="item" @click="activateSettingsDrawer()">
 					<div class="icon">
-						<NIcon class="text-base opacity-55" :size="35" :component="Cog6ToothIcon" />
+						<NIcon class="text-base opacity-55" :size="30" :component="Cog6ToothIcon" />
 					</div>
 				</div>
 			</div>
@@ -74,6 +74,32 @@
 						</n-collapse>
 
 						<button class="button-3D button-3D-colorfull-error my-6" @click="logout">Logout</button>
+					</div>
+				</div>
+			</n-drawer-content>
+		</n-drawer>
+
+		<!-- inbox drawer -->
+		<n-drawer
+			v-model:show="showInbox"
+			:height="450"
+			placement="bottom"
+			:block-scroll="true"
+			:trap-focus="false"
+			style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
+		>
+			<n-drawer-content title="Inbox">
+				<div class="drawer-body invisible-scroll">
+					<div class="settings-items px-5 mb-24">
+						<n-collapse arrow-placement="right">
+							<n-collapse-item title="Primary" name="1"> </n-collapse-item>
+
+							<n-collapse-item title="Events" name="2">
+								<div>
+									<EventItem v-for="(event, index) in getAllEvents" :index="index" :item="event" />
+								</div>
+							</n-collapse-item>
+						</n-collapse>
 					</div>
 				</div>
 			</n-drawer-content>
@@ -136,7 +162,8 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { Cog6ToothIcon, InboxIcon, ShoppingBagIcon, UserIcon } from '@heroicons/vue/24/outline'
+import { Cog6ToothIcon, InboxIcon, UserIcon, WalletIcon } from '@heroicons/vue/24/outline'
+import { useEventsHistory } from '~/composables/useEventsHistory'
 import { usePseudoStore } from '~/stores/pseudo'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
@@ -157,10 +184,13 @@ const {
 	disableNotifications,
 } = usePushNotifications()
 
+const { getAllEvents } = useEventsHistory()
+
 const { logout } = useAuth()
 
-const showSettings = ref(false)
 const showAccount = ref(false)
+const showInbox = ref(false)
+const showSettings = ref(false)
 
 const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
 
@@ -256,6 +286,9 @@ const originalValues = reactive({
 
 const activateSettingsDrawer = () => {
 	showSettings.value = true
+}
+const activateInboxDrawer = () => {
+	showInbox.value = true
 }
 
 const activateAccountDrawer = () => {

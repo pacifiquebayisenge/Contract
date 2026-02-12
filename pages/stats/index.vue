@@ -50,6 +50,7 @@ const {
 	eventTypeCounts,
 	appOpensToday,
 } = useStats()
+
 const userStore = useUserStore()
 // const themeStore = useThemeStore()
 

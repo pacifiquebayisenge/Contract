@@ -8,7 +8,10 @@ export default defineNuxtPlugin(() => {
 	const streakStore = useStreakStore()
 	const creditStore = useCreditStore()
 
+	const eventStore = useEventStore()
+
 	const { handleNewDay } = useNewDaySync()
+
 	const initialized = ref(false)
 
 	watch(
@@ -28,6 +31,8 @@ export default defineNuxtPlugin(() => {
 			await seenStore.updateSeen()
 
 			await handleNewDay()
+
+			await eventStore.fetchEvents()
 		},
 		{ immediate: true }
 	)
