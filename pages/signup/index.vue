@@ -73,13 +73,8 @@ const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
 
-const currentLightThemeColor = computed(() =>
-	themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
-		? themeStore.getCurrentLightThemeColor
-		: themeStore.getCurrentExtraLightThemeColor
-)
-
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
+const currentLightThemeColor = computed(() => themeStore.selectedLightThemeColor)
+const currentThemeColor = computed(() => themeStore.themeColor)
 
 // eslint-disable-next-line no-unused-vars
 async function handleSignup() {

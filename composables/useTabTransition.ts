@@ -3,10 +3,10 @@ const tabs = [
 	{ name: 'Home', path: '/' },
 	{ name: 'Contract', path: '/contract' },
 	{ name: 'Stats', path: '/stats' },
-	{ name: 'Shop', path: '/shop' },
-	{ name: 'Memories', path: '/memories' },
-	{ name: 'Wishes', path: '/wishes' },
-	{ name: 'Restos', path: '/restos' },
+	// { name: 'Shop', path: '/shop' },
+	// { name: 'Memories', path: '/memories' },
+	// { name: 'Wishes', path: '/wishes' },
+	// { name: 'Restos', path: '/restos' },
 ]
 
 // Track the previous and current tab index (module-level state)

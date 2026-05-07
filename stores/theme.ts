@@ -1,203 +1,136 @@
-// stores/theme.ts
-// TODO: clean up
 import { defineStore } from 'pinia'
 
 export type ThemeName = 'sage-green' | 'dark-blue' | 'light-pink'
 export type LightThemeOptionName = 'light-color' | 'extra-light-color'
 export type BadgeRingOption = 'inside' | 'outside'
 
-export interface ThemeState {
+type ColorMap = Record<ThemeName, string>
+
+interface ThemeState {
 	currentTheme: ThemeName
 	currentLightThemeOption: LightThemeOptionName
 	currentBadgeRingOption: BadgeRingOption
-
-	themes: ThemeName[]
-	lightThemeOptions: LightThemeOptionName[]
-
-	themeColors: Record<ThemeName, string>
-	lightThemeColors: Record<ThemeName, string>
-	extraLightThemeColors: Record<ThemeName, string>
-
-	badgeRingOptions: BadgeRingOption[]
-
 	ready: boolean
 }
+
+const THEMES: ThemeName[] = ['sage-green', 'dark-blue', 'light-pink']
+const LIGHT_THEME_OPTIONS: LightThemeOptionName[] = ['light-color', 'extra-light-color']
+const BADGE_RING_OPTIONS: BadgeRingOption[] = ['inside', 'outside']
+
+const THEME_COLORS: ColorMap = {
+	'sage-green': '#8A9A86',
+	'dark-blue': '#1E3A8A',
+	'light-pink': '#FAD0E8',
+}
+
+const LIGHT_THEME_COLORS: ColorMap = {
+	'sage-green': '#D4DDD2',
+	'dark-blue': '#B8C5E0',
+	'light-pink': '#FCEEF6',
+}
+
+const EXTRA_LIGHT_THEME_COLORS: ColorMap = {
+	'sage-green': '#E3E9E2',
+	'dark-blue': '#D4DCF0',
+	'light-pink': '#FEF6FA',
+}
+
+const toBoxShadow = (color: string) => `0 0 0 2px ${color}40`
 
 export const useThemeStore = defineStore('theme', {
 	state: (): ThemeState => ({
 		currentTheme: 'sage-green',
 		currentLightThemeOption: 'light-color',
 		currentBadgeRingOption: 'outside',
-
-		themes: ['sage-green', 'dark-blue', 'light-pink'],
-		lightThemeOptions: ['light-color', 'extra-light-color'],
-		badgeRingOptions: ['inside', 'outside'],
-
-		themeColors: {
-			'sage-green': '#8A9A86',
-			'dark-blue': '#1E3A8A',
-			'light-pink': '#FAD0E8',
-		},
-		lightThemeColors: {
-			'sage-green': '#D4DDD2',
-			'dark-blue': '#B8C5E0',
-			'light-pink': '#FCEEF6',
-		},
-		extraLightThemeColors: {
-			'sage-green': '#E3E9E2',
-			'dark-blue': '#D4DCF0',
-			'light-pink': '#FEF6FA',
-		},
 		ready: false,
 	}),
 
 	getters: {
-		// get the current theme colors variantions
-		getCurrentThemeColor: (state): string => state.themeColors[state.currentTheme],
+		// Static lists (no longer need to live in state)
+		themes: () => THEMES,
+		lightThemeOptions: () => LIGHT_THEME_OPTIONS,
+		badgeRingOptions: () => BADGE_RING_OPTIONS,
 
-		getCurrentLightThemeColor: (state): string => state.lightThemeColors[state.currentTheme],
+		// Colors for the active theme
+		themeColor: (state): string => THEME_COLORS[state.currentTheme],
+		lightThemeColor: (state): string => LIGHT_THEME_COLORS[state.currentTheme],
+		extraLightThemeColor: (state): string => EXTRA_LIGHT_THEME_COLORS[state.currentTheme],
+		selectedLightThemeColor: (state): string =>
+			state.currentLightThemeOption === 'light-color'
+				? LIGHT_THEME_COLORS[state.currentTheme]
+				: EXTRA_LIGHT_THEME_COLORS[state.currentTheme],
 
-		getCurrentExtraLightThemeColor: (state): string =>
-			state.extraLightThemeColors[state.currentTheme],
+		// Box shadows for the active theme
+		themeBoxShadow: (state): string => toBoxShadow(THEME_COLORS[state.currentTheme]),
+		lightThemeBoxShadow: (state): string => toBoxShadow(LIGHT_THEME_COLORS[state.currentTheme]),
+		extraLightThemeBoxShadow: (state): string =>
+			toBoxShadow(EXTRA_LIGHT_THEME_COLORS[state.currentTheme]),
+		selectedLightThemeBoxShadow: (state): string =>
+			state.currentLightThemeOption === 'light-color'
+				? toBoxShadow(LIGHT_THEME_COLORS[state.currentTheme])
+				: toBoxShadow(EXTRA_LIGHT_THEME_COLORS[state.currentTheme]),
 
-		getCurrentBadgeRingOption: (state): BadgeRingOption => state.currentBadgeRingOption,
+		// Color lookup by name (for pickers/previews)
+		colorFor: () => (name: ThemeName) => THEME_COLORS[name],
+		lightColorFor: () => (name: ThemeName) => LIGHT_THEME_COLORS[name],
+		extraLightColorFor: () => (name: ThemeName) => EXTRA_LIGHT_THEME_COLORS[name],
 
-		// methods to get the color based on color name prop
-		getThemeColor:
-			(state) =>
-			(themeName: ThemeName): string =>
-				state.themeColors[themeName],
-
-		getLightThemeColor:
-			(state) =>
-			(themeName: ThemeName): string =>
-				state.lightThemeColors[themeName],
-
-		getExtraLightThemeColor:
-			(state) =>
-			(themeName: ThemeName): string =>
-				state.extraLightThemeColors[themeName],
-
-		// get the current theme colors bos swadow variantions (with 40 opacity like #d0305040)
-		getCurrentThemeBoxShadow: (state): string => {
-			const color = state.themeColors[state.currentTheme]
-			return `0 0 0 2px ${color}40`
-		},
-
-		getCurrentLightThemeBoxShadow: (state): string => {
-			const color = state.lightThemeColors[state.currentTheme]
-			return `0 0 0 2px ${color}40`
-		},
-
-		getCurrentExtraLightThemeBoxShadow: (state): string => {
-			const color = state.extraLightThemeColors[state.currentTheme]
-			return `0 0 0 2px ${color}40`
-		},
-
-		// methods to get the color box shadow based on color name prop
-		getThemeBoxShadow:
-			(state) =>
-			(themeName: ThemeName): string => {
-				const color = state.themeColors[themeName]
-				return `0 0 0 2px ${color}40`
-			},
-
-		getLightThemeBoxShadow:
-			(state) =>
-			(themeName: ThemeName): string => {
-				const color = state.lightThemeColors[themeName]
-				return `0 0 0 2px ${color}40`
-			},
-
-		getExtraLightThemeBoxShadow:
-			(state) =>
-			(themeName: ThemeName): string => {
-				const color = state.extraLightThemeColors[themeName]
-				return `0 0 0 2px ${color}40`
-			},
+		isInsideBadgeRing: (state): boolean => state.currentBadgeRingOption === 'inside',
 	},
 
 	actions: {
-		setTheme(newTheme: ThemeName): void {
-			if (this.themes.includes(newTheme)) {
-				this.currentTheme = newTheme
+		setTheme(theme: ThemeName): void {
+			if (!THEMES.includes(theme)) return
+			this.currentTheme = theme
 
-				// import.meta.client
-				if (process.client) {
-					document.documentElement.setAttribute('data-theme', newTheme)
+			if (import.meta.client) {
+				localStorage.setItem('selected-theme', theme)
+				document.documentElement.setAttribute('data-theme', theme)
+				document.body.style.backgroundColor = THEME_COLORS[theme]
 
-					// Store in localStorage for persistence
-					localStorage.setItem('selected-theme', newTheme)
+				const meta =
+					document.querySelector<HTMLMetaElement>('meta[name="theme-color"]') ??
+					Object.assign(document.createElement('meta'), { name: 'theme-color' })
 
-					let metaThemeColor = document.querySelector(
-						'meta[name="theme-color"]'
-					) as HTMLMetaElement | null
-
-					if (!metaThemeColor) {
-						metaThemeColor = document.createElement('meta') as HTMLMetaElement
-						metaThemeColor.name = 'theme-color'
-						document.head.appendChild(metaThemeColor)
-					}
-
-					metaThemeColor.setAttribute('content', this.themeColors[this.currentTheme])
-
-					// Update <body> background color
-					document.body.style.backgroundColor = this.themeColors[this.currentTheme]
-				}
+				if (!document.head.contains(meta)) document.head.appendChild(meta)
+				meta.content = THEME_COLORS[theme]
 			}
 		},
 
-		setLightThemeOption(newLightThemeOption: LightThemeOptionName): void {
-			if (this.lightThemeOptions.includes(newLightThemeOption)) {
-				this.currentLightThemeOption = newLightThemeOption
-
-				if (process.client) {
-					localStorage.setItem('selected-light-theme-option', newLightThemeOption)
-				}
-			}
+		setLightThemeOption(option: LightThemeOptionName): void {
+			if (!LIGHT_THEME_OPTIONS.includes(option)) return
+			this.currentLightThemeOption = option
+			if (import.meta.client) localStorage.setItem('selected-light-theme-option', option)
 		},
 
-		setBadgeRingOption(newOption: BadgeRingOption): void {
-			if (this.badgeRingOptions.includes(newOption)) {
-				this.currentBadgeRingOption = newOption
-
-				if (process.client) {
-					localStorage.setItem('selected-badge-ring-option', newOption)
-				}
-			}
+		setBadgeRingOption(option: BadgeRingOption): void {
+			if (!BADGE_RING_OPTIONS.includes(option)) return
+			this.currentBadgeRingOption = option
+			if (import.meta.client) localStorage.setItem('selected-badge-ring-option', option)
 		},
 
 		init(): void {
-			// import.meta.client
-			if (process.client) {
-				const savedTheme = localStorage.getItem('selected-theme') as ThemeName
+			if (!import.meta.client) return
 
-				const savedLightThemeOption = localStorage.getItem(
+			const saved = {
+				theme: localStorage.getItem('selected-theme') as ThemeName,
+				lightThemeOption: localStorage.getItem(
 					'selected-light-theme-option'
-				) as LightThemeOptionName
-
-				const savedBadgeRingOption = localStorage.getItem(
-					'selected-badge-ring-option'
-				) as BadgeRingOption
-
-				if (savedTheme && this.themes.includes(savedTheme)) {
-					this.setTheme(savedTheme)
-				} else {
-					this.setTheme(this.currentTheme)
-				}
-
-				if (savedLightThemeOption && this.lightThemeOptions.includes(savedLightThemeOption)) {
-					this.setLightThemeOption(savedLightThemeOption)
-				} else {
-					this.setLightThemeOption(this.currentLightThemeOption)
-				}
-
-				if (savedBadgeRingOption && this.badgeRingOptions.includes(savedBadgeRingOption)) {
-					this.setBadgeRingOption(savedBadgeRingOption)
-				} else {
-					this.setBadgeRingOption(this.currentBadgeRingOption)
-				}
+				) as LightThemeOptionName,
+				badgeRingOption: localStorage.getItem('selected-badge-ring-option') as BadgeRingOption,
 			}
+
+			this.setTheme(THEMES.includes(saved.theme) ? saved.theme : this.currentTheme)
+			this.setLightThemeOption(
+				LIGHT_THEME_OPTIONS.includes(saved.lightThemeOption)
+					? saved.lightThemeOption
+					: this.currentLightThemeOption
+			)
+			this.setBadgeRingOption(
+				BADGE_RING_OPTIONS.includes(saved.badgeRingOption)
+					? saved.badgeRingOption
+					: this.currentBadgeRingOption
+			)
 		},
 	},
 })

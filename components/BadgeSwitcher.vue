@@ -2,137 +2,74 @@
 <template>
 	<div class="badge-switcher justify-center py-5">
 		<span class="font-color">badge ring</span>
-		<div>
-			<n-switch
-				v-model:value="badgeRingActive"
-				@update:value="handleBadgeRing"
-				:rail-style="badgeRingSwitchStyle"
-				size="large"
-				:style="{
-					'--n-text-color': '#484444c7',
-				}"
-			>
-				<template #checked> inside </template>
-				<template #unchecked> outside </template>
-			</n-switch>
-		</div>
+		<n-switch
+			v-model:value="badgeRingActive"
+			@update:value="handleBadgeRing"
+			:rail-style="badgeRingSwitchStyle"
+			size="large"
+			:style="{ '--n-text-color': '#484444c7' }"
+		>
+			<template #checked>inside</template>
+			<template #unchecked>outside</template>
+		</n-switch>
 
 		<span class="font-color">color</span>
-		<div>
-			<n-switch
-				v-model:value="lightThemeActive"
-				@update:value="handleLightTheme"
-				:rail-style="lightThemeSwitchStyle"
-				size="large"
-				:style="{
-					'--n-text-color': '#484444c7',
-				}"
-			>
-				<template #checked> light </template>
-				<template #unchecked> Extra light </template>
-			</n-switch>
-		</div>
+		<n-switch
+			v-model:value="lightThemeActive"
+			@update:value="handleLightTheme"
+			:rail-style="lightThemeSwitchStyle"
+			size="large"
+			:style="{ '--n-text-color': '#484444c7' }"
+		>
+			<template #checked>light</template>
+			<template #unchecked>extra light</template>
+		</n-switch>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, ref } from 'vue'
 import type { CSSProperties } from 'vue'
 import { useThemeStore } from '~/stores/theme'
+import { adjustColor } from '~/utils/color'
+
+type SwitchStyleArgs = { focused: boolean; checked: boolean }
 
 const themeStore = useThemeStore()
 
-const badgeRingActive = ref(false)
-const lightThemeActive = ref(false)
+// Boolean
+const badgeRingActive = ref(themeStore.isInsideBadgeRing)
+const lightThemeActive = ref(themeStore.currentLightThemeOption === 'light-color')
 
-// TODO: clean up
-onMounted(() => {
-	console.log(themeStore.getCurrentBadgeRingOption)
-	badgeRingActive.value = themeStore.getCurrentBadgeRingOption === 'inside' ? true : false
-	lightThemeActive.value = themeStore.currentLightThemeOption === 'light-color' ? true : false
-})
+// The color to use depends on which light theme option is active
+const selectedLightColor = computed(() => themeStore.selectedLightThemeColor)
+const selectedLightBoxShadow = computed(() => themeStore.selectedLightThemeBoxShadow)
 
 const handleBadgeRing = (value: boolean) => {
-	const badgeRingOption = value ? themeStore.badgeRingOptions[0] : themeStore.badgeRingOptions[1]
-
-	themeStore.setBadgeRingOption(badgeRingOption)
+	themeStore.setBadgeRingOption(value ? 'inside' : 'outside')
 }
 
 const handleLightTheme = (value: boolean) => {
-	const themeOption = value ? themeStore.lightThemeOptions[0] : themeStore.lightThemeOptions[1]
-
-	themeStore.setLightThemeOption(themeOption)
+	themeStore.setLightThemeOption(value ? 'light-color' : 'extra-light-color')
 }
 
-const lightThemeSwitchStyle = ({ focused, checked }: { focused: boolean; checked: boolean }) => {
-	const style: CSSProperties = {}
+const lightThemeSwitchStyle = ({ focused, checked }: SwitchStyleArgs): CSSProperties => ({
+	background: checked ? themeStore.extraLightThemeColor : themeStore.lightThemeColor,
+	fontWeight: 700,
+	...(focused && {
+		boxShadow: checked ? themeStore.extraLightThemeBoxShadow : themeStore.lightThemeBoxShadow,
+	}),
+})
 
-	if (checked) {
-		style.background = themeStore.getCurrentExtraLightThemeColor
-		style.fontWeight = 700
-
-		if (focused) {
-			style.boxShadow = themeStore.getCurrentExtraLightThemeBoxShadow
-		}
-	} else {
-		style.background = themeStore.getCurrentLightThemeColor
-		style.fontWeight = 700
-
-		if (focused) {
-			style.boxShadow = themeStore.getCurrentLightThemeBoxShadow
-		}
-	}
-
-	return style
-}
-
-const badgeRingSwitchStyle = ({ focused, checked }: { focused: boolean; checked: boolean }) => {
-	const style: CSSProperties = {}
-
-	if (checked) {
-		style.background =
-			themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
-				? themeStore.getCurrentLightThemeColor
-				: themeStore.getCurrentExtraLightThemeColor
-		style.fontWeight = 700
-
-		if (focused) {
-			style.boxShadow =
-				themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
-					? themeStore.getCurrentLightThemeBoxShadow
-					: themeStore.getCurrentExtraLightThemeBoxShadow
-		}
-	} else {
-		style.background = adjustColor(
-			themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
-				? themeStore.getCurrentLightThemeColor
-				: themeStore.getCurrentExtraLightThemeColor,
-			-40
-		)
-		style.fontWeight = 700
-
-		if (focused) {
-			style.boxShadow = adjustColor(
-				themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
-					? themeStore.getCurrentLightThemeBoxShadow
-					: themeStore.getCurrentExtraLightThemeBoxShadow,
-				-40
-			)
-		}
-	}
-
-	return style
-}
-
-const adjustColor = (color: string, amount: number) => {
-	const hex = color.replace('#', '')
-	const r = Math.max(0, Math.min(255, parseInt(hex.substr(0, 2), 16) + amount))
-	const g = Math.max(0, Math.min(255, parseInt(hex.substr(2, 2), 16) + amount))
-	const b = Math.max(0, Math.min(255, parseInt(hex.substr(4, 2), 16) + amount))
-	return `#${r.toString(16).padStart(2, '0')}${g
-		.toString(16)
-		.padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
-}
+const badgeRingSwitchStyle = ({ focused, checked }: SwitchStyleArgs): CSSProperties => ({
+	background: checked ? selectedLightColor.value : adjustColor(selectedLightColor.value, -40),
+	fontWeight: 700,
+	...(focused && {
+		boxShadow: checked
+			? selectedLightBoxShadow.value
+			: adjustColor(selectedLightBoxShadow.value, -40),
+	}),
+})
 </script>
 
 <style scoped>

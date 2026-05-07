@@ -1,12 +1,17 @@
 <template>
 	<div class="card font-color">
-		<h3>{{ title }}</h3>
+		<h3>{{ props.title }}</h3>
 		<slot />
 	</div>
 </template>
 
 <script setup lang="ts">
-defineProps<{ title: string }>()
+const props = defineProps({
+	title: {
+		type: String,
+		default: '',
+	},
+})
 </script>
 
 <style scoped>

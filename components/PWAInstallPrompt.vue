@@ -71,7 +71,7 @@ import { useThemeStore } from '~/stores/theme'
 const themeStore = useThemeStore()
 
 // Computed property for dynamic theme color
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
+const currentThemeColor = computed(() => themeStore.themeColor)
 
 const showDialog = ref(false)
 let deferredPrompt: any = null

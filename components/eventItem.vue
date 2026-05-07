@@ -10,7 +10,7 @@
 					<span class="text-2xl">{{ props.index + 1 }}</span>
 				</div> -->
 
-			<div v-if="props.item.event_type === 'app_open'" class="text truncate font-color">
+			<div v-if="props.item.event_type === 'app_open'" class="text truncate font-color text-right">
 				<span class="special">{{ props.item.target.firstname }}</span> opened the app 👀
 			</div>
 
@@ -26,7 +26,10 @@
 				<span class="special">{{ props.item.target.firstname }}</span> gained some money 💵 !!
 			</div>
 
-			<div v-if="props.item.event_type === 'streak_use'" class="text truncate font-color">
+			<div
+				v-if="props.item.event_type === 'streak_use'"
+				class="text truncate font-color text-right"
+			>
 				<span class="special">{{ props.item.target.firstname }}</span> used contract again 🙄 !!
 			</div>
 
@@ -35,7 +38,9 @@
 		</div>
 
 		<div class="footer">
-			<div class="flex w-full justify-between flex gap-x-4 border-t border-gray-200 pt-2">
+			<div
+				class="flex w-full justify-between flex gap-x-4 border-t border-gray-200 pt-2 text-right"
+			>
 				<span>
 					{{ formatTimeAgo(props.item.created_at) }} •
 					{{ props.item.actor.firstname }}
@@ -72,7 +77,7 @@ const props = defineProps({
 
 const themeStore = useThemeStore()
 
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
+const currentThemeColor = computed(() => themeStore.themeColor)
 </script>
 
 <style lang="scss" scoped>
@@ -80,13 +85,6 @@ const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
 	padding: 1.5rem 2rem !important;
 
 	.event-item-content {
-		display: grid;
-		grid-template-columns: auto 1fr auto;
-		grid-template-rows: auto;
-		justify-content: center;
-		align-items: center;
-		gap: 2rem;
-
 		.text {
 			font-weight: 700;
 

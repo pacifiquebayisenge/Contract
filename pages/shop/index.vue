@@ -41,13 +41,8 @@ import { useThemeStore } from '~/stores/theme'
 
 const themeStore = useThemeStore()
 
-const currentLightThemeColor = computed(() =>
-	themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
-		? themeStore.getCurrentLightThemeColor
-		: themeStore.getCurrentExtraLightThemeColor
-)
-
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
+const currentLightThemeColor = computed(() => themeStore.selectedLightThemeColor)
+const currentThemeColor = computed(() => themeStore.themeColor)
 
 const { animatePageEnter } = usePageAnimation()
 

@@ -80,19 +80,9 @@ const description = ref('')
 const reward = ref()
 const valid = ref(false)
 
-// Computed property for dynamic theme color
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
-
-// Computed property for dynamic light theme color
-const currentLightThemeColor = computed(() =>
-	themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
-		? themeStore.getCurrentLightThemeColor
-		: themeStore.getCurrentExtraLightThemeColor
-)
-
-const insideBadgeRing = computed(
-	() => themeStore.currentBadgeRingOption === themeStore.badgeRingOptions[0]
-)
+const currentThemeColor = computed(() => themeStore.themeColor)
+const currentLightThemeColor = computed(() => themeStore.selectedLightThemeColor)
+const insideBadgeRing = computed(() => themeStore.isInsideBadgeRing)
 
 watch(description, (newVal) => {
 	valid.value = newVal.trim().length

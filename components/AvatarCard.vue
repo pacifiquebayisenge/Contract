@@ -46,6 +46,7 @@
 							</button>
 
 							<button
+								id="vioBtn"
 								class="button-3D button-3D-colorfull-error"
 								@click="showViolationDialog = !showViolationDialog"
 							>
@@ -213,15 +214,8 @@ const isPartner = computed(() => {
 	return profileId != null && partnerId != null && profileId === partnerId
 })
 
-const currentLightThemeColor = computed(() =>
-	themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
-		? themeStore.getCurrentLightThemeColor
-		: themeStore.getCurrentExtraLightThemeColor
-)
-
-const insideBadgeRing = computed(
-	() => themeStore.currentBadgeRingOption === themeStore.badgeRingOptions[0]
-)
+const currentLightThemeColor = computed(() => themeStore.selectedLightThemeColor)
+const insideBadgeRing = computed(() => themeStore.isInsideBadgeRing)
 
 // TODO: live updates
 

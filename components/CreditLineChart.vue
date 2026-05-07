@@ -40,7 +40,7 @@ function isInLastTwoMonths(dateInput: string) {
 
 const option = computed(() => {
 	const myId = userStore.userId
-	const myColor = themeStore.getCurrentLightThemeColor
+	const myColor = themeStore.themeColor
 	const otherColor = '#ffb780'
 
 	// 🔹 Build + sort series so "me" is always first

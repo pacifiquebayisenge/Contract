@@ -1,139 +1,165 @@
 <template>
-	<div class="new-contract-item-model">
-		<span class="font-color"> Ah ! A new <span class="special">contract rule !!</span> </span>
+	<n-modal
+		:show="props.show"
+		:auto-focus="false"
+		transform-origin="center"
+		@update:show="emit('update:show', $event)"
+	>
+		<div class="new-contract-item-modal w-[80%]">
+			<n-card class="modal-border" :bordered="false" size="huge" role="dialog">
+				<AvatarIcon />
 
-		<div class="field">
-			<input
-				v-model="title"
-				type="text"
-				placeholder="Contract rule..."
-				class="bg-[#0000000a] rounded-[1rem] font-color"
-			/>
+				<span class="font-color" :style="{ '--theme-color': currentThemeColor }">
+					Ah ! A new <span class="special">contract rule !!</span>
+				</span>
 
-			<div class="line" />
+				<div class="field" :style="{ '--line-fill-color': currentLightThemeColor }">
+					<input
+						v-model="title"
+						type="text"
+						placeholder="Contract rule..."
+						class="bg-[#0000000a] rounded-[1rem] font-color contract-input"
+					/>
+
+					<div class="line">
+						<div class="line-fill" />
+					</div>
+				</div>
+
+				<div
+					class="field w-[100%] max-w-[85rem]"
+					:style="{ '--line-fill-color': currentLightThemeColor }"
+				>
+					<textarea
+						v-model="description"
+						placeholder="Description of the rule"
+						class="h-[15rem] bg-[#0000000a] rounded-[1rem] w-[100%] max-w-[85rem] font-color contract-textarea"
+					/>
+
+					<div class="line">
+						<div class="line-fill" />
+					</div>
+				</div>
+
+				<button class="button-3D button-3D-colorfull" @click="submit">
+					<span class="font-color">Submit</span>
+				</button>
+			</n-card>
 		</div>
-
-		<div class="field w-[100%] max-w-[85rem]">
-			<textarea
-				v-model="description"
-				placeholder="Description of the rule"
-				class="h-[15rem] bg-[#0000000a] rounded-[1rem] w-[100%] max-w-[85rem] font-color"
-			/>
-
-			<div class="line" />
-		</div>
-
-		<button class="button-3D button-3D-colorfull" @click="submit">
-			<span class="font-color">Submit</span>
-		</button>
-	</div>
+	</n-modal>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { computed, ref, watch } from 'vue'
 import { useContractStore } from '~/stores/contract'
 import { useThemeStore } from '~/stores/theme'
 
+const props = defineProps({
+	show: {
+		type: Boolean,
+		required: true,
+	},
+})
+
 const themeStore = useThemeStore()
 const contractStore = useContractStore()
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['update:show'])
 
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
-const currentLightThemeColor = computed(() =>
-	themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
-		? themeStore.getCurrentLightThemeColor
-		: themeStore.getCurrentExtraLightThemeColor
-)
+const currentThemeColor = computed(() => themeStore.themeColor)
+const currentLightThemeColor = computed(() => themeStore.selectedLightThemeColor)
 
-// local reactive copies
 const title = ref('')
 const description = ref('')
 
-// 2️⃣ sync back to parent automatically
-watch([title, description], ([newTitle, newDescription]) => {
-	console.log({
-		title: newTitle,
-		description: newDescription,
-	})
-})
+watch(
+	() => props.show,
+	(isOpen) => {
+		if (isOpen) {
+			title.value = ''
+			description.value = ''
+		}
+	}
+)
 
 const submit = async () => {
 	if (!title.value || !description.value) return
 
-	await contractStore.addContractRule(title.value, description.value)
+	await contractStore.addContractRule(title.value.trim(), description.value.trim())
 
-	emit('close')
+	emit('update:show', false)
 }
 </script>
 
 <style lang="scss" scoped>
-.new-contract-item-model {
+.new-contract-item-modal {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	gap: 3rem;
+}
 
-	& > span {
-		text-align: center;
-	}
+:deep(.modal-border) {
+	border-radius: 1rem;
+}
 
-	span {
-		font-size: 1.6rem;
-		font-weight: 500;
+:deep(.n-card__content) {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 3rem;
+}
 
-		.special {
-			color: v-bind(currentThemeColor);
-			font-weight: 700;
-		}
-	}
+:deep(.font-color) {
+	font-size: 1.6rem;
+	font-weight: 500;
+}
 
-	input,
-	textarea {
-		padding: 0.5rem 1.5rem;
-		border-radius: 1rem;
-		border: none;
-		outline: none;
-		font-size: 1.5rem;
-		font-weight: 600;
-		color: #555555;
-		transition: padding 0.3s 0.2s ease;
-		resize: none;
-		// sibling magic ;o
-		&:focus + .line {
-			&:after {
-				transform: scaleX(1);
-			}
-		}
-	}
+:deep(.special) {
+	color: var(--theme-color);
+	font-weight: 700;
+}
 
-	.field {
-		position: relative;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		flex-direction: column;
+:deep(input),
+:deep(textarea) {
+	padding: 0.5rem 1.5rem;
+	border-radius: 1rem;
+	border: none;
+	outline: none;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: #555555;
+	transition: padding 0.3s 0.2s ease;
+	resize: none;
+}
 
-		.line {
-			width: 100%;
-			height: 3px;
-			position: absolute;
-			bottom: -8px;
-			background: white;
+:deep(.field) {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
 
-			&:after {
-				content: ' ';
-				position: absolute;
-				float: right;
-				width: 100%;
-				height: 3px;
+:deep(.line) {
+	width: 100%;
 
-				transform: scalex(0);
-				transition: transform 0.3s ease;
+	height: 3px;
+	margin-top: 0.5rem;
+	border-radius: 1rem;
+	overflow: hidden;
+}
 
-				background: v-bind(currentLightThemeColor);
-			}
-		}
-	}
+:deep(.line-fill) {
+	width: 100%;
+	height: 100%;
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 0.5s ease;
+	background-color: var(--line-fill-color);
+}
+
+:deep(.field:focus-within .line-fill) {
+	transform: scaleX(1);
 }
 </style>

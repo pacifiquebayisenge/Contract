@@ -192,7 +192,7 @@ const showAccount = ref(false)
 const showInbox = ref(false)
 const showSettings = ref(false)
 
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
+const currentThemeColor = computed(() => themeStore.themeColor)
 
 const statusText = computed(() => {
 	if (!isSupported.value) {

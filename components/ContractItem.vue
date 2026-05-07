@@ -25,8 +25,7 @@
 							class="contract-description w-[100%] h-[15rem] bg-[#0000000a] py-4 px-6 rounded-[1rem] font-color"
 							:name="'contract-rule-description-' + props.index"
 							:value="props.item.description"
-						>
-						</textarea>
+						/>
 
 						<div class="action-buttons py-8">
 							<button
@@ -61,55 +60,9 @@
 			</template>
 		</n-card>
 
-		<n-modal v-model:show="showEditDialog" :auto-focus="false" transform-origin="center">
-			<n-card
-				style="max-width: 80%"
-				:style="{ borderRadius: '2rem !important' }"
-				:bordered="false"
-				size="huge"
-				role="dialog"
-			>
-				<!-- // TODO change this to userbased icon -->
-				<div class="avatar-container py-8">
-					<div
-						class="avatar"
-						:style="{ backgroundColor: currentLightThemeColor }"
-						:class="insideBadgeRing ? 'inside-ring' : 'outside-ring'"
-					>
-						<div class="avatar-image">
-							<n-image width="50" src="/memojis/jeje/thinking.png" />
-						</div>
-					</div>
-				</div>
+		<EditContractItem v-model:show="showEditDialog" :item="props.item" />
 
-				<EditContractItem :item="props.item" @close="showEditDialog = false" />
-			</n-card>
-		</n-modal>
-
-		<n-modal v-model:show="showDeleteDialog" transform-origin="center">
-			<n-card
-				style="width: 80%"
-				:style="{ borderRadius: '2rem !important' }"
-				:bordered="false"
-				size="huge"
-				role="dialog"
-			>
-				<!-- // TODO change this to userbased icon -->
-				<div class="avatar-container py-8">
-					<div
-						class="avatar"
-						:style="{ backgroundColor: currentLightThemeColor }"
-						:class="insideBadgeRing ? 'inside-ring' : 'outside-ring'"
-					>
-						<div class="avatar-image">
-							<n-image width="50" src="/memojis/paci/shook.png" />
-						</div>
-					</div>
-				</div>
-
-				<DeleteContractItem :item="props.item" @close="showDeleteDialog = false" />
-			</n-card>
-		</n-modal>
+		<DeleteContractItem v-model:show="showDeleteDialog" :item="props.item" />
 	</div>
 </template>
 
@@ -141,48 +94,16 @@ const props = defineProps({
 const themeStore = useThemeStore()
 const userStore = useUserStore()
 
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
-
-const currentLightThemeColor = computed(() =>
-	themeStore.currentLightThemeOption === themeStore.lightThemeOptions[0]
-		? themeStore.getCurrentLightThemeColor
-		: themeStore.getCurrentExtraLightThemeColor
-)
-
-const insideBadgeRing = computed(
-	() => themeStore.currentBadgeRingOption === themeStore.badgeRingOptions[0]
-)
-
 let showActions = ref(false)
 let showEditDialog = ref(false)
 let showDeleteDialog = ref(false)
+
+const currentThemeColor = computed(() => themeStore.themeColor)
+const currentLightThemeColor = computed(() => themeStore.selectedLightThemeColor)
+const insideBadgeRing = computed(() => themeStore.isInsideBadgeRing)
 </script>
 
 <style lang="scss" scoped>
-.avatar-container {
-	display: flex;
-	justify-content: center;
-
-	.avatar {
-		width: 8rem;
-		height: 8rem;
-		background-color: v-bind(currentLightThemeColor);
-		border-radius: 2rem;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-
-		&.outside-ring {
-			outline: 2px solid rgba(0, 0, 0, 0.1);
-			outline-offset: 3px;
-		}
-		&.inside-ring {
-			outline: 2px solid rgba(0, 0, 0, 0.1);
-			outline-offset: -5px;
-		}
-	}
-}
-
 .contract-item-content {
 	display: grid;
 	grid-template-columns: auto 1fr auto;

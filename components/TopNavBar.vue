@@ -60,7 +60,7 @@ onMounted(() => {
 	}
 })
 
-const currentThemeColor = computed(() => themeStore.getCurrentThemeColor)
+const currentThemeColor = computed(() => themeStore.themeColor)
 </script>
 
 <style lang="scss">

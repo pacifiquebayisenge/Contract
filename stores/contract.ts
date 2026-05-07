@@ -1,3 +1,4 @@
+import { capitalize } from 'vue'
 import type { Database } from '~/types/supabase.types'
 import { useUserStore } from './user'
 
@@ -16,6 +17,7 @@ export const useContractStore = defineStore('contract', {
 
 	actions: {
 		async fetchContractList() {
+			this.contractList = []
 			const supabase = useSupabaseClient<Database>()
 
 			const { data: contractList } = await supabase
@@ -38,8 +40,8 @@ export const useContractStore = defineStore('contract', {
 			}
 
 			const newContractRule: ContractRuleInsert = {
-				title,
-				description,
+				title: capitalize(title),
+				description: capitalize(description),
 				author: profile.id,
 			}
 
@@ -55,7 +57,7 @@ export const useContractStore = defineStore('contract', {
 			}
 
 			if (data) {
-				this.contractList.push(data)
+				this.contractList.unshift(data)
 			}
 
 			return data
@@ -64,7 +66,10 @@ export const useContractStore = defineStore('contract', {
 		async updateContractRule(id: string, updates: { title?: string; description?: string }) {
 			const supabase = useSupabaseClient<Database>()
 
-			const updatedContractRule = { ...updates, state: 'Pending' }
+			const updatedContractRule: Record<string, string> = { state: 'Pending' }
+
+			if (updates.title) updatedContractRule.title = capitalize(updates.title)
+			if (updates.description) updatedContractRule.description = capitalize(updates.description)
 
 			const { data, error } = await supabase
 				.from('contract_rules')

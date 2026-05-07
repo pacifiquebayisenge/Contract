@@ -140,8 +140,8 @@ const option = computed(() => {
 	// 2) current light theme color
 	// 3) current light theme color a bit darker
 	// 4) current theme color
-	const lightBase = themeStore.getCurrentLightThemeColor
-	const base = themeStore.getCurrentThemeColor
+	const lightBase = themeStore.selectedLightThemeColor
+	const base = themeStore.themeColor
 
 	const shade1 = mix(lightBase, '#ffffff', 0.18)
 	const shade2 = lightBase
@@ -296,7 +296,7 @@ const option = computed(() => {
 				if (!date || isFuture || isPadding) return ''
 
 				// Use your current theme color for the border + small accents
-				const borderColor = themeStore.getCurrentLightThemeColor
+				const borderColor = themeStore.selectedLightThemeColor
 				const dateStr = formatDDMMYYYY(date)
 
 				// Get the user name and total count

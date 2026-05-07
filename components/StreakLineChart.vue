@@ -48,7 +48,7 @@ const option = computed(() => {
 	const { start, end, min, max } = lastTwoMonthsBounds()
 
 	const myId = userStore.userId
-	const myColor = themeStore.getCurrentLightThemeColor // ✅ light theme color
+	const myColor = themeStore.selectedLightThemeColor // ✅ light theme color
 	const otherColor = '#ffb780' // ✅ vibrant orange
 	const thresholdColor = '#ff2d2d' // ✅ vibrant red
 

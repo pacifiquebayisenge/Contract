@@ -3,8 +3,8 @@
 		<div class="mb-4">Allow notifications so you can receive updates instantly.</div>
 
 		<template #action>
-			<n-button @click="deny" type="default">No thanks</n-button>
-			<n-button @click="accept" type="primary" :loading="loading"> Enable </n-button>
+			<n-button type="default" @click="deny">No thanks</n-button>
+			<n-button type="primary" :loading="loading" @click="accept"> Enable </n-button>
 		</template>
 	</n-modal>
 </template>

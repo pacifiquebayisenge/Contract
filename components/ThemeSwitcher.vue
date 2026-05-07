@@ -6,8 +6,8 @@
 			:key="themeOption"
 			:class="{ active: themeStore.currentTheme === themeOption }"
 			:style="{
-				'--theme-color': themeStore.getThemeColor(themeOption),
-				'--theme-color-dark': adjustColor(themeStore.getThemeColor(themeOption), -30),
+				'--theme-color': themeStore.colorFor(themeOption),
+				'--theme-color-dark': adjustColor(themeStore.colorFor(themeOption), -30),
 			}"
 			@click="themeStore.setTheme(themeOption)"
 		>
@@ -20,19 +20,9 @@
 
 <script setup lang="ts">
 import { useThemeStore } from '~/stores/theme'
+import { adjustColor } from '~/utils/color'
 
 const themeStore = useThemeStore()
-
-// Helper function to darken color for shadow effect
-const adjustColor = (color: string, amount: number) => {
-	const hex = color.replace('#', '')
-	const r = Math.max(0, Math.min(255, parseInt(hex.substr(0, 2), 16) + amount))
-	const g = Math.max(0, Math.min(255, parseInt(hex.substr(2, 2), 16) + amount))
-	const b = Math.max(0, Math.min(255, parseInt(hex.substr(4, 2), 16) + amount))
-	return `#${r.toString(16).padStart(2, '0')}${g
-		.toString(16)
-		.padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
-}
 </script>
 
 <style scoped>
