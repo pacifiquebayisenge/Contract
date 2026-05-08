@@ -7,10 +7,19 @@
 	>
 		<div class="new-contract-item-modal w-[80%]">
 			<n-card class="modal-border" :bordered="false" size="huge" role="dialog">
-				<AvatarIcon />
+				<template #header>
+					<span
+						style="font-weight: bold; display: flex; justify-content: center"
+						class="font-color"
+					>
+						New contract
+					</span>
+				</template>
 
-				<span class="font-color" :style="{ '--theme-color': currentThemeColor }">
-					Ah ! A new <span class="special">contract rule !!</span>
+				<AvatarIcon mood="idea" />
+
+				<span class="font-color text-center" :style="{ '--theme-color': currentThemeColor }">
+					Ah ! A new <span class="special">contract !!</span>
 				</span>
 
 				<div class="field" :style="{ '--line-fill-color': currentLightThemeColor }">
@@ -41,7 +50,7 @@
 					</div>
 				</div>
 
-				<button class="button-3D button-3D-colorfull" @click="submit">
+				<button class="button-3D button-3D-colorful" @click="submit">
 					<span class="font-color">Submit</span>
 				</button>
 			</n-card>
@@ -99,15 +108,17 @@ const submit = async () => {
 	gap: 3rem;
 }
 
-:deep(.modal-border) {
-	border-radius: 1rem;
-}
-
-:deep(.n-card__content) {
+:deep(.n-card-content) {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
 	gap: 3rem;
+	align-items: center;
+	align-content: center;
+	justify-content: center;
+}
+
+:deep(.modal-border) {
+	border-radius: 2rem !important;
 }
 
 :deep(.font-color) {

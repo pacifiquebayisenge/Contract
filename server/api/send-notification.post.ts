@@ -23,11 +23,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	// Configure web-push
-	webpush.setVapidDetails(
-		'mailto:test@example.com',
-		config.public.publicVapid,
-		config.private.privateVapid
-	)
+	webpush.setVapidDetails('mailto:test@example.com', config.publicVapid, config.privateVapid)
 
 	// Fetch subscriptions for *everyone except me*
 	const { data: subs, error } = await client

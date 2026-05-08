@@ -37,7 +37,7 @@
 				<div class="line" />
 			</div>
 
-			<button class="button-3D button-3D-colorfull" blockblock>
+			<button class="button-3D button-3D-colorful" blockblock>
 				<span v-if="loading">Loading...</span>
 				<span v-else>... Call Admin ...</span>
 			</button>

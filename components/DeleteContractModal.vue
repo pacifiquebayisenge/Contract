@@ -7,9 +7,17 @@
 	>
 		<div class="delete-contract-item-modal w-[80%]">
 			<n-card class="modal-border" :bordered="false" size="huge" role="dialog">
-				<AvatarIcon />
+				<template #header>
+					<span
+						style="font-weight: bold; display: flex; justify-content: center"
+						class="font-color"
+					>
+						Delete contract
+					</span>
+				</template>
+				<AvatarIcon mood="shook" />
 
-				<span class="font-color">
+				<span class="font-color text-center">
 					Are you
 
 					<span class="special" :style="{ '--theme-color': themeStore.themeColor }"> sure </span>
@@ -25,7 +33,7 @@
 
 				<span class="font-color">{{ item.title }}</span>
 
-				<button class="button-3D button-3D-colorfull-error" @click="submit">Delete</button>
+				<button class="button-3D button-3D-colorful-error" @click="submit">Delete</button>
 			</n-card>
 		</div>
 	</n-modal>
@@ -57,11 +65,17 @@ const submit = async () => {
 
 <style lang="scss" scoped>
 .delete-contract-item-modal {
-	:deep(.n-card__content) {
+	:deep(.n-card-content) {
 		display: flex;
 		flex-direction: column;
-		align-items: center;
 		gap: 3rem;
+		align-items: center;
+		align-content: center;
+		justify-content: center;
+	}
+
+	:deep(.modal-border) {
+		border-radius: 2rem !important;
 	}
 
 	span {

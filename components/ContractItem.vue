@@ -29,14 +29,14 @@
 
 						<div class="action-buttons py-8">
 							<button
-								class="button-3D button-3D-colorfull"
+								class="button-3D button-3D-colorful"
 								@click="showEditDialog = !showEditDialog"
 							>
 								<NIcon class="text-base opacity-55" :size="20" :component="PencilSquareIcon" />
 							</button>
 
 							<button
-								class="button-3D button-3D-colorfull-error"
+								class="button-3D button-3D-colorful-error"
 								@click="showDeleteDialog = !showDeleteDialog"
 							>
 								<NIcon class="text-base opacity-55" :size="20" :component="TrashIcon" />
@@ -60,9 +60,9 @@
 			</template>
 		</n-card>
 
-		<EditContractItem v-model:show="showEditDialog" :item="props.item" />
+		<EditContractModal v-model:show="showEditDialog" :item="props.item" />
 
-		<DeleteContractItem v-model:show="showDeleteDialog" :item="props.item" />
+		<DeleteContractModal v-model:show="showDeleteDialog" :item="props.item" />
 	</div>
 </template>
 

@@ -19,7 +19,7 @@
 				</div>
 				<div class="item" @click="activateSettingsDrawer()">
 					<div class="icon">
-						<NIcon class="text-base opacity-55" :size="30" :component="Cog6ToothIcon" />
+						<NIcon class="text-base opacity-55" :size="30" :component="Squares2X2Icon" />
 					</div>
 				</div>
 			</div>
@@ -62,18 +62,50 @@
 										placeholder="Partner Pseudo"
 									/>
 
-									<button
-										class="button-3D button-3D-colorfull my-6 font-color"
-										@click="saveChanges"
-									>
+									<button class="button-3D button-3D-colorful my-6 font-color" @click="saveChanges">
 										Save
 									</button>
 									<n-divider />
 								</div>
 							</n-collapse-item>
+
+							<n-collapse-item title="Theme" name="2">
+								<div class="px-3">
+									<span>Primary</span>
+									<ThemeSwitcher />
+
+									<n-divider />
+
+									<span>Badge</span>
+									<BadgeSwitcher />
+
+									<n-divider />
+								</div>
+							</n-collapse-item>
+
+							<n-collapse-item title="Notifications" name="3">
+								<div class="px-3">
+									<n-space vertical>
+										<span>Push Notifications</span>
+
+										<n-switch
+											v-model:value="notificationsEnabled"
+											:loading="loading"
+											@update:value="toggleNotifications"
+										>
+											<template #checked>Enabled</template>
+											<template #unchecked>Disabled</template>
+										</n-switch>
+
+										<n-text depth="3" style="font-size: 12px">
+											{{ statusText }}
+										</n-text>
+									</n-space>
+								</div>
+							</n-collapse-item>
 						</n-collapse>
 
-						<button class="button-3D button-3D-colorfull-error my-6" @click="logout">Logout</button>
+						<button class="button-3D button-3D-colorful-error my-6" @click="logout">Logout</button>
 					</div>
 				</div>
 			</n-drawer-content>
@@ -104,65 +136,12 @@
 				</div>
 			</n-drawer-content>
 		</n-drawer>
-
-		<!-- settings drawer -->
-		<n-drawer
-			v-model:show="showSettings"
-			:height="450"
-			placement="bottom"
-			:block-scroll="true"
-			:trap-focus="false"
-			style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
-		>
-			<n-drawer-content title="Settings">
-				<div class="drawer-body invisible-scroll">
-					<div class="settings-items px-5 mb-24">
-						<n-collapse arrow-placement="right">
-							<n-collapse-item title="Theme" name="1">
-								<div class="px-3">
-									<span>Primary</span>
-									<ThemeSwitcher />
-
-									<n-divider />
-
-									<span>Badge</span>
-									<BadgeSwitcher />
-
-									<n-divider />
-								</div>
-							</n-collapse-item>
-
-							<n-collapse-item title="Notifications" name="2">
-								<div class="px-3">
-									<n-space vertical>
-										<span>Push Notifications</span>
-
-										<n-switch
-											v-model:value="notificationsEnabled"
-											:loading="loading"
-											@update:value="toggleNotifications"
-										>
-											<template #checked>Enabled</template>
-											<template #unchecked>Disabled</template>
-										</n-switch>
-
-										<n-text depth="3" style="font-size: 12px">
-											{{ statusText }}
-										</n-text>
-									</n-space>
-								</div>
-							</n-collapse-item>
-						</n-collapse>
-					</div>
-				</div>
-			</n-drawer-content>
-		</n-drawer>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { Cog6ToothIcon, InboxIcon, UserIcon, WalletIcon } from '@heroicons/vue/24/outline'
+import { InboxIcon, Squares2X2Icon, UserIcon, WalletIcon } from '@heroicons/vue/24/outline'
 import { useEventsHistory } from '~/composables/useEventsHistory'
 import { usePseudoStore } from '~/stores/pseudo'
 import { useThemeStore } from '~/stores/theme'

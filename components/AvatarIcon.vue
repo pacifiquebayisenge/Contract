@@ -5,8 +5,12 @@
 			:style="{ backgroundColor: currentLightThemeColor }"
 			:class="insideBadgeRing ? 'inside-ring' : 'outside-ring'"
 		>
-			<div class="avatar-image">
-				<n-image width="70" :src="getAvatarMood(fullName, 'idea')" :preview-disabled="true" />
+			<div class="avatar-image" :class="optimizedWidth === '60' ? '' : 'pb-[2rem]'">
+				<n-image
+					:width="optimizedWidth"
+					:src="getAvatarMood(fullName, props.mood)"
+					:preview-disabled="true"
+				/>
 			</div>
 		</div>
 	</div>
@@ -17,6 +21,13 @@ import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 import { getAvatarMood } from '~/utils/getAvatarImg'
 
+const props = defineProps({
+	mood: {
+		type: String,
+		default: '',
+	},
+})
+
 const userStore = useUserStore()
 const themeStore = useThemeStore()
 
@@ -24,6 +35,12 @@ const currentLightThemeColor = computed(() => themeStore.selectedLightThemeColor
 const insideBadgeRing = computed(() => themeStore.isInsideBadgeRing)
 
 const profile = computed(() => userStore.profile)
+
+const optimizedWidth = computed(() => {
+	let width = '60'
+	if (props.mood === 'idea') width = '90'
+	return width
+})
 
 const fullName = computed(() => {
 	if (!profile.value || !profile.value.firstname || !profile.value.lastname) return 'Full name ?'
@@ -60,7 +77,6 @@ const fullName = computed(() => {
 		}
 
 		:deep(.n-image img) {
-			margin-bottom: 2rem;
 			z-index: 1;
 		}
 	}

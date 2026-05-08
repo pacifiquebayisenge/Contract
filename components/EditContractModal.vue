@@ -5,11 +5,19 @@
 		transform-origin="center"
 		@update:show="emit('update:show', $event)"
 	>
-		<div class="edit-contract-item-modal">
+		<div class="edit-contract-item-modal w-[80%]">
 			<n-card class="modal-border" :bordered="false" size="huge" role="dialog">
-				<AvatarIcon />
+				<template #header>
+					<span
+						style="font-weight: bold; display: flex; justify-content: center"
+						class="font-color"
+					>
+						Edit contract
+					</span>
+				</template>
+				<AvatarIcon mood="thinking" />
 
-				<span class="font-color">
+				<span class="font-color text-center">
 					Let's see what we can
 
 					<span class="special" :style="{ '--theme-color': currentThemeColor }">change</span>
@@ -51,7 +59,7 @@
 					</div>
 				</div>
 
-				<button class="button-3D button-3D-colorfull" @click="submit">
+				<button class="button-3D button-3D-colorful" @click="submit">
 					<span class="font-color">Edit</span>
 				</button>
 			</n-card>
@@ -115,15 +123,17 @@ const submit = async () => {
 
 <style lang="scss" scoped>
 .edit-contract-item-modal {
-	:deep(.n-card__content) {
+	:deep(.n-card-content) {
 		display: flex;
 		flex-direction: column;
-		align-items: center;
 		gap: 3rem;
+		align-items: center;
+		align-content: center;
+		justify-content: center;
 	}
 
 	:deep(.modal-border) {
-		border-radius: 1rem;
+		border-radius: 2rem !important;
 	}
 
 	:deep(span) {

@@ -1,4 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
 export default defineNuxtConfig({
 	compatibilityDate: '2024-11-01',
 	devtools: { enabled: true },
@@ -48,19 +49,17 @@ export default defineNuxtConfig({
 	},
 
 	runtimeConfig: {
-		private: {
-			privateVapid: process.env.NUXT_PRIVATE_VAPID,
-		},
-		public: {
-			supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
-			supabaseKey: process.env.NUXT_PUBLIC_SUPABASE_KEY,
-			publicVapid: process.env.NUXT_PUBLIC_VAPID,
-		},
+		privateVapid: process.env.NUXT_PRIVATE_VAPID,
+		publicVapid: process.env.NUXT_PUBLIC_VAPID,
+
+		supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
+		supabaseKey: process.env.NUXT_PUBLIC_SUPABASE_KEY,
 	},
+
 	css: ['assets/main.scss', 'assets/css/tailwind.css'],
 
 	ssr: false,
-	dirs: ['utils'],
+
 	app: {
 		head: {
 			title: 'Ugovor',
@@ -103,7 +102,7 @@ export default defineNuxtConfig({
 			'vueuc',
 			'@css-render/vue3-ssr',
 			'@juggle/resize-observer',
-			'date-fns',
+
 			'@css-render/plugin-bem',
 		],
 	},
@@ -114,7 +113,7 @@ export default defineNuxtConfig({
 		navigateFallbackDenylist: [/\/auth\//, /supabase/],
 
 		devOptions: {
-			enabled: true,
+			enabled: false,
 			type: 'module',
 		},
 		client: {
@@ -233,8 +232,43 @@ export default defineNuxtConfig({
 
 	vite: {
 		optimizeDeps: {
-			include: ['naive-ui', 'lodash-es'],
+			include: [
+				'naive-ui',
+				'echarts',
+				'echarts/core',
+				'echarts/charts',
+				'echarts/components',
+				'echarts/renderers',
+				'vue-echarts',
+				'@heroicons/vue/24/outline',
+				'date-fns',
+				'date-fns-tz',
+				'vueuc',
+				'@css-render/vue3-ssr',
+				'@css-render/plugin-bem',
+				'pinia',
+				'@vueuse/core',
+				'vue-router',
+			],
 		},
-		logLevel: 'info',
+		server: {
+			warmup: {
+				clientFiles: [
+					'./app.vue',
+					'./pages/**/*.vue',
+					'./components/**/*.vue',
+					'./layouts/**/*.vue',
+				],
+			},
+		},
+		logLevel: 'warn',
+	},
+
+	nitro: {
+		devStorage: {
+			cache: {
+				driver: 'memory',
+			},
+		},
 	},
 })

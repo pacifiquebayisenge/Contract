@@ -32,14 +32,14 @@
 						</div>
 						<div class="action-buttons py-8">
 							<button
-								class="button-3D button-3D-colorfull-success"
+								class="button-3D button-3D-colorful-success"
 								@click="showRewardDialog = !showRewardDialog"
 							>
 								Reward
 							</button>
 
 							<button
-								class="button-3D button-3D-colorfull-warning"
+								class="button-3D button-3D-colorful-warning"
 								@click="showContractDialog = !showContractDialog"
 							>
 								Contract
@@ -47,7 +47,7 @@
 
 							<button
 								id="vioBtn"
-								class="button-3D button-3D-colorfull-error"
+								class="button-3D button-3D-colorful-error"
 								@click="showViolationDialog = !showViolationDialog"
 							>
 								Violation
@@ -60,7 +60,6 @@
 			<template #footer>
 				<div class="flex gap-x-4 border-t border-gray-200 pt-2 footer">
 					<div class="flex gap-x-1 justify-center items-center">
-						<!-- <NIcon class="text-base opacity-55" :size="14" :component="EyeIcon" /> -->
 						<AnimatedIcon
 							ref="eyeIcon"
 							:icon="EyeIcon"
@@ -74,10 +73,9 @@
 							accent-color="#3b82f6"
 							:label="profile?.seen || 0"
 						/>
-						<!-- <span class="text-base opacity-55">{{ formatCountToMs(profile?.seen || 0) }}</span> -->
 					</div>
+
 					<div class="flex gap-x-1 justify-center items-center">
-						<!-- <NIcon class="text-base opacity-55" :size="14" :component="FireIcon" /> -->
 						<AnimatedIcon
 							ref="fireIcon"
 							:icon="FireIcon"
@@ -91,11 +89,9 @@
 							accent-color="#f97316"
 							:label="profile?.streak || 0"
 						/>
-
-						<!-- <span class="text-base opacity-55">{{ profile?.streak || 0 }}</span> -->
 					</div>
+
 					<div class="flex gap-x-1 justify-center items-center">
-						<!-- <NIcon class="text-base opacity-55" :size="14" :component="BanknotesIcon" /> -->
 						<AnimatedIcon
 							ref="banknotesIcon"
 							:icon="BanknotesIcon"
@@ -109,68 +105,16 @@
 							accent-color="#22c55e"
 							:label="profile?.credit || 0"
 						/>
-						<!-- <span class="text-base opacity-55">{{ formatCountToMs(profile?.credit) || 0 }}</span> -->
 					</div>
 				</div>
 			</template>
 		</n-card>
 
-		<n-modal v-model:show="showRewardDialog" :auto-focus="false" transform-origin="center">
-			<n-card
-				:style="{ borderRadius: '2rem !important' }"
-				style="max-width: 80%"
-				:bordered="false"
-				size="huge"
-				role="dialog"
-			>
-				<template #header>
-					<span
-						style="font-weight: bold; display: flex; justify-content: center"
-						class="font-color"
-					>
-						Reward
-					</span>
-				</template>
+		<RewardModal v-model:show="showRewardDialog" :pseudo="pseudo" />
 
-				<RewardModal :profile="profile" :pseudo="pseudo" @close="showRewardDialog = false" />
-			</n-card>
-		</n-modal>
+		<ContractModal v-model:show="showContractDialog" :pseudo="pseudo" />
 
-		<n-modal v-model:show="showContractDialog" transform-origin="center">
-			<n-card
-				:style="{ borderRadius: '2rem !important' }"
-				style="max-width: 80%"
-				:bordered="false"
-				size="huge"
-				role="dialog"
-			>
-				<template #header>
-					<span
-						style="font-weight: bold; display: flex; justify-content: center"
-						class="font-color"
-					>
-						Contract use
-					</span>
-				</template>
-
-				<ContractModal :profile="profile" :pseudo="pseudo" @close="showContractDialog = false" />
-			</n-card>
-		</n-modal>
-
-		<n-modal v-model:show="showViolationDialog" transform-origin="center">
-			<n-card
-				:style="{ borderRadius: '2rem !important' }"
-				style="width: 80%"
-				:bordered="false"
-				size="huge"
-				role="dialog"
-			>
-				<span style="font-weight: bold; display: flex; justify-content: center" class="font-color">
-					Violation
-				</span>
-				<ViolationModal :profile="profile" :pseudo="pseudo" @close="showViolationDialog = false" />
-			</n-card>
-		</n-modal>
+		<ViolationModal v-model:show="showViolationDialog" :pseudo="pseudo" />
 	</div>
 </template>
 

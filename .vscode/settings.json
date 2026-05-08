@@ -3,18 +3,30 @@
 	"editor.formatOnSave": true,
 
 	"editor.codeActionsOnSave": {
-		"source.organizeImports": "never"
+		"source.organizeImports": "never",
+		"source.fixAll.eslint": "explicit" // runs ESLint fix only on explicit save, not every keystroke
 	},
+
+	// ✅ CRITICAL - tells ESLint extension to use flat config (eslint.config.mjs)
+	// Without this it hangs forever trying to find a .eslintrc file
+	"eslint.useFlatConfig": true,
+
+	// ✅ Tells ESLint extension which file types to lint
+	"eslint.validate": ["javascript", "typescript", "vue"],
+
+	// ✅ Prevents ESLint from re-resolving the working directory on every save
+	"eslint.workingDirectories": [{ "mode": "auto" }],
 
 	"[typescript]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
 
-	// Force tabs in this project
 	"editor.insertSpaces": false,
 	"editor.tabSize": 2,
 	"editor.detectIndentation": false,
+
 	"[vue]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
-	}
+	},
+	"cSpell.words": ["firstname", "glassmorphism", "lastname"]
 }
