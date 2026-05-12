@@ -1,7 +1,7 @@
 <template>
 	<div class="stats-page-container animate-item invisible-scroll">
 		<!-- SUMMARY CARDS -->
-		<div class="stats-cards">
+		<div class="stats-cards m-[5px]">
 			<StatCard title="Today's Contract Uses" :value="todayStreaks" />
 			<StatCard title="Credit Balance" :value="currentCredit" :currency="true" />
 
@@ -93,7 +93,7 @@ onMounted(async () => {
 	flex-direction: column;
 	align-items: center;
 	justify-content: flex-start;
-	padding: 2rem;
+
 	width: 100%;
 	padding-bottom: 25rem;
 
@@ -102,15 +102,14 @@ onMounted(async () => {
 		grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 		gap: 1rem;
 		width: 100%;
-		margin-top: 2rem;
 	}
 
 	.charts {
-		display: grid;
-		grid-template-columns: 1fr;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
 		gap: 1.5rem;
 		width: 100%;
-		margin-top: 2rem;
 	}
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-	<div class="card">
+	<div class="card m-[5px]">
 		<div class="title font-color">{{ title }}</div>
 		<div class="value font-color">
 			<Vue3Countup :number="value" :more-options="countupOptions" />
@@ -21,7 +21,7 @@ const isCurrency = computed(() => (props.currency ? '€ ' : ''))
 const countupOptions = {
 	useEasing: true,
 	useGrouping: true,
-	duration: '2.5',
+	duration: 2,
 	separator: ' ',
 	decimal: '.',
 	prefix: isCurrency.value,

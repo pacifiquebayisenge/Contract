@@ -3,61 +3,65 @@
 		:id="props.item.id"
 		ref="card"
 		:style="{ borderRadius: '2rem !important', cursor: 'pointer' }"
-		class="shadow-md my-8"
+		class="shadow-md my-8 mx-[5px]"
+		@click="showActions = !showActions"
 	>
 		<n-card :style="{ borderRadius: '2rem !important' }">
-			<div class="contract-item-content" @click="showActions = !showActions">
+			<div class="contract-item flex gap-10 width-[100%]">
 				<div class="index" :class="insideBadgeRing ? 'inside-ring' : 'outside-ring'">
-					<span class="text-2xl">{{ props.index + 1 }}</span>
+					<span>{{ props.index + 1 }}</span>
 				</div>
 
-				<div class="text truncate font-color">{{ props.item.title }}</div>
+				<div class="contract-item-content">
+					<div class="text truncate font-color">{{ props.item.title }}</div>
 
-				<!-- name: 'pending' | 'in-progress' | 'submitted' | 'in-review' | 'success' | 'failed' | 'expired' -->
-				<!-- <StatusBadge version="Dot" :name="item.state" /> -->
-			</div>
+					<n-collapse-transition :show="showActions">
+						<div class="contract-item-content-actions mt-5">
+							<div class="content">
+								<textarea
+									readonly
+									class="contract-description w-[100%] h-[15rem] bg-[#0000000a] py-4 px-6 rounded-[1rem] font-color"
+									:name="'contract-rule-description-' + props.index"
+									:value="props.item.description"
+								/>
 
-			<n-collapse-transition :show="showActions">
-				<div class="contract-item-content-actions mt-5">
-					<div class="content">
-						<textarea
-							readonly
-							class="contract-description w-[100%] h-[15rem] bg-[#0000000a] py-4 px-6 rounded-[1rem] font-color"
-							:name="'contract-rule-description-' + props.index"
-							:value="props.item.description"
-						/>
+								<div class="action-buttons py-8">
+									<button
+										class="button-3D button-3D-colorful"
+										@click="showEditDialog = !showEditDialog"
+									>
+										<NIcon class="text-base opacity-55" :size="20" :component="PencilSquareIcon" />
+									</button>
 
-						<div class="action-buttons py-8">
-							<button
-								class="button-3D button-3D-colorful"
-								@click="showEditDialog = !showEditDialog"
-							>
-								<NIcon class="text-base opacity-55" :size="20" :component="PencilSquareIcon" />
-							</button>
+									<button
+										class="button-3D button-3D-colorful-error"
+										@click="showDeleteDialog = !showDeleteDialog"
+									>
+										<NIcon class="text-base opacity-55" :size="20" :component="TrashIcon" />
+									</button>
+								</div>
+							</div>
+						</div>
+					</n-collapse-transition>
 
-							<button
-								class="button-3D button-3D-colorful-error"
-								@click="showDeleteDialog = !showDeleteDialog"
-							>
-								<NIcon class="text-base opacity-55" :size="20" :component="TrashIcon" />
-							</button>
+					<div class="flex gap-x-4 border-t border-gray-200 mt-4 pt-1 footer">
+						<div class="flex w-full justify-between">
+							<span>
+								{{ formatTimeAgo(props.item.created_at) }} •
+								{{ userStore.getProfileById(props.item.author)?.firstname }}
+							</span>
+
+							<div class="flex justify-center items-center">
+								<NIcon
+									class="text-base opacity-55 font-bold"
+									:size="15"
+									:component="EllipsisVerticalIcon"
+								/>
+							</div>
 						</div>
 					</div>
 				</div>
-			</n-collapse-transition>
-
-			<template #footer>
-				<div class="flex gap-x-4 border-t border-gray-200 pt-2 footer">
-					<div class="flex w-full justify-between">
-						<span>
-							{{ formatTimeAgo(props.item.created_at) }} •
-							{{ userStore.getProfileById(props.item.author)?.firstname }}
-						</span>
-
-						<StatusBadge version="Dot" :name="item.state" />
-					</div>
-				</div>
-			</template>
+			</div>
 		</n-card>
 
 		<EditContractModal v-model:show="showEditDialog" :item="props.item" />
@@ -68,7 +72,8 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { PencilSquareIcon, TrashIcon } from '@heroicons/vue/24/outline'
+import { EllipsisVerticalIcon, PencilSquareIcon, TrashIcon } from '@heroicons/vue/24/outline'
+import { NIcon } from 'naive-ui'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 import { formatTimeAgo } from '~/utils/formatDate'
@@ -99,45 +104,60 @@ let showEditDialog = ref(false)
 let showDeleteDialog = ref(false)
 
 const currentThemeColor = computed(() => themeStore.themeColor)
-const currentLightThemeColor = computed(() => themeStore.selectedLightThemeColor)
+const currentLightThemeColor = computed(() => themeStore.extraLightThemeColor)
 const insideBadgeRing = computed(() => themeStore.isInsideBadgeRing)
 </script>
 
 <style lang="scss" scoped>
-.contract-item-content {
+.contract-item {
 	display: grid;
 	grid-template-columns: auto 1fr auto;
 	grid-template-rows: auto;
 	justify-content: center;
-	align-items: center;
-	gap: 2rem;
 
 	.index {
-		font-weight: 600;
+		width: 3.5rem;
+		height: 3.5rem;
+
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		border-radius: 1rem;
+
+		font-weight: 700;
 		color: v-bind(currentThemeColor);
 
-		background: v-bind(currentLightThemeColor);
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		width: 3rem;
-		height: 3rem;
-		border-radius: 1rem;
-		border-start-end-radius: inherit;
+		background: linear-gradient(
+			145deg,
+			v-bind(currentLightThemeColor),
+			v-bind(currentLightThemeColor)
+		);
+
+		// box-shadow:
+		// 	0 0.8rem 1.8rem rgba(0, 0, 0, 0.12),
+		// 	inset 0 0.1rem 0.4rem rgba(255, 255, 255, 0.9);
+
+		// border: 0.2rem solid rgba(255, 255, 255, 0.9);
+
+		span {
+			font-size: 1.75rem;
+			line-height: 1;
+		}
 
 		&.outside-ring {
-			outline: 2px solid rgba(0, 0, 0, 0.1);
-			outline-offset: 3px;
+			outline: 0.2rem solid rgba(0, 0, 0, 0.08);
+			outline-offset: 0.3rem;
 		}
 
 		&.inside-ring {
-			outline: 2px solid rgba(0, 0, 0, 0.1);
-			outline-offset: -5px;
+			outline: 0.2rem solid rgba(0, 0, 0, 0.08);
+			outline-offset: -0.5rem;
 		}
 	}
 
 	.text {
-		font-weight: 600;
+		font-weight: 700;
 		font-size: 1.6rem;
 	}
 }

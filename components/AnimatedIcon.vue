@@ -86,7 +86,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch, type Component } from 'vue'
-import { formatCountToMs } from '~/utils/formatCountToMs'
+import { formatCountToMs } from '~/utils/numbers'
 
 // ============================================
 // TYPE DEFINITIONS

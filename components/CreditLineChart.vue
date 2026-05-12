@@ -8,7 +8,7 @@
 import { computed } from 'vue'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
-import { formatCountToMs } from '~/utils/formatCountToMs'
+import { formatCountToMs } from '~/utils/numbers'
 
 type CreditPoint = [string, number]
 type CreditSeries = { userId: string; data: CreditPoint[] }

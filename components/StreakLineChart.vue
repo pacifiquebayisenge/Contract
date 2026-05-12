@@ -48,9 +48,9 @@ const option = computed(() => {
 	const { start, end, min, max } = lastTwoMonthsBounds()
 
 	const myId = userStore.userId
-	const myColor = themeStore.selectedLightThemeColor // ✅ light theme color
-	const otherColor = '#ffb780' // ✅ vibrant orange
-	const thresholdColor = '#ff2d2d' // ✅ vibrant red
+	const myColor = themeStore.themeColor //  theme color
+	const otherColor = '#ffb780' // vibrant orange
+	const thresholdColor = '#ff2d2d' //  vibrant red
 
 	// Build user series (only points that exist; no zero-fill)
 	const userLineSeries = props.data.map((s) => {

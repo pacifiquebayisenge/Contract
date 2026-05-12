@@ -1,5 +1,5 @@
 <template>
-	<div class="card font-color">
+	<div class="card font-color m-[5px]">
 		<h3>{{ props.title }}</h3>
 		<slot />
 	</div>
