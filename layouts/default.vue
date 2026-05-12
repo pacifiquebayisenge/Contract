@@ -69,7 +69,7 @@ div#app-container {
 	height: 100vh;
 
 	.top-bar-background {
-		background-color: v-bind(currentLightThemeColor);
+		background-color: v-bind(currentThemeColor);
 	}
 
 	& > div > div {

@@ -121,6 +121,7 @@ export const useThemeStore = defineStore('theme', {
 			}
 
 			this.setTheme(THEMES.includes(saved.theme) ? saved.theme : this.currentTheme)
+
 			this.setLightThemeOption(
 				LIGHT_THEME_OPTIONS.includes(saved.lightThemeOption)
 					? saved.lightThemeOption
