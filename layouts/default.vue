@@ -4,9 +4,9 @@
 			<div id="app-container" class="flex flex-col h-screen app-background">
 				<!-- bg-[#f9f9fb] -->
 
-				<div class="bg-[red]">
+				<div class="top-bar-background">
 					<div
-						class="sticky top-0 z-50 flex justify-center items-center py-2 rounded-t-3xl flex-shrink-0 bg-transparent"
+						class="sticky top-0 z-50 flex justify-center items-center py-2 rounded-t-3xl flex-shrink-0 bg-[#f9f9fb]"
 						style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
 					>
 						<TopNavBar />
@@ -68,8 +68,11 @@ div#app-container {
 	overflow: hidden;
 	height: 100vh;
 
-	& > div {
-		background-color: #f9f9fb;
+	.top-bar-background {
+		background-color: v-bind(currentLightThemeColor);
+	}
+
+	& > div > div {
 		background-clip: padding-box;
 	}
 
