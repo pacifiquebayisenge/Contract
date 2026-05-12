@@ -66,7 +66,7 @@ div#app-container {
 	height: 100vh;
 
 	& > div {
-		// background-color: #f9f9fb;
+		background-color: #f9f9fb;
 		background-clip: padding-box;
 	}
 
@@ -110,10 +110,13 @@ main::-webkit-scrollbar-thumb:hover {
 	min-height: 100vh;
 	overflow: hidden;
 
-	background:
-		radial-gradient(circle at top right, v-bind(currentExtraLightThemeColor) 0%, transparent 24%),
-		radial-gradient(circle at bottom left, v-bind(currentLightThemeColor) 0%, transparent 28%),
-		#f9f9fb;
+	background: linear-gradient(
+		to bottom,
+		#f9f9fb 0%,
+		color-mix(in srgb, v-bind(currentExtraLightThemeColor) 25%, #f9f9fb) 100%
+	);
+
+	background-attachment: fixed;
 }
 
 .app-background::before {
