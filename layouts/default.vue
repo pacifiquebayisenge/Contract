@@ -3,11 +3,14 @@
 		<n-spin :show="authLoading.visible.value" size="large">
 			<div id="app-container" class="flex flex-col h-screen app-background">
 				<!-- bg-[#f9f9fb] -->
-				<div
-					class="sticky top-0 z-50 flex justify-center items-center py-2 rounded-t-3xl flex-shrink-0 bg-transparent"
-					style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
-				>
-					<TopNavBar />
+
+				<div class="bg-[red]">
+					<div
+						class="sticky top-0 z-50 flex justify-center items-center py-2 rounded-t-3xl flex-shrink-0 bg-transparent"
+						style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
+					>
+						<TopNavBar />
+					</div>
 				</div>
 
 				<!-- Scrollable page content only -->

@@ -12,8 +12,10 @@
 					<span>{{ props.index + 1 }}</span>
 				</div>
 
-				<div class="contract-item-content">
-					<div class="text truncate font-color">{{ props.item.title }}</div>
+				<div class="contract-item-content min-w-0 flex-1">
+					<p class="text font-color" :class="showActions ? 'line-clamp-2' : 'truncate'">
+						{{ props.item.title }}
+					</p>
 
 					<n-collapse-transition :show="showActions">
 						<div class="contract-item-content-actions mt-5">
@@ -159,6 +161,23 @@ const insideBadgeRing = computed(() => themeStore.isInsideBadgeRing)
 	.text {
 		font-weight: 700;
 		font-size: 1.6rem;
+	}
+
+	.contract-item-content {
+		min-width: 0;
+	}
+
+	.line-clamp-2 {
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: normal;
+
+		line-height: 1.4;
+		max-height: calc(1.4em * 2);
 	}
 }
 
