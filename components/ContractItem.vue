@@ -66,9 +66,17 @@
 			</div>
 		</n-card>
 
-		<EditContractModal v-model:show="showEditDialog" :item="props.item" />
+		<EditContractModal
+			v-model:show="showEditDialog"
+			:item="props.item"
+			:fullname="userStore.getFullname"
+		/>
 
-		<DeleteContractModal v-model:show="showDeleteDialog" :item="props.item" />
+		<DeleteContractModal
+			v-model:show="showDeleteDialog"
+			:item="props.item"
+			:fullname="userStore.getFullname"
+		/>
 	</div>
 </template>
 

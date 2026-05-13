@@ -17,7 +17,7 @@
 						<NIcon class="text-base opacity-55" :size="30" :component="InboxIcon" />
 					</div>
 				</div>
-				<div class="item" @click="activateSettingsDrawer()">
+				<div class="item" @click="showNewItemModal = !showNewItemModal">
 					<div class="icon">
 						<NIcon class="text-base opacity-55" :size="30" :component="Squares2X2Icon" />
 					</div>
@@ -28,16 +28,29 @@
 		<!-- account drawer -->
 		<n-drawer
 			v-model:show="showAccount"
-			:height="450"
+			:height="650"
 			placement="bottom"
 			:auto-focus="false"
 			:block-scroll="true"
 			:trap-focus="false"
 			style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
 		>
-			<n-drawer-content title="Account">
-				<div class="drawer-body invisible-scroll mb-16">
-					<div class="account-items px-5 mb-16">
+			<n-drawer-content
+				class="drawer-gradient-background"
+				:style="{
+					'--theme-color': currentThemeColor,
+					'border-top-left-radius': '2rem',
+					'border-top-right-radius': '2rem',
+				}"
+			>
+				<template #header>
+					<div class="modal-header">
+						<span class="font-color" :style="{ fontWeight: '700' }">Account</span>
+					</div>
+				</template>
+
+				<div class="drawer-body invisible-scroll h-[100%]">
+					<div class="account-items px-5 h-[100%] flex flex-col justify-between overflow-y-auto">
 						<n-collapse arrow-placement="right" class="mb-16">
 							<n-collapse-item title="names" name="1">
 								<div class="px-3">
@@ -105,7 +118,9 @@
 							</n-collapse-item>
 						</n-collapse>
 
-						<button class="button-3D button-3D-colorful-error my-6" @click="logout">Logout</button>
+						<button class="button-3D button-3D-colorful-error my-6 mb-20" @click="logout">
+							Logout
+						</button>
 					</div>
 				</div>
 			</n-drawer-content>
@@ -114,22 +129,40 @@
 		<!-- inbox drawer -->
 		<n-drawer
 			v-model:show="showInbox"
-			:height="450"
+			:height="650"
 			placement="bottom"
 			:block-scroll="true"
 			:trap-focus="false"
 			style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
 		>
-			<n-drawer-content title="Inbox">
+			<n-drawer-content
+				class="drawer-gradient-background"
+				:style="{
+					'--theme-color': currentThemeColor,
+					'border-top-left-radius': '2rem',
+					'border-top-right-radius': '2rem',
+				}"
+			>
+				<template #header>
+					<div class="modal-header">
+						<span class="font-color" :style="{ fontWeight: '700' }">Inbox</span>
+					</div>
+				</template>
+
 				<div class="drawer-body invisible-scroll">
 					<div class="settings-items px-5 mb-24">
 						<n-collapse arrow-placement="right">
-							<n-collapse-item title="Primary" name="1"> </n-collapse-item>
+							<n-collapse-item title="Primary" name="1">
+								<div>
+									<EmptyState />
+								</div>
+							</n-collapse-item>
 
 							<n-collapse-item title="Events" name="2">
-								<div>
+								<EmptyState />
+								<!-- <div class="overflow-y-auto">
 									<EventItem v-for="(event, index) in getAllEvents" :index="index" :item="event" />
-								</div>
+								</div> -->
 							</n-collapse-item>
 						</n-collapse>
 					</div>
@@ -137,6 +170,8 @@
 			</n-drawer-content>
 		</n-drawer>
 	</div>
+
+	<NewItemModal v-model:show="showNewItemModal" />
 </template>
 
 <script setup lang="ts">
@@ -170,6 +205,8 @@ const { logout } = useAuth()
 const showAccount = ref(false)
 const showInbox = ref(false)
 const showSettings = ref(false)
+
+let showNewItemModal = ref(false)
 
 const currentThemeColor = computed(() => themeStore.themeColor)
 
@@ -367,9 +404,42 @@ input {
 }
 
 .drawer-body {
-	height: 100%;
-	overflow-y: auto;
-	-webkit-overflow-scrolling: touch;
-	padding-bottom: 2rem;
+	overflow: hidden;
+}
+
+.drawer-gradient-background {
+	position: relative;
+
+	background: linear-gradient(
+		to bottom,
+		#f9f9fb 10%,
+		#f9f9fb 45%,
+		color-mix(in srgb, var(--theme-color) 10%, #f9f9fb) 80%,
+		color-mix(in srgb, var(--theme-color) 25%, #f9f9fb) 100%
+	);
+
+	background-attachment: fixed;
+}
+
+// .drawer-gradient-background::before {
+// 	content: '';
+// 	position: absolute;
+// 	inset: 0;
+// 	pointer-events: none;
+// 	z-index: 0;
+
+// 	background: linear-gradient(
+// 		135deg,
+// 		transparent 0%,
+// 		transparent 50%,
+// 		color-mix(in srgb, var(--theme-color) 3%, transparent) 100%
+// 	);
+
+// 	opacity: 0.25;
+// }
+
+.drawer-gradient-background > * {
+	position: relative;
+	z-index: 1;
 }
 </style>

@@ -6,7 +6,15 @@
 		@update:show="emit('update:show', $event)"
 	>
 		<div class="delete-contract-item-modal w-[80%]">
-			<n-card class="modal-border" :bordered="false" size="huge" role="dialog">
+			<n-card
+				class="modal-border gradient-background"
+				:style="{
+					'--theme-color': currentThemeColor,
+				}"
+				:bordered="false"
+				size="huge"
+				role="dialog"
+			>
 				<template #header>
 					<span
 						style="font-weight: bold; display: flex; justify-content: center"
@@ -15,7 +23,7 @@
 						Delete contract
 					</span>
 				</template>
-				<AvatarIcon mood="shook" />
+				<AvatarIcon mood="shook" :fullname="props.fullname" />
 
 				<span class="font-color text-center">
 					Are you
@@ -50,12 +58,18 @@ const props = defineProps({
 		type: Object,
 		default: () => ({ id: undefined, title: undefined, description: undefined }),
 	},
+	fullname: {
+		type: String,
+		default: '',
+	},
 })
 
 const emit = defineEmits(['update:show'])
 
 const themeStore = useThemeStore()
 const contractStore = useContractStore()
+
+const currentThemeColor = computed(() => themeStore.themeColor)
 
 const submit = async () => {
 	await contractStore.deleteContractRule(props.item.id)
@@ -87,5 +101,34 @@ const submit = async () => {
 			font-weight: 700;
 		}
 	}
+}
+
+.gradient-background {
+	background: linear-gradient(
+		to bottom,
+		#f9f9fb 0%,
+		#f9f9fb 5%,
+		color-mix(in srgb, var(--theme-color) 15%, #f9f9fb) 60%,
+		color-mix(in srgb, var(--theme-color) 30%, #f9f9fb) 100%
+	);
+
+	background-attachment: fixed;
+}
+
+.gradient::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 0;
+
+	background: linear-gradient(
+		135deg,
+		transparent 0%,
+		transparent 50%,
+		color-mix(in srgb, var(--theme-color) 3%, transparent) 100%
+	);
+
+	opacity: 0.25;
 }
 </style>

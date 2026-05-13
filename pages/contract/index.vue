@@ -1,13 +1,13 @@
 <template>
 	<div class="contract-page-container animate-item">
-		<div class="action-buttons py-3 px-16 mb-3 flex gap-8 animate-item">
+		<!-- <div class="action-buttons py-3 px-16 mb-3 flex gap-8 animate-item">
 			<button
 				class="button-3D button-3D-colorful animate-item font-color"
 				@click="showNewDialog = !showNewDialog"
 			>
 				New
 			</button>
-		</div>
+		</div> -->
 
 		<!-- <div class="filter-container my-2 px-8 py-4 invisible-scroll-component">
 			<StatusBadge version="Badge" @click="handleStatusClick" name="Pending" />
@@ -35,7 +35,7 @@
 			</n-infinite-scroll>
 		</div>
 
-		<NewContractModal v-model:show="showNewDialog" />
+		<!-- <NewContractModal v-model:show="showNewDialog" :fullname="userStore.getFullname" /> -->
 	</div>
 </template>
 
@@ -43,8 +43,10 @@
 import ContractItem from '~/components/ContractItem.vue'
 import { usePageAnimation } from '~/composables/usePageAnimation'
 import { useContractStore } from '~/stores/contract'
+import { useUserStore } from '~/stores/user'
 
 const contractStore = useContractStore()
+const userStore = useUserStore()
 const { animatePageEnter } = usePageAnimation()
 
 let showNewDialog = ref(false)

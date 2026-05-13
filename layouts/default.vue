@@ -19,18 +19,18 @@
 					<div class="h-full px-6 pt-[2rem] pb-10">
 						<slot />
 					</div>
+
+					<div
+						class="fixed bottom-[4rem] left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent"
+					>
+						<div class="pointer-events-auto">
+							<BottomMenuBar />
+						</div>
+					</div>
 				</main>
 
 				<PWAUpdateDialog />
 				<PWAInstallPrompt />
-
-				<div
-					class="fixed bottom-[40px] left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent"
-				>
-					<div class="pointer-events-auto">
-						<BottomMenuBar />
-					</div>
-				</div>
 			</div>
 		</n-spin>
 	</NModalProvider>
@@ -119,7 +119,9 @@ main::-webkit-scrollbar-thumb:hover {
 	background: linear-gradient(
 		to bottom,
 		#f9f9fb 0%,
-		color-mix(in srgb, v-bind(currentExtraLightThemeColor) 25%, #f9f9fb) 100%
+		#f9f9fb 25%,
+		color-mix(in srgb, v-bind(currentThemeColor) 15%, #f9f9fb) 60%,
+		color-mix(in srgb, v-bind(currentThemeColor) 30%, #f9f9fb) 100%
 	);
 
 	background-attachment: fixed;
@@ -135,11 +137,11 @@ main::-webkit-scrollbar-thumb:hover {
 	background: linear-gradient(
 		135deg,
 		transparent 0%,
-		color-mix(in srgb, v-bind(currentThemeColor) 4%, transparent) 55%,
-		transparent 50%
+		transparent 50%,
+		color-mix(in srgb, v-bind(currentThemeColor) 3%, transparent) 100%
 	);
 
-	opacity: 0.25;
+	opacity: 0.08;
 }
 
 .app-background > * {

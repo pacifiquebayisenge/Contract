@@ -6,7 +6,15 @@
 		@update:show="emit('update:show', $event)"
 	>
 		<div class="violation-modal w-[80%]">
-			<n-card class="modal-border" :bordered="false" size="huge" role="dialog">
+			<n-card
+				class="modal-border gradient-background"
+				:style="{
+					'--theme-color': currentThemeColor,
+				}"
+				:bordered="false"
+				size="huge"
+				role="dialog"
+			>
 				<template #header>
 					<span
 						style="font-weight: bold; display: flex; justify-content: center"
@@ -16,7 +24,7 @@
 					</span>
 				</template>
 
-				<AvatarIcon mood="tear-drop" />
+				<AvatarIcon mood="tear-drop" :fullname="props.fullname" />
 
 				<span class="font-color text-center" :style="{ '--theme-color': currentThemeColor }">
 					Did
@@ -48,6 +56,10 @@ const props = defineProps({
 		type: String,
 		default: 'pseudo',
 	},
+	fullname: {
+		type: String,
+		default: '',
+	},
 })
 
 const themeStore = useThemeStore()
@@ -57,7 +69,6 @@ const violationStore = useViolationStore()
 const emit = defineEmits(['update:show'])
 
 const currentThemeColor = computed(() => themeStore.themeColor)
-const currentLightThemeColor = computed(() => themeStore.selectedLightThemeColor)
 
 const partner = computed(() => userStore.partnerProfile)
 
@@ -104,68 +115,32 @@ const updatePartnerViolation = async () => {
 	font-weight: 700;
 }
 
-.avatar-container {
-	display: flex;
-	justify-content: center;
-	gap: 3rem;
+.gradient-background {
+	background: linear-gradient(
+		to bottom,
+		#f9f9fb 0%,
+		#f9f9fb 5%,
+		color-mix(in srgb, var(--theme-color) 15%, #f9f9fb) 60%,
+		color-mix(in srgb, var(--theme-color) 30%, #f9f9fb) 100%
+	);
 
-	.avatar {
-		width: 8rem;
-		height: 8rem;
-		background-color: v-bind(currentLightThemeColor);
-		border-radius: 2rem;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		position: relative;
-		overflow: visible;
+	background-attachment: fixed;
+}
 
-		&.outside-ring {
-			outline: 2px solid rgba(0, 0, 0, 0.1);
-			outline-offset: 3px;
-		}
-		&.inside-ring {
-			outline: 2px solid rgba(0, 0, 0, 0.1);
-			outline-offset: -5px;
-		}
+.gradient::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 0;
 
-		.avatar-stack {
-			position: relative;
-			width: 100%;
-			height: 100%;
-		}
+	background: linear-gradient(
+		135deg,
+		transparent 0%,
+		transparent 50%,
+		color-mix(in srgb, var(--theme-color) 3%, transparent) 100%
+	);
 
-		.avatar-image {
-			position: absolute;
-			left: 50%;
-			top: 50%;
-			transform: translate(-50%, -50%);
-			transition:
-				transform 0.3s ease,
-				opacity 0.3s ease;
-		}
-
-		/* Back: angry one */
-		.avatar-image.back {
-			z-index: 1;
-			transform: translate(-23%, -55%) rotate(10deg);
-			opacity: 0.85;
-		}
-
-		/* Front: ashamed one */
-		.avatar-image.front {
-			z-index: 2;
-			transform: translate(-71%, -25%) rotate(5deg) scale(0.9);
-			opacity: 1;
-		}
-
-		/* Optional hover: slight interaction */
-		&:hover .avatar-image.back {
-			transform: translate(-35%, -75%) rotate(14deg) scale(1.05);
-		}
-		&:hover .avatar-image.front {
-			transform: translate(-60%, -20%) rotate(8deg) scale(0.88);
-		}
-	}
+	opacity: 0.25;
 }
 </style>

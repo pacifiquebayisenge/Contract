@@ -1,6 +1,6 @@
 <template>
-	<div ref="card" class="shadow-md card m-[5px]">
-		<n-card :style="{ borderRadius: '2rem !important' }">
+	<div ref="card" class="card m-[5px]">
+		<n-card class="shadow-md" :style="{ borderRadius: '2rem !important' }">
 			<div class="avatar-card-content" @click="showActions = !showActions">
 				<div ref="avatar" class="avatar">
 					<div
@@ -110,11 +110,11 @@
 			</template>
 		</n-card>
 
-		<RewardModal v-model:show="showRewardDialog" :pseudo="pseudo" />
+		<RewardModal v-model:show="showRewardDialog" :pseudo="pseudo" :profile="fullName" />
 
-		<ContractModal v-model:show="showContractDialog" :pseudo="pseudo" />
+		<ContractModal v-model:show="showContractDialog" :pseudo="pseudo" :profile="fullName" />
 
-		<ViolationModal v-model:show="showViolationDialog" :pseudo="pseudo" />
+		<ViolationModal v-model:show="showViolationDialog" :pseudo="pseudo" :fullName="fullName" />
 	</div>
 </template>
 

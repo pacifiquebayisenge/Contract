@@ -6,7 +6,15 @@
 		@update:show="emit('update:show', $event)"
 	>
 		<div class="contract-modal w-[80%]">
-			<n-card class="modal-border" :bordered="false" size="huge" role="dialog">
+			<n-card
+				class="modal-border gradient-background"
+				:style="{
+					'--theme-color': currentThemeColor,
+				}"
+				:bordered="false"
+				size="huge"
+				role="dialog"
+			>
 				<template #header>
 					<span
 						style="font-weight: bold; display: flex; justify-content: center"
@@ -16,7 +24,7 @@
 					</span>
 				</template>
 
-				<AvatarIcon mood="sad" />
+				<AvatarIcon mood="sad" :fullname="props.fullname" />
 
 				<span class="font-color text-center" :style="{ '--theme-color': currentThemeColor }">
 					Did
@@ -47,6 +55,10 @@ const props = defineProps({
 	pseudo: {
 		type: String,
 		default: 'pseudo',
+	},
+	fullname: {
+		type: String,
+		default: '',
 	},
 })
 
@@ -106,5 +118,34 @@ const updatePartnerStreak = async () => {
 :deep(.special) {
 	color: var(--theme-color);
 	font-weight: 700;
+}
+
+.gradient-background {
+	background: linear-gradient(
+		to bottom,
+		#f9f9fb 0%,
+		#f9f9fb 5%,
+		color-mix(in srgb, var(--theme-color) 15%, #f9f9fb) 60%,
+		color-mix(in srgb, var(--theme-color) 30%, #f9f9fb) 100%
+	);
+
+	background-attachment: fixed;
+}
+
+.gradient::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 0;
+
+	background: linear-gradient(
+		135deg,
+		transparent 0%,
+		transparent 50%,
+		color-mix(in srgb, var(--theme-color) 3%, transparent) 100%
+	);
+
+	opacity: 0.25;
 }
 </style>

@@ -8,7 +8,7 @@
 			<div class="avatar-image" :class="optimizedWidth === '60' ? '' : 'pb-[2rem]'">
 				<n-image
 					:width="optimizedWidth"
-					:src="getAvatarMood(fullName, props.mood)"
+					:src="getAvatarMood(props.fullname, props.mood)"
 					:preview-disabled="true"
 				/>
 			</div>
@@ -17,8 +17,8 @@
 </template>
 
 <script lang="ts" setup>
+import { pProps } from 'naive-ui'
 import { useThemeStore } from '~/stores/theme'
-import { useUserStore } from '~/stores/user'
 import { getAvatarMood } from '~/utils/getAvatarImg'
 
 const props = defineProps({
@@ -26,25 +26,21 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
+	fullname: {
+		type: String,
+		default: '',
+	},
 })
 
-const userStore = useUserStore()
 const themeStore = useThemeStore()
 
 const currentLightThemeColor = computed(() => themeStore.selectedLightThemeColor)
 const insideBadgeRing = computed(() => themeStore.isInsideBadgeRing)
 
-const profile = computed(() => userStore.profile)
-
 const optimizedWidth = computed(() => {
 	let width = '60'
 	if (props.mood === 'idea') width = '90'
 	return width
-})
-
-const fullName = computed(() => {
-	if (!profile.value || !profile.value.firstname || !profile.value.lastname) return 'Full name ?'
-	return profile.value.firstname + ' ' + profile.value.lastname
 })
 </script>
 

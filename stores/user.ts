@@ -13,6 +13,7 @@ export const useUserStore = defineStore('user', {
 	}),
 
 	getters: {
+		getFullname: (state) => `${state.profile?.firstname} ${state.profile?.lastname}`,
 		getProfileById: (state) => {
 			return (id: string): ProfileRow | null => {
 				if (state.profile?.id === id) return state.profile

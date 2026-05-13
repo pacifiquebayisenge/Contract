@@ -53,8 +53,4 @@ onMounted(() => {
 		}
 	}
 }
-
-.shadow-md {
-	border-radius: 2rem;
-}
 </style>
