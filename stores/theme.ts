@@ -85,15 +85,25 @@ export const useThemeStore = defineStore('theme', {
 
 			if (import.meta.client) {
 				localStorage.setItem('selected-theme', theme)
+
 				document.documentElement.setAttribute('data-theme', theme)
-				document.body.style.backgroundColor = THEME_COLORS[theme]
 
-				const meta =
-					document.querySelector<HTMLMetaElement>('meta[name="theme-color"]') ??
-					Object.assign(document.createElement('meta'), { name: 'theme-color' })
+				const themeColor =
+					this.currentLightThemeOption === 'light-color'
+						? LIGHT_THEME_COLORS[theme]
+						: EXTRA_LIGHT_THEME_COLORS[theme]
 
-				if (!document.head.contains(meta)) document.head.appendChild(meta)
-				meta.content = THEME_COLORS[theme]
+				document.body.style.backgroundColor = themeColor
+
+				let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+
+				if (!meta) {
+					meta = document.createElement('meta')
+					meta.name = 'theme-color'
+					document.head.appendChild(meta)
+				}
+
+				meta.setAttribute('content', themeColor)
 			}
 		},
 
