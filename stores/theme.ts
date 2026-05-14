@@ -88,10 +88,7 @@ export const useThemeStore = defineStore('theme', {
 
 				document.documentElement.setAttribute('data-theme', theme)
 
-				const themeColor =
-					this.currentLightThemeOption === 'light-color'
-						? LIGHT_THEME_COLORS[theme]
-						: EXTRA_LIGHT_THEME_COLORS[theme]
+				const themeColor = this.currentTheme
 
 				document.body.style.backgroundColor = themeColor
 

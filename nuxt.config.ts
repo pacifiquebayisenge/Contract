@@ -83,12 +83,13 @@ export default defineNuxtConfig({
 				{ name: 'apple-mobile-web-app-capable', content: 'yes' },
 				{ name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
 				{ name: 'apple-mobile-web-app-title', content: 'Ugovor' },
-				{ name: 'theme-color', content: '#F9F9FB' },
+
 				{
 					name: 'viewport',
 					content:
 						'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover',
 				},
+				{ name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
 				{ name: 'format-detection', content: 'telephone=no' },
 				{ name: 'apple-touch-fullscreen', content: 'yes' },
 				// try 'default' instead of 'black-translucent'
