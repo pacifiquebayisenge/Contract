@@ -7,19 +7,6 @@ body {
 	touch-action: none;
 }
 
-html,
-body,
-#__nuxt {
-	min-height: 100%;
-	background: #f9f9fb;
-	margin: 0;
-	padding: 0;
-}
-
-body {
-	padding-top: env(safe-area-inset-top);
-}
-
 :root {
 	--primary-color: #8a9a86; /* Default: Sage Green */
 }
