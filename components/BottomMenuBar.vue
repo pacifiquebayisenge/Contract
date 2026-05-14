@@ -38,7 +38,7 @@
 			<n-drawer-content
 				class="drawer-gradient-background"
 				:style="{
-					'--theme-color': currentThemeColor,
+					'--theme-color': currentLightThemeColor,
 					'border-top-left-radius': '2rem',
 					'border-top-right-radius': '2rem',
 				}"
@@ -138,7 +138,7 @@
 			<n-drawer-content
 				class="drawer-gradient-background"
 				:style="{
-					'--theme-color': currentThemeColor,
+					'--theme-color': currentLightThemeColor,
 					'border-top-left-radius': '2rem',
 					'border-top-right-radius': '2rem',
 				}"
@@ -209,6 +209,7 @@ const showSettings = ref(false)
 let showNewItemModal = ref(false)
 
 const currentThemeColor = computed(() => themeStore.themeColor)
+const currentLightThemeColor = computed(() => themeStore.lightThemeColor)
 
 const statusText = computed(() => {
 	if (!isSupported.value) {
