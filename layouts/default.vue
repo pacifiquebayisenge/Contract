@@ -120,8 +120,8 @@ main::-webkit-scrollbar-thumb:hover {
 		to bottom,
 		#f9f9fb 0%,
 		#f9f9fb 25%,
-		color-mix(in srgb, v-bind(currentThemeColor) 15%, #f9f9fb) 60%,
-		color-mix(in srgb, v-bind(currentThemeColor) 30%, #f9f9fb) 100%
+		color-mix(in srgb, v-bind(currentLightThemeColor) 15%, #f9f9fb) 60%,
+		color-mix(in srgb, v-bind(currentLightThemeColor) 30%, #f9f9fb) 100%
 	);
 
 	background-attachment: fixed;
@@ -138,7 +138,7 @@ main::-webkit-scrollbar-thumb:hover {
 		135deg,
 		transparent 0%,
 		transparent 50%,
-		color-mix(in srgb, v-bind(currentThemeColor) 3%, transparent) 100%
+		color-mix(in srgb, v-bind(currentLightThemeColor) 3%, transparent) 100%
 	);
 
 	opacity: 0.08;

@@ -39,7 +39,7 @@ export const useCreditStore = defineStore('credit', {
 			this.setCredit(newCredit)
 
 			if (data && data.length > 0) {
-				console.log('Credit updated:', `${data[0].firstname}: credit ${data[0].credit}`)
+				console.log('Credit updated:', `${data[0]?.firstname}: credit ${data[0]?.credit}`)
 				userStore.profile!.credit = this.value
 			}
 		},
@@ -72,7 +72,7 @@ export const useCreditStore = defineStore('credit', {
 			}
 
 			if (data && data.length > 0) {
-				console.log('Credit reduced:', `${data[0].firstname}: credit ${data[0].credit}`)
+				console.log('Credit reduced:', `${data[0]?.firstname}: credit ${data[0]?.credit}`)
 				userStore.partnerProfile!.credit = newCredit
 			}
 		},
@@ -111,7 +111,7 @@ export const useCreditStore = defineStore('credit', {
 			}
 
 			if (data && data.length > 0) {
-				console.log('Credit increase:', `${data[0].firstname}: credit ${data[0].credit}`)
+				console.log('Credit increase:', `${data[0]?.firstname}: credit ${data[0]?.credit}`)
 				userStore.partnerProfile!.credit = newCredit
 			}
 

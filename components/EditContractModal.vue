@@ -9,7 +9,7 @@
 			<n-card
 				class="modal-border gradient-background"
 				:style="{
-					'--theme-color': currentThemeColor,
+					'--theme-color': currentLightThemeColor,
 				}"
 				:bordered="false"
 				size="huge"
@@ -111,7 +111,7 @@ const themeStore = useThemeStore()
 const contractStore = useContractStore()
 
 const currentThemeColor = computed(() => themeStore.themeColor)
-const currentLightThemeColor = computed(() => themeStore.selectedLightThemeColor)
+const currentLightThemeColor = computed(() => themeStore.lightThemeColor)
 
 watch(
 	() => props.show,
@@ -135,6 +135,7 @@ const submit = async () => {
 
 <style lang="scss" scoped>
 .edit-contract-item-modal {
+	border-radius: 2rem;
 	:deep(.n-card-content) {
 		display: flex;
 		flex-direction: column;

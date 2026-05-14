@@ -9,7 +9,7 @@
 			<n-card
 				class="modal-border gradient-background"
 				:style="{
-					'--theme-color': currentThemeColor,
+					'--theme-color': lightThemeColor,
 				}"
 				:bordered="false"
 				size="huge"
@@ -28,11 +28,11 @@
 				<span class="font-color text-center">
 					Are you
 
-					<span class="special" :style="{ '--theme-color': themeStore.themeColor }"> sure </span>
+					<span class="special" :style="{ '--theme-color': currentThemeColor }"> sure </span>
 
 					you want to delete contract rule
 
-					<span class="special" :style="{ '--theme-color': themeStore.themeColor }">{{
+					<span class="special" :style="{ '--theme-color': currentThemeColor }">{{
 						index + 1
 					}}</span>
 
@@ -70,6 +70,7 @@ const themeStore = useThemeStore()
 const contractStore = useContractStore()
 
 const currentThemeColor = computed(() => themeStore.themeColor)
+const lightThemeColor = computed(() => themeStore.lightThemeColor)
 
 const submit = async () => {
 	await contractStore.deleteContractRule(props.item.id)
@@ -79,6 +80,7 @@ const submit = async () => {
 
 <style lang="scss" scoped>
 .delete-contract-item-modal {
+	border-radius: 2rem;
 	:deep(.n-card-content) {
 		display: flex;
 		flex-direction: column;

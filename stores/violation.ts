@@ -51,7 +51,7 @@ export const useViolationStore = defineStore('violation', {
 				// console.log('Violation updated:', `${data[0].firstname}: violation ${data[0].violation}`)
 				userStore.partnerProfile!.violation = newViolation
 
-				await creditStore.reducePartnerCredit(10000)
+				await creditStore.reducePartnerCredit(100)
 			}
 
 			await $fetch('/api/send-notification', {

@@ -9,7 +9,7 @@
 			<n-card
 				class="modal-border gradient-background"
 				:style="{
-					'--theme-color': currentThemeColor,
+					'--theme-color': currentLightThemeColor,
 				}"
 				:bordered="false"
 				size="huge"
@@ -69,6 +69,7 @@ const violationStore = useViolationStore()
 const emit = defineEmits(['update:show'])
 
 const currentThemeColor = computed(() => themeStore.themeColor)
+const currentLightThemeColor = computed(() => themeStore.lightThemeColor)
 
 const partner = computed(() => userStore.partnerProfile)
 
@@ -90,6 +91,7 @@ const updatePartnerViolation = async () => {
 	flex-direction: column;
 	align-items: center;
 	gap: 3rem;
+	border-radius: 2rem;
 }
 
 :deep(.n-card-content) {
