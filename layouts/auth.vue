@@ -62,9 +62,12 @@ onMounted(() => {
 <style scoped>
 /* FULLSCREEN AUTH BACKGROUND */
 .auth-layout {
-	height: 100vh;
-	width: 100%;
-	position: relative;
+	min-height: 100dvh;
+
+	background: var(--auth-bg);
+
+	padding-top: env(safe-area-inset-top);
+	padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* ANIMATED CARD */

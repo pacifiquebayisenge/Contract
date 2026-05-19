@@ -81,19 +81,29 @@ export const useThemeStore = defineStore('theme', {
 	actions: {
 		setTheme(theme: ThemeName): void {
 			if (!THEMES.includes(theme)) return
+
 			this.currentTheme = theme
 
 			if (import.meta.client) {
 				localStorage.setItem('selected-theme', theme)
+
 				document.documentElement.setAttribute('data-theme', theme)
-				document.body.style.backgroundColor = THEME_COLORS[theme]
 
-				const meta =
-					document.querySelector<HTMLMetaElement>('meta[name="theme-color"]') ??
-					Object.assign(document.createElement('meta'), { name: 'theme-color' })
+				const pageColor = this.selectedLightThemeColor
 
-				if (!document.head.contains(meta)) document.head.appendChild(meta)
-				meta.content = THEME_COLORS[theme]
+				document.body.style.backgroundColor = pageColor
+
+				document.documentElement.style.backgroundColor = pageColor
+
+				let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+
+				if (!meta) {
+					meta = document.createElement('meta')
+					meta.name = 'theme-color'
+					document.head.appendChild(meta)
+				}
+
+				meta.content = pageColor
 			}
 		},
 

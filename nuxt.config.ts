@@ -7,6 +7,8 @@ export default defineNuxtConfig({
 		port: 3008,
 	},
 
+	srcDir: '.',
+
 	modules: [
 		'@nuxt/eslint',
 		'@nuxt/fonts',
@@ -80,8 +82,9 @@ export default defineNuxtConfig({
 					content: 'Contract management application',
 				},
 				{ name: 'mobile-web-app-capable', content: 'yes' },
+				{ name: 'display', content: 'standalone' },
 				{ name: 'apple-mobile-web-app-capable', content: 'yes' },
-				{ name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
+				{ name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
 				{ name: 'apple-mobile-web-app-title', content: 'Ugovor' },
 
 				{
@@ -165,8 +168,8 @@ export default defineNuxtConfig({
 			name: 'Ugovor',
 			short_name: 'Ugovor',
 			description: 'Contract management application',
-			theme_color: '#ffffff',
-			background_color: '#ffffff',
+			theme_color: '#D4DDD2',
+			background_color: '#E3E9E2',
 			display_override: ['standalone', 'minimal-ui', 'browser'],
 			display: 'standalone',
 			start_url: '/',
@@ -251,16 +254,16 @@ export default defineNuxtConfig({
 				'vue-router',
 			],
 		},
-		server: {
-			warmup: {
-				clientFiles: [
-					'./app.vue',
-					'./pages/**/*.vue',
-					'./components/**/*.vue',
-					'./layouts/**/*.vue',
-				],
-			},
-		},
+		// server: {
+		// 	warmup: {
+		// 		clientFiles: [
+
+		// 			'./pages/**/*.vue',
+		// 			'./components/**/*.vue',
+		// 			'./layouts/**/*.vue',
+		// 		],
+		// 	},
+		// },
 		logLevel: 'warn',
 	},
 

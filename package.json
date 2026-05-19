@@ -25,7 +25,7 @@
 		"date-fns": "^4.1.0",
 		"echarts": "^6.0.0",
 		"naive-ui": "^2.41.0",
-		"nuxt": "^4.4.4",
+		"nuxt": "^4.3.0",
 		"nuxtjs-naive-ui": "^1.0.2",
 		"vue-echarts": "^8.0.1",
 		"vue3-countup": "^0.0.4",
@@ -39,6 +39,7 @@
 		"@types/web-push": "^3.6.4",
 		"@vite-pwa/nuxt": "^1.0.4",
 		"autoprefixer": "^10.4.21",
+		"esbuild": "^0.28.0",
 		"postcss": "^8.5.4",
 		"prettier": "^3.6.2",
 		"sass-embedded": "^1.89.1",
@@ -48,7 +49,7 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"@nuxt/vite-builder": "4.3.1"
+			"@nuxt/vite-builder": "4.4.5"
 		},
 		"onlyBuiltDependencies": [
 			"supabase",
