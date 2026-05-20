@@ -1,6 +1,6 @@
 <template>
 	<NModalProvider>
-		<div id="app-container" class="flex flex-col min-h-dvh">
+		<div id="app-container" class="flex flex-col min-h-dvh overflow-hidden">
 			<!-- bg-[#f9f9fb] -->
 			<div class="ios-status-bar-bg"></div>
 
