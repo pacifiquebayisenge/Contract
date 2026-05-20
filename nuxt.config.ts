@@ -37,11 +37,11 @@ export default defineNuxtConfig({
 	},
 
 	// remove the safari browser ui sets on pwa installation
-	// router: {
-	// 	options: {
-	// 		hashMode: true,
-	// 	},
-	// },
+	router: {
+		options: {
+			hashMode: true,
+		},
+	},
 
 	anime: {
 		composables: true, // Allows use of useAnime() composable

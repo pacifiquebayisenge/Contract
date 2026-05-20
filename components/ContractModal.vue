@@ -87,7 +87,7 @@ const updatePartnerStreak = async () => {
 	// 	console.log("BLOCKED: streak >= 3");
 	// }
 
-	trigger([{ duration: 30 }, { delay: 60, duration: 40, intensity: 1 }])
+	trigger([{ duration: 400 }], { intensity: 1 })
 
 	emit('update:show', false)
 
