@@ -76,8 +76,6 @@ div#app-container {
 	overflow: hidden;
 	min-height: 100vh;
 
-	position: fixed;
-	padding-bottom: env(safe-area-inset-bottom);
 	background: linear-gradient(
 		to bottom,
 		#f9f9fb 0%,
