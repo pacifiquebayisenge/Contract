@@ -1,6 +1,6 @@
 <template>
 	<NModalProvider>
-		<div id="app-container" class="flex flex-col min-h-dvh relative overflow-hidden">
+		<div id="app-container" class="flex flex-col min-h-dvh">
 			<!-- bg-[#f9f9fb] -->
 			<div class="ios-status-bar-bg"></div>
 
@@ -15,12 +15,14 @@
 
 			<!-- Scrollable page content only -->
 			<!-- bg-[#f9f9fb] -->
-			<main class="flex-1 overflow-hidden">
-				<div class="h-full px-6 pt-[2rem] pb-10">
+			<main class="flex-1 overflow-y-auto">
+				<div class="h-full px-6 pt-[2rem]">
 					<slot />
 				</div>
 
-				<div class="bottom-nav-wrapper pointer-events-none !bg-transparent">
+				<div
+					class="fixed bottom-[4rem] left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent"
+				>
 					<div class="pointer-events-auto">
 						<BottomMenuBar />
 					</div>
@@ -72,8 +74,7 @@ useHead({
 div#app-container {
 	touch-action: none;
 
-	overflow: hidden;
-	min-height: 100dvh;
+	min-height: 100vh;
 
 	background: linear-gradient(
 		to bottom,
@@ -84,15 +85,13 @@ div#app-container {
 	);
 
 	background-attachment: fixed;
-	position: relative;
-	box-sizing: border-box;
-	position: fixed;
-	inset: 0;
-	width: 100%;
-	height: 100dvh;
+
 	padding-top: env(safe-area-inset-top);
-	padding-bottom: 0;
-	box-sizing: border-box;
+	padding-bottom: env(safe-area-inset-bottom);
+}
+
+main > div:first-child {
+	padding-bottom: calc(5rem + max(1rem, env(safe-area-inset-bottom)));
 }
 
 &::before {
@@ -177,17 +176,6 @@ main::-webkit-scrollbar-thumb:hover {
 	background-color: #a8a8a8;
 }
 
-.bottom-nav-wrapper {
-	position: fixed;
-	left: 0;
-	right: 0;
-	// bottom: max(1rem, env(safe-area-inset-bottom));
-	z-index: 50;
-
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
 // .app-background {
 // 	position: relative;
 // 	min-height: 100vh;

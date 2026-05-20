@@ -127,11 +127,11 @@ const partnerReward = async () => {
 		return
 	}
 
-	await creditStore.updatePartnerCredit(nearestHundred(reward.value), description.value)
-
 	trigger([{ duration: 30 }, { delay: 60, duration: 40, intensity: 1 }])
 
 	emit('update:show', false)
+
+	await creditStore.updatePartnerCredit(nearestHundred(reward.value), description.value)
 }
 </script>
 

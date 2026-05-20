@@ -87,11 +87,11 @@ const updatePartnerStreak = async () => {
 	// 	console.log("BLOCKED: streak >= 3");
 	// }
 
-	await streakStore.updatePartnerStreak()
-
 	trigger([{ duration: 30 }, { delay: 60, duration: 40, intensity: 1 }])
 
 	emit('update:show', false)
+
+	await streakStore.updatePartnerStreak()
 }
 </script>
 

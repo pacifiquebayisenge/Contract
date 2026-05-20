@@ -82,11 +82,11 @@ const updatePartnerViolation = async () => {
 		return
 	}
 
-	await violationStore.updatePartnerViolation()
-
 	trigger([{ duration: 30 }, { delay: 60, duration: 40, intensity: 1 }])
 
 	emit('update:show', false)
+
+	await violationStore.updatePartnerViolation()
 }
 </script>
 
