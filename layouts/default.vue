@@ -21,7 +21,7 @@
 				</div>
 
 				<div
-					class="fixed bottom-[4rem] left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent"
+					class="fixed bottom-[6rem] left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent"
 				>
 					<div class="pointer-events-auto">
 						<BottomMenuBar />
