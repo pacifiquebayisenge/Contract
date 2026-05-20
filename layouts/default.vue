@@ -75,7 +75,6 @@ div#app-container {
 	overflow: hidden;
 	min-height: 100dvh;
 
-
 	background: linear-gradient(
 		to bottom,
 		#f9f9fb 0%,
@@ -96,64 +95,63 @@ div#app-container {
 	box-sizing: border-box;
 }
 
-	&::before {
-		content: '';
-		position: fixed;
-		inset: 0;
-		pointer-events: none;
-		z-index: 0;
+&::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 0;
 
-		background: linear-gradient(
-			135deg,
-			transparent 0%,
-			transparent 50%,
-			color-mix(in srgb, v-bind(currentLightThemeColor) 3%, transparent) 100%
-		);
+	background: linear-gradient(
+		135deg,
+		transparent 0%,
+		transparent 50%,
+		color-mix(in srgb, v-bind(currentLightThemeColor) 3%, transparent) 100%
+	);
 
-		opacity: 0.08;
-	}
+	opacity: 0.08;
+}
 
-	& > * {
-		position: relative;
-		z-index: 1;
-	}
+& > * {
+	position: relative;
+	z-index: 1;
+}
 
-	// iOS 26 PWA/Safari workaround:
-	//  Status bar color follows a fixed top element
-	//  more reliably than theme-color
-	// 	Installed PWA  → fix works ✅
-	// Safari browser → cannot fully control it ❌
-	.ios-status-bar-bg {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
+// iOS 26 PWA/Safari workaround:
+//  Status bar color follows a fixed top element
+//  more reliably than theme-color
+// 	Installed PWA  → fix works ✅
+// Safari browser → cannot fully control it ❌
+.ios-status-bar-bg {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
 
-		height: env(safe-area-inset-top);
-		background-color: v-bind(currentThemeColor);
+	height: env(safe-area-inset-top);
+	background-color: v-bind(currentThemeColor);
 
-		z-index: 9999;
-		pointer-events: none;
-	}
+	z-index: 9999;
+	pointer-events: none;
+}
 
-	.top-bar-background {
-		background-color: v-bind(currentThemeColor);
-	}
+.top-bar-background {
+	background-color: v-bind(currentThemeColor);
+}
 
-	& > div > div {
-		background-clip: padding-box;
-	}
+& > div > div {
+	background-clip: padding-box;
+}
 
-	/* Ensure modal backdrops don't create scroll */
-	.n-modal-container {
-		position: fixed;
-		overflow: hidden;
-	}
+/* Ensure modal backdrops don't create scroll */
+.n-modal-container {
+	position: fixed;
+	overflow: hidden;
+}
 
-	/* Prevent body scroll when modal is open */
-	body.modal-open {
-		overflow: hidden;
-	}
+/* Prevent body scroll when modal is open */
+body.modal-open {
+	overflow: hidden;
 }
 
 /* Main content scroll area */
