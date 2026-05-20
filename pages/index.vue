@@ -1,5 +1,7 @@
 <template>
-	<div class="home-page-container invisible-scroll page-bottom-padding animate-item">
+	<div
+		class="home-page-container scroll-container invisible-scroll page-bottom-padding animate-item"
+	>
 		<AvatarCard class="animate-item" :profile="userStore.profile" :pseudo="pseudoStore.myPseudo" />
 		<AvatarCard
 			class="animate-item"

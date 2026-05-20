@@ -1,6 +1,6 @@
 <template>
 	<NModalProvider>
-		<div id="app-container" class="flex flex-col min-h-dvh overflow-hidden">
+		<div id="app-container" class="flex flex-col min-h-screen overflow-hidden">
 			<!-- bg-[#f9f9fb] -->
 			<div class="ios-status-bar-bg"></div>
 
@@ -16,7 +16,7 @@
 			<!-- Scrollable page content only -->
 			<!-- bg-[#f9f9fb] -->
 			<main class="flex-1 overflow-hidden">
-				<div class="h-full px-6 pt-[2rem]">
+				<div class="h-full px-6 pt-[2rem] overflow-hidden">
 					<slot />
 				</div>
 
