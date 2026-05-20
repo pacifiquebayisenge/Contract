@@ -1,7 +1,5 @@
 <template>
-	<div
-		class="home-page-container scroll-container invisible-scroll page-bottom-padding animate-item"
-	>
+	<div class="home-page-container scroll-container invisible-scroll pb-[10rem] animate-item">
 		<AvatarCard class="animate-item" :profile="userStore.profile" :pseudo="pseudoStore.myPseudo" />
 		<AvatarCard
 			class="animate-item"
@@ -33,6 +31,8 @@ onMounted(() => {
 	display: flex;
 	flex-direction: column;
 	gap: 3rem;
+	overflow: hidden;
+	overflow-y: auto;
 
 	& div:last-child {
 		margin-bottom: 25rem;

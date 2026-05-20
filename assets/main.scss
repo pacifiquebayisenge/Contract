@@ -1,19 +1,16 @@
 html {
 	font-size: 62.5%;
-	touch-action: none;
-	overflow: hidden;
 }
 
 body {
-	overflow: hidden;
 	height: 100%;
-	touch-action: none;
 }
 
 html,
 body {
 	overscroll-behavior: none;
 	touch-action: none;
+	overflow: hidden;
 
 	// position: fixed;
 }
