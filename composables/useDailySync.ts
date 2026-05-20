@@ -11,6 +11,8 @@ export function useNewDaySync() {
 		const last = new Date(lastStr)
 		const today = new Date()
 
+		// removes the time part from both dates
+		// only the day part, not  hour/minutes/seconds.
 		today.setHours(0, 0, 0, 0)
 		last.setHours(0, 0, 0, 0)
 

@@ -1,8 +1,9 @@
 <template>
 	<NModalProvider>
-		<div id="app-container" class="flex flex-col min-h-dvh">
+		<div id="app-container" class="flex flex-col min-h-dvh relative overflow-hidden">
 			<!-- bg-[#f9f9fb] -->
 			<div class="ios-status-bar-bg"></div>
+
 			<div class="top-bar-background">
 				<div
 					class="sticky top-0 z-50 flex justify-center items-center py-2 rounded-t-3xl flex-shrink-0 bg-[#f9f9fb]"

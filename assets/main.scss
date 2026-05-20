@@ -1,3 +1,18 @@
+html,
+body,
+#__nuxt,
+#app {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+
+	overflow: hidden;
+	overscroll-behavior: none;
+
+	-webkit-overflow-scrolling: auto;
+	touch-action: manipulation;
+}
+
 html {
 	font-size: 62.5%;
 	touch-action: none;
@@ -5,6 +20,8 @@ html {
 
 body {
 	height: 100%;
+	width: 100%;
+	position: fixed;
 	touch-action: none;
 }
 

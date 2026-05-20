@@ -9,7 +9,7 @@
 				'--theme-color': themeStore.colorFor(themeOption),
 				'--theme-color-dark': adjustColor(themeStore.colorFor(themeOption), -30),
 			}"
-			@click="themeStore.setTheme(themeOption)"
+			@click="changeTheme(themeOption)"
 		>
 			<span class="button-content">
 				{{ themeOption.replace('-', ' ') }}
@@ -23,6 +23,14 @@ import { useThemeStore } from '~/stores/theme'
 import { adjustColor } from '~/utils/color'
 
 const themeStore = useThemeStore()
+
+const changeTheme = (theme: ThemeName) => {
+	themeStore.setTheme(theme)
+
+	setTimeout(() => {
+		window.location.reload()
+	}, 100)
+}
 </script>
 
 <style scoped>

@@ -1,73 +1,71 @@
-import { defineStore } from 'pinia'
 import type { Database } from '~/types/supabase.types'
 
-export const usePseudoStore = defineStore('pseudo', {
-	state: () => ({
-		userId: null as string | null,
-		partnerId: null as string | null,
+export const usePseudoStore = defineStore('pseudo', () => {
+	// State
+	const userId = ref<string | null>(null)
+	const partnerId = ref<string | null>(null)
+	const myPseudo = ref<string | null>(null)
+	const partnerPseudo = ref<string | null>(null)
+	const ready = ref(false)
 
-		myPseudo: null as string | null,
-		partnerPseudo: null as string | null,
+	// Actions
+	async function init() {
+		const supabase = useSupabaseClient<Database>()
+		const authUser = useSupabaseUser()
 
-		ready: false,
-	}),
+		if (!authUser.value) return
+		userId.value = authUser.value.sub
 
-	actions: {
-		async init() {
-			const supabase = useSupabaseClient<Database>()
-			const authUser = useSupabaseUser()
+		const { data: profiles } = await supabase.from('profiles').select('id')
 
-			if (!authUser.value) return
-			this.userId = authUser.value.sub
+		if (!profiles) return
 
-			// Get both user IDs (only 2 users exist)
-			const { data: profiles } = await supabase.from('profiles').select('id')
+		partnerId.value = profiles.find((p) => p.id !== userId.value)?.id ?? null
 
-			if (!profiles) return
+		const { data: pseudos } = await supabase.from('partner_pseudos').select('*')
 
-			// Partner is the user with a different id
-			this.partnerId = profiles.find((p) => p.id !== this.userId)?.id ?? null
+		if (pseudos) {
+			myPseudo.value =
+				pseudos.find((p) => p.owner_id === userId.value && p.partner_id === partnerId.value)
+					?.pseudo ?? null
 
-			// Fetch all pseudo rows
-			const { data: pseudos } = await supabase.from('partner_pseudos').select('*')
+			partnerPseudo.value =
+				pseudos.find((p) => p.owner_id === partnerId.value && p.partner_id === userId.value)
+					?.pseudo ?? null
+		}
 
-			if (pseudos) {
-				// Pseudo your partner gave YOU:
-				this.myPseudo =
-					pseudos.find((p) => p.owner_id === this.userId && p.partner_id === this.partnerId)
-						?.pseudo ?? null
+		ready.value = true
+	}
 
-				// Pseudo YOU gave to your partner:
-				this.partnerPseudo =
-					pseudos.find((p) => p.owner_id === this.partnerId && p.partner_id === this.userId)
-						?.pseudo ?? null
-			}
+	async function updatePartnerPseudo(newPseudo: string) {
+		if (!userId.value || !partnerId.value) return
 
-			this.ready = true
-		},
+		const supabase = useSupabaseClient<Database>()
 
-		async updatePartnerPseudo(newPseudo: string) {
-			if (!this.userId || !this.partnerId) return
+		const { data, error } = await supabase
+			.from('partner_pseudos')
+			.upsert(
+				{
+					owner_id: partnerId.value,
+					partner_id: userId.value,
+					pseudo: newPseudo,
+				},
+				{ onConflict: 'owner_id,partner_id' }
+			)
+			.select('*')
 
-			const supabase = useSupabaseClient<Database>()
+		if (!error && data && data.length > 0) {
+			partnerPseudo.value = data[0]!.pseudo
+		}
+	}
 
-			const { data, error } = await supabase
-				.from('partner_pseudos')
-				.upsert(
-					{
-						owner_id: this.partnerId,
-						partner_id: this.userId,
-						pseudo: newPseudo,
-					},
-					{ onConflict: 'owner_id,partner_id' }
-				)
-
-				.select('*')
-
-			if (!error && data && data.length > 0) {
-				// Only update the string value
-				this.partnerPseudo = data[0].pseudo
-			}
-		},
-	},
+	return {
+		userId,
+		partnerId,
+		myPseudo,
+		partnerPseudo,
+		ready,
+		init,
+		updatePartnerPseudo,
+	}
 })

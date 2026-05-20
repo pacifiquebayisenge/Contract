@@ -15,13 +15,13 @@ import { computed, onMounted, ref } from 'vue'
 import anime from 'animejs'
 import { useThemeStore } from '~/stores/theme'
 
-const theme = useThemeStore()
+const themeStore = useThemeStore()
 
 // THEME-BASED ANIMATED GRADIENT BACKGROUND
 const backgroundStyle = computed(() => {
-	const main = theme.getCurrentThemeColor
-	const light = theme.getCurrentLightThemeColor
-	const extra = theme.getCurrentExtraLightThemeColor
+	const main = themeStore.currentTheme
+	const light = themeStore.lightThemeColor
+	const extra = themeStore.extraLightThemeColor
 
 	return {
 		background: `

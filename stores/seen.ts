@@ -1,79 +1,77 @@
 import type { Database } from '~/types/supabase.types'
 import { useUserStore } from './user'
 
-export const useSeenStore = defineStore('seen', {
-	state: () => ({
-		value: 0,
-	}),
+export const useSeenStore = defineStore('seen', () => {
+	// State
+	const value = ref(0)
 
-	getters: {
-		getSeenCount: (s) => s.value,
-	},
+	// Actions
+	function setSeen(n: number) {
+		value.value = n
+	}
 
-	actions: {
-		setSeen(n: number) {
-			this.value = n
-		},
+	async function updateSeen() {
+		const userStore = useUserStore()
+		const supabase = useSupabaseClient<Database>()
 
-		async updateSeen() {
-			const userStore = useUserStore()
-			const supabase = useSupabaseClient<Database>()
+		const profile = userStore.profile
 
-			const profile = userStore.profile
+		if (!profile) {
+			console.error('❌ Profile not loaded')
+			return
+		}
 
-			if (!profile) {
-				console.error('❌ Profile not loaded')
-				return
-			}
+		const newSeen = value.value + 1
+		setSeen(newSeen)
 
-			const newSeen = this.value + 1
-			this.setSeen(newSeen)
+		const { data, error } = await supabase
+			.from('profiles')
+			.update({ seen: newSeen })
+			.eq('id', profile.id)
+			.select('*')
 
-			const { data, error } = await supabase
-				.from('profiles')
-				.update({
-					seen: newSeen,
-				})
-				.eq('id', profile.id)
-				.select('*')
+		if (error) {
+			console.error('❌ Failed to update seen:', error)
+			return
+		}
 
-			if (error) {
-				console.error('❌ Failed to update seen:', error)
-				return
-			}
+		await logSeenUpdate()
 
-			await this.logSeenUpdate()
+		if (data && data.length > 0) {
+			userStore.profile!.seen = value.value
+		}
+	}
 
-			if (data && data.length > 0) {
-				userStore.profile!.seen = this.value
-			}
-		},
+	async function logSeenUpdate() {
+		const supabase = useSupabaseClient<Database>()
+		const userStore = useUserStore()
 
-		async logSeenUpdate() {
-			const supabase = useSupabaseClient<Database>()
-			const userStore = useUserStore()
+		if (!userStore.profile?.id) {
+			console.error('❌ User profile is not loaded, cannot log app open.')
+			return
+		}
 
-			if (!userStore.profile?.id) {
-				console.error('❌ User profile is not loaded, cannot log app open.')
-				return
-			}
+		const { error } = await supabase.from('user_events').insert({
+			actor_id: userStore.profile!.id,
+			target_id: userStore.profile!.id,
+			event_type: 'app_open',
+		})
 
-			const { data, error } = await supabase.from('user_events').insert({
-				actor_id: userStore.profile!.id,
-				target_id: userStore.profile!.id,
-				event_type: 'app_open',
-			})
+		if (error) {
+			console.error('❌ Failed to log app open event:', error)
+		}
+	}
 
-			if (error) {
-				console.error('❌ Failed to log app open event:', error)
-				return
-			}
-		},
+	function init() {
+		const userStore = useUserStore()
+		setSeen(userStore.profile?.seen || 0)
+	}
 
-		init() {
-			const userStore = useUserStore()
-			const seen = userStore.profile?.seen || 0
-			this.setSeen(seen)
-		},
-	},
+	return {
+		value,
+		setSeen,
+		updateSeen,
+		logSeenUpdate,
+		init,
+	}
 })

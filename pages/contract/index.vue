@@ -43,19 +43,19 @@
 import ContractItem from '~/components/ContractItem.vue'
 import { usePageAnimation } from '~/composables/usePageAnimation'
 import { useContractStore } from '~/stores/contract'
-import { useUserStore } from '~/stores/user'
 
 const contractStore = useContractStore()
-const userStore = useUserStore()
+
 const { animatePageEnter } = usePageAnimation()
 
-let showNewDialog = ref(false)
 let filterItemRef = ref('')
 
 const contractItems = computed(() => {
 	if (filterItemRef.value)
-		return contractStore.contractList.filter((item) => item.state === filterItemRef.value)
-	return contractStore.getContractList
+		return contractStore.contractList.filter(
+			(item: { state: string }) => item.state === filterItemRef.value
+		)
+	return contractStore.contractList
 })
 
 onMounted(() => {

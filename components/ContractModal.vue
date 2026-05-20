@@ -43,6 +43,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useWebHaptics } from 'web-haptics/vue'
 import { useStreakStore } from '~/stores/streak'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
@@ -66,6 +67,8 @@ const themeStore = useThemeStore()
 const userStore = useUserStore()
 const streakStore = useStreakStore()
 
+const { trigger } = useWebHaptics()
+
 const emit = defineEmits(['update:show'])
 
 const currentThemeColor = computed(() => themeStore.themeColor)
@@ -84,8 +87,11 @@ const updatePartnerStreak = async () => {
 	// 	console.log("BLOCKED: streak >= 3");
 	// }
 
-	emit('update:show', false)
 	await streakStore.updatePartnerStreak()
+
+	trigger([{ duration: 30 }, { delay: 60, duration: 40, intensity: 1 }])
+
+	emit('update:show', false)
 }
 </script>
 

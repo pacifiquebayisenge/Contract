@@ -1,91 +1,89 @@
-import { defineStore } from 'pinia'
 import type { Database } from '~/types/supabase.types'
 
 type ProfileRow = Database['public']['Tables']['profiles']['Row']
 
-export const useUserStore = defineStore('user', {
-	state: () => ({
-		userId: null as string | null,
-		profile: null as ProfileRow | null,
-		partnerProfile: null as ProfileRow | null,
+export const useUserStore = defineStore('user', () => {
+	// State
+	const userId = ref<string | null>(null)
+	const profile = ref<ProfileRow | null>(null)
+	const partnerProfile = ref<ProfileRow | null>(null)
+	const ready = ref(false)
 
-		ready: false,
-	}),
+	// Getters
+	const getFullname = computed(() => `${profile.value?.firstname} ${profile.value?.lastname}`)
 
-	getters: {
-		getFullname: (state) => `${state.profile?.firstname} ${state.profile?.lastname}`,
-		getProfileById: (state) => {
-			return (id: string): ProfileRow | null => {
-				if (state.profile?.id === id) return state.profile
-				if (state.partnerProfile?.id === id) return state.partnerProfile
-				return null
-			}
-		},
-		getFullNameById: (state) => {
-			return (id: string): string => {
-				let profile: ProfileRow | null = null
+	const getProfileById = computed(() => (id: string): ProfileRow | null => {
+		if (profile.value?.id === id) return profile.value
+		if (partnerProfile.value?.id === id) return partnerProfile.value
+		return null
+	})
 
-				if (state.profile?.id === id) profile = state.profile
-				else if (state.partnerProfile?.id === id) profile = state.partnerProfile
+	const getFullNameById = computed(() => (id: string): string => {
+		let p: ProfileRow | null = null
 
-				if (!profile) return 'Unknown User'
+		if (profile.value?.id === id) p = profile.value
+		else if (partnerProfile.value?.id === id) p = partnerProfile.value
 
-				const parts = [profile.firstname, profile.lastname].filter(Boolean)
-				return parts.join(' ') || 'Unknown User'
-			}
-		},
-	},
+		if (!p) return 'Unknown User'
 
-	actions: {
-		async init() {
-			const supabase = useSupabaseClient<Database>()
-			const authUser = useSupabaseUser()
+		const parts = [p.firstname, p.lastname].filter(Boolean)
+		return parts.join(' ') || 'Unknown User'
+	})
 
-			if (!authUser.value) return
+	// Actions
+	async function init() {
+		const supabase = useSupabaseClient<Database>()
+		const authUser = useSupabaseUser()
 
-			// YOUR ID
-			this.userId = authUser.value.sub
+		if (!authUser.value) return
 
-			// Load your profile
-			const { data: myProfile } = await supabase
-				.from('profiles')
-				.select('*')
-				.eq('id', this.userId)
-				.single()
+		userId.value = authUser.value.sub
 
-			if (myProfile) {
-				this.profile = myProfile
-			}
+		const { data: myProfile } = await supabase
+			.from('profiles')
+			.select('*')
+			.eq('id', userId.value)
+			.single()
 
-			// Load both profiles (2 total)
-			const { data: profiles } = await supabase.from('profiles').select('*')
+		if (myProfile) {
+			profile.value = myProfile
+		}
 
-			if (!profiles) return
+		const { data: profiles } = await supabase.from('profiles').select('*')
 
-			// Find your partner
-			this.partnerProfile = profiles.find((p) => p.id !== this.userId) ?? null
+		if (!profiles) return
 
-			this.ready = true
-		},
+		partnerProfile.value = profiles.find((p) => p.id !== userId.value) ?? null
 
-		async updateProfile(firstname: string, lastname: string) {
-			if (!this.userId) return
+		ready.value = true
+	}
 
-			const supabase = useSupabaseClient<Database>()
+	async function updateProfile(firstname: string, lastname: string) {
+		if (!userId.value) return
 
-			const { data, error } = await supabase
-				.from('profiles')
-				.update({
-					firstname,
-					lastname,
-				})
-				.eq('id', this.userId)
-				.select('*')
-				.single()
+		const supabase = useSupabaseClient<Database>()
 
-			if (!error && data) {
-				this.profile = data // update local state
-			}
-		},
-	},
+		const { data, error } = await supabase
+			.from('profiles')
+			.update({ firstname, lastname })
+			.eq('id', userId.value)
+			.select('*')
+			.single()
+
+		if (!error && data) {
+			profile.value = data
+		}
+	}
+
+	return {
+		userId,
+		profile,
+		partnerProfile,
+		ready,
+		getFullname,
+		getProfileById,
+		getFullNameById,
+		init,
+		updateProfile,
+	}
 })

@@ -121,7 +121,14 @@ const submit = async () => {
 		0 1.5rem 4rem rgba(0, 0, 0, 0.08),
 		inset 0 0 0 1px rgba(255, 255, 255, 0.7);
 }
+:deep(.n-card) {
+	background-color: transparent !important;
+}
 
+:deep(.n-card__content),
+:deep(.n-card-header) {
+	background: transparent !important;
+}
 :deep(.n-card-header) {
 	padding-bottom: 0;
 }
@@ -426,31 +433,39 @@ const submit = async () => {
 }
 
 .gradient-background {
+	position: relative;
+	overflow: hidden;
+
 	background: linear-gradient(
 		to bottom,
-		#f9f9fb 0%,
-		#f9f9fb 5%,
-		color-mix(in srgb, var(--theme-color) 15%, #f9f9fb) 60%,
-		color-mix(in srgb, var(--theme-color) 30%, #f9f9fb) 100%
-	);
+		rgba(255, 255, 255, 0.78) 0%,
+		rgba(255, 255, 255, 0.68) 45%,
+		color-mix(in srgb, var(--theme-color) 10%, rgba(255, 255, 255, 0.65)) 100%
+	) !important;
 
-	background-attachment: fixed;
+	backdrop-filter: blur(18px) saturate(160%);
+	-webkit-backdrop-filter: blur(18px) saturate(160%);
+
+	border: 1px solid rgba(255, 255, 255, 0.55);
+
+	box-shadow:
+		0 20px 50px rgba(0, 0, 0, 0.12),
+		inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
-.gradient::before {
+.gradient-background::before {
 	content: '';
-	position: fixed;
+	position: absolute;
 	inset: 0;
 	pointer-events: none;
-	z-index: 0;
 
 	background: linear-gradient(
 		135deg,
-		transparent 0%,
-		transparent 50%,
-		color-mix(in srgb, var(--theme-color) 3%, transparent) 100%
+		rgba(255, 255, 255, 0.45) 0%,
+		rgba(255, 255, 255, 0.12) 35%,
+		transparent 70%
 	);
 
-	opacity: 0.25;
+	opacity: 0.7;
 }
 </style>

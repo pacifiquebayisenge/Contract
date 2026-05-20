@@ -52,16 +52,6 @@ const {
 } = useStats()
 
 const userStore = useUserStore()
-// const themeStore = useThemeStore()
-
-// function localDDMMYYYY(d = new Date()) {
-// 	const y = d.getFullYear()
-// 	const m = String(d.getMonth() + 1).padStart(2, '0')
-// 	const day = String(d.getDate()).padStart(2, '0')
-// 	return `${day}-${m}-${y}`
-// }
-
-// const today = localDDMMYYYY()
 
 // for the current user
 const todayStreaks = computed(() => userStore.profile?.streak ?? 0)

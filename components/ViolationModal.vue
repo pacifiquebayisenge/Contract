@@ -43,6 +43,7 @@
 </template>
 
 <script setup>
+import { useWebHaptics } from 'web-haptics/vue'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 import { useViolationStore } from '~/stores/violation'
@@ -66,6 +67,8 @@ const themeStore = useThemeStore()
 const userStore = useUserStore()
 const violationStore = useViolationStore()
 
+const { trigger } = useWebHaptics()
+
 const emit = defineEmits(['update:show'])
 
 const currentThemeColor = computed(() => themeStore.themeColor)
@@ -80,6 +83,8 @@ const updatePartnerViolation = async () => {
 	}
 
 	await violationStore.updatePartnerViolation()
+
+	trigger([{ duration: 30 }, { delay: 60, duration: 40, intensity: 1 }])
 
 	emit('update:show', false)
 }

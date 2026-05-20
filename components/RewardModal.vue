@@ -53,7 +53,7 @@
 				>
 					<textarea
 						v-model="description"
-						:placeholder="`Description of why ${userStore.partnerProfile.firstname} earned a reward ...`"
+						:placeholder="`Description of why ${userStore.partnerProfile?.firstname} earned a reward ...`"
 						class="h-[15rem] bg-[#0000000a] rounded-[1rem] w-[100%] max-w-[85rem] font-color contract-textarea"
 					/>
 
@@ -72,6 +72,7 @@
 
 <script lang="ts" setup>
 import { watch } from 'vue'
+import { useWebHaptics } from 'web-haptics/vue'
 import { useCreditStore } from '~/stores/credit'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
@@ -95,6 +96,8 @@ const props = defineProps({
 const themeStore = useThemeStore()
 const userStore = useUserStore()
 const creditStore = useCreditStore()
+
+const { trigger } = useWebHaptics()
 
 const emit = defineEmits(['update:show'])
 
@@ -124,7 +127,9 @@ const partnerReward = async () => {
 		return
 	}
 
-	await creditStore.increasePartnerCredit(nearestHundred(reward.value), description.value)
+	await creditStore.updatePartnerCredit(nearestHundred(reward.value), description.value)
+
+	trigger([{ duration: 30 }, { delay: 60, duration: 40, intensity: 1 }])
 
 	emit('update:show', false)
 }

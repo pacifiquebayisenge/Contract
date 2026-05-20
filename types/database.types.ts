@@ -1,1 +1,1 @@
-export type Database = unknown
+// export type Database = unknown

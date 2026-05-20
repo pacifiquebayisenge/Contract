@@ -4,104 +4,105 @@ import { useUserStore } from './user'
 
 type ContractRule = Database['public']['Tables']['contract_rules']['Row']
 type ContractRuleInsert = Database['public']['Tables']['contract_rules']['Insert']
-type ContractRuleUpdate = Database['public']['Tables']['contract_rules']['Update']
 
-export const useContractStore = defineStore('contract', {
-	state: () => ({
-		contractList: [] as ContractRule[],
-	}),
+export const useContractStore = defineStore('contract', () => {
+	// State
+	const contractList = ref<ContractRule[]>([])
 
-	getters: {
-		getContractList: (s) => s.contractList,
-	},
+	// Actions
+	async function fetchContractList() {
+		contractList.value = []
+		const supabase = useSupabaseClient<Database>()
 
-	actions: {
-		async fetchContractList() {
-			this.contractList = []
-			const supabase = useSupabaseClient<Database>()
+		const { data } = await supabase
+			.from('contract_rules')
+			.select('*')
+			.order('created_at', { ascending: false })
 
-			const { data: contractList } = await supabase
-				.from('contract_rules')
-				.select('*')
-				.order('created_at', { ascending: false })
+		contractList.value = data ?? []
+	}
 
-			this.contractList = contractList ?? []
-		},
+	async function addContractRule(title: string, description: string) {
+		const userStore = useUserStore()
+		const supabase = useSupabaseClient<Database>()
 
-		async addContractRule(title: string, description: string) {
-			const userStore = useUserStore()
-			const supabase = useSupabaseClient<Database>()
+		const profile = userStore.profile
 
-			const profile = userStore.profile
+		if (!profile) {
+			console.error('Profile not loaded')
+			return
+		}
 
-			if (!profile) {
-				console.error('Profile not loaded')
-				return
-			}
+		const newContractRule: ContractRuleInsert = {
+			title: capitalize(title),
+			description: capitalize(description),
+			author: profile.id,
+		}
 
-			const newContractRule: ContractRuleInsert = {
-				title: capitalize(title),
-				description: capitalize(description),
-				author: profile.id,
-			}
+		const { data, error } = await supabase
+			.from('contract_rules')
+			.insert(newContractRule)
+			.select()
+			.single()
 
-			const { data, error } = await supabase
-				.from('contract_rules')
-				.insert(newContractRule)
-				.select()
-				.single()
+		if (error) {
+			console.error('Error inserting contract:', error)
+			throw error
+		}
 
-			if (error) {
-				console.error('Error inserting contract:', error)
-				throw error
-			}
+		if (data) {
+			contractList.value.unshift(data)
+		}
 
-			if (data) {
-				this.contractList.unshift(data)
-			}
+		return data
+	}
 
-			return data
-		},
+	async function updateContractRule(id: string, updates: { title?: string; description?: string }) {
+		const supabase = useSupabaseClient<Database>()
 
-		async updateContractRule(id: string, updates: { title?: string; description?: string }) {
-			const supabase = useSupabaseClient<Database>()
+		const updatedContractRule: Record<string, string> = { state: 'Pending' }
 
-			const updatedContractRule: Record<string, string> = { state: 'Pending' }
+		if (updates.title) updatedContractRule.title = capitalize(updates.title)
+		if (updates.description) updatedContractRule.description = capitalize(updates.description)
 
-			if (updates.title) updatedContractRule.title = capitalize(updates.title)
-			if (updates.description) updatedContractRule.description = capitalize(updates.description)
+		const { error } = await supabase
+			.from('contract_rules')
+			.update(updatedContractRule)
+			.eq('id', id)
+			.select()
+			.single()
 
-			const { data, error } = await supabase
-				.from('contract_rules')
-				.update(updatedContractRule)
-				.eq('id', id)
-				.select()
-				.single()
+		if (error) {
+			console.error('Error updating contract rule:', error)
+			throw error
+		}
 
-			if (error) {
-				console.error('Error updating contract rule:', error)
-				throw error
-			}
+		await fetchContractList()
+	}
 
-			await this.fetchContractList()
-		},
+	async function deleteContractRule(id: string) {
+		const supabase = useSupabaseClient<Database>()
 
-		async deleteContractRule(id: string) {
-			const supabase = useSupabaseClient<Database>()
+		const { error } = await supabase.from('contract_rules').delete().eq('id', id)
 
-			const { error } = await supabase.from('contract_rules').delete().eq('id', id)
+		if (error) {
+			console.error('Error deleting contract rule:', error)
+			throw error
+		}
 
-			if (error) {
-				console.error('Error deleting contract rule:', error)
-				throw error
-			}
+		contractList.value = contractList.value.filter((c: { id: string }) => c.id !== id)
+	}
 
-			// Remove from local state
-			this.contractList = this.contractList.filter((c) => c.id !== id)
-		},
+	async function init() {
+		await fetchContractList()
+	}
 
-		async init() {
-			await this.fetchContractList()
-		},
-	},
+	return {
+		contractList,
+		fetchContractList,
+		addContractRule,
+		updateContractRule,
+		deleteContractRule,
+		init,
+	}
 })

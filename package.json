@@ -3,7 +3,6 @@
 	"private": true,
 	"type": "module",
 	"version": "0.1.1",
-	"packageManager": "pnpm@10.23.0",
 	"scripts": {
 		"dev": "nuxt dev",
 		"pwa": "pnpm run generate && npx serve .output/public  ",
@@ -24,12 +23,14 @@
 		"@pinia/nuxt": "^0.11.2",
 		"@vueuse/core": "^14.0.0",
 		"date-fns": "^4.1.0",
+		"date-fns-tz": "^3.2.0",
 		"echarts": "^6.0.0",
 		"naive-ui": "^2.41.0",
-		"nuxt": "^4.3.0",
+		"nuxt": "^4.4.5",
 		"nuxtjs-naive-ui": "^1.0.2",
 		"vue-echarts": "^8.0.1",
 		"vue3-countup": "^0.0.4",
+		"web-haptics": "^0.0.6",
 		"web-push": "^3.6.7"
 	},
 	"devDependencies": {
@@ -37,6 +38,7 @@
 		"@ianvs/prettier-plugin-sort-imports": "^4.7.0",
 		"@nuxt/eslint": "^1.3.1",
 		"@nuxtjs/tailwindcss": "^6.12.1",
+		"@types/node": "^25.9.0",
 		"@types/web-push": "^3.6.4",
 		"@vite-pwa/nuxt": "^1.0.4",
 		"autoprefixer": "^10.4.21",

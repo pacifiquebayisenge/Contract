@@ -7,8 +7,6 @@ export default defineNuxtConfig({
 		port: 3008,
 	},
 
-	srcDir: '.',
-
 	modules: [
 		'@nuxt/eslint',
 		'@nuxt/fonts',
@@ -35,12 +33,6 @@ export default defineNuxtConfig({
 			maxAge: 60 * 60 * 24 * 30, // 30 days
 			sameSite: 'lax',
 			secure: false, // IMPORTANT for localhost
-		},
-	},
-
-	router: {
-		options: {
-			hashMode: true,
 		},
 	},
 
@@ -244,6 +236,7 @@ export default defineNuxtConfig({
 				'echarts/renderers',
 				'vue-echarts',
 				'@heroicons/vue/24/outline',
+				'@heroicons/vue/24/solid',
 				'date-fns',
 				'date-fns-tz',
 				'vueuc',

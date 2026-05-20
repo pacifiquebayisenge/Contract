@@ -37,7 +37,7 @@
 				<div class="line" />
 			</div>
 
-			<button class="button-3D button-3D-colorful" block @click="handleLogin">
+			<button type="button" class="button-3D button-3D-colorful" block @click="handleLogin">
 				<span v-if="loading">Loading...</span>
 				<span v-else>Log In</span>
 			</button>
@@ -80,7 +80,7 @@ async function handleLogin() {
 	const success = await login(email.value, password.value)
 
 	if (success) {
-		navigateTo('/')
+		await navigateTo('/')
 	}
 }
 </script>

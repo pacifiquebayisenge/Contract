@@ -193,7 +193,6 @@ export function useStats() {
 	})
 
 	// APP OPENS PER DAY (heatmap-ready shape)
-	// APP OPENS PER DAY (heatmap-ready shape)
 	const appOpensPerDay = computed<HeatmapItem[]>(() => {
 		const map: Record<string, Record<string, number>> = {}
 

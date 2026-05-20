@@ -1,17 +1,8 @@
-import { defineStore } from 'pinia'
-
 export type ThemeName = 'sage-green' | 'dark-blue' | 'light-pink'
 export type LightThemeOptionName = 'light-color' | 'extra-light-color'
 export type BadgeRingOption = 'inside' | 'outside'
 
 type ColorMap = Record<ThemeName, string>
-
-interface ThemeState {
-	currentTheme: ThemeName
-	currentLightThemeOption: LightThemeOptionName
-	currentBadgeRingOption: BadgeRingOption
-	ready: boolean
-}
 
 const THEMES: ThemeName[] = ['sage-green', 'dark-blue', 'light-pink']
 const LIGHT_THEME_OPTIONS: LightThemeOptionName[] = ['light-color', 'extra-light-color']
@@ -37,111 +28,148 @@ const EXTRA_LIGHT_THEME_COLORS: ColorMap = {
 
 const toBoxShadow = (color: string) => `0 0 0 2px ${color}40`
 
-export const useThemeStore = defineStore('theme', {
-	state: (): ThemeState => ({
-		currentTheme: 'sage-green',
-		currentLightThemeOption: 'light-color',
-		currentBadgeRingOption: 'outside',
-		ready: false,
-	}),
+export const useThemeStore = defineStore('theme', () => {
+	// State
+	const currentTheme = ref<ThemeName>('sage-green')
+	const currentLightThemeOption = ref<LightThemeOptionName>('light-color')
+	const currentBadgeRingOption = ref<BadgeRingOption>('outside')
+	const ready = ref(false)
 
-	getters: {
-		// Static lists (no longer need to live in state)
-		themes: () => THEMES,
-		lightThemeOptions: () => LIGHT_THEME_OPTIONS,
-		badgeRingOptions: () => BADGE_RING_OPTIONS,
+	// Static lists
+	const themes = THEMES
+	const lightThemeOptions = LIGHT_THEME_OPTIONS
+	const badgeRingOptions = BADGE_RING_OPTIONS
 
-		// Colors for the active theme
-		themeColor: (state): string => THEME_COLORS[state.currentTheme],
-		lightThemeColor: (state): string => LIGHT_THEME_COLORS[state.currentTheme],
-		extraLightThemeColor: (state): string => EXTRA_LIGHT_THEME_COLORS[state.currentTheme],
-		selectedLightThemeColor: (state): string =>
-			state.currentLightThemeOption === 'light-color'
-				? LIGHT_THEME_COLORS[state.currentTheme]
-				: EXTRA_LIGHT_THEME_COLORS[state.currentTheme],
+	// Colors for the active theme
+	const themeColor = computed<string>(() => THEME_COLORS[currentTheme.value])
+	const lightThemeColor = computed<string>(() => LIGHT_THEME_COLORS[currentTheme.value])
+	const extraLightThemeColor = computed<string>(() => EXTRA_LIGHT_THEME_COLORS[currentTheme.value])
 
-		// Box shadows for the active theme
-		themeBoxShadow: (state): string => toBoxShadow(THEME_COLORS[state.currentTheme]),
-		lightThemeBoxShadow: (state): string => toBoxShadow(LIGHT_THEME_COLORS[state.currentTheme]),
-		extraLightThemeBoxShadow: (state): string =>
-			toBoxShadow(EXTRA_LIGHT_THEME_COLORS[state.currentTheme]),
-		selectedLightThemeBoxShadow: (state): string =>
-			state.currentLightThemeOption === 'light-color'
-				? toBoxShadow(LIGHT_THEME_COLORS[state.currentTheme])
-				: toBoxShadow(EXTRA_LIGHT_THEME_COLORS[state.currentTheme]),
+	const selectedLightThemeColor = computed<string>(() =>
+		currentLightThemeOption.value === 'light-color'
+			? LIGHT_THEME_COLORS[currentTheme.value]
+			: EXTRA_LIGHT_THEME_COLORS[currentTheme.value]
+	)
 
-		// Color lookup by name (for pickers/previews)
-		colorFor: () => (name: ThemeName) => THEME_COLORS[name],
-		lightColorFor: () => (name: ThemeName) => LIGHT_THEME_COLORS[name],
-		extraLightColorFor: () => (name: ThemeName) => EXTRA_LIGHT_THEME_COLORS[name],
+	// Box shadows for the active theme
+	const themeBoxShadow = computed<string>(() => toBoxShadow(THEME_COLORS[currentTheme.value]))
 
-		isInsideBadgeRing: (state): boolean => state.currentBadgeRingOption === 'inside',
-	},
+	const lightThemeBoxShadow = computed<string>(() =>
+		toBoxShadow(LIGHT_THEME_COLORS[currentTheme.value])
+	)
 
-	actions: {
-		setTheme(theme: ThemeName): void {
-			if (!THEMES.includes(theme)) return
+	const extraLightThemeBoxShadow = computed<string>(() =>
+		toBoxShadow(EXTRA_LIGHT_THEME_COLORS[currentTheme.value])
+	)
 
-			this.currentTheme = theme
+	const selectedLightThemeBoxShadow = computed<string>(() =>
+		currentLightThemeOption.value === 'light-color'
+			? toBoxShadow(LIGHT_THEME_COLORS[currentTheme.value])
+			: toBoxShadow(EXTRA_LIGHT_THEME_COLORS[currentTheme.value])
+	)
 
-			if (import.meta.client) {
-				localStorage.setItem('selected-theme', theme)
+	// Color lookup by name (for pickers/previews)
+	const colorFor = (name: ThemeName): string => THEME_COLORS[name]
+	const lightColorFor = (name: ThemeName): string => LIGHT_THEME_COLORS[name]
+	const extraLightColorFor = (name: ThemeName): string => EXTRA_LIGHT_THEME_COLORS[name]
 
-				document.documentElement.setAttribute('data-theme', theme)
+	const isInsideBadgeRing = computed<boolean>(() => currentBadgeRingOption.value === 'inside')
 
-				const pageColor = this.selectedLightThemeColor
+	// Actions
+	function setTheme(theme: ThemeName): void {
+		if (!THEMES.includes(theme)) return
 
-				document.body.style.backgroundColor = pageColor
+		currentTheme.value = theme
 
-				document.documentElement.style.backgroundColor = pageColor
+		if (import.meta.client) {
+			localStorage.setItem('selected-theme', theme)
 
-				let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+			document.documentElement.setAttribute('data-theme', theme)
 
-				if (!meta) {
-					meta = document.createElement('meta')
-					meta.name = 'theme-color'
-					document.head.appendChild(meta)
-				}
+			const pageColor = selectedLightThemeColor.value
 
-				meta.content = pageColor
-			}
-		},
+			document.body.style.backgroundColor = pageColor
 
-		setLightThemeOption(option: LightThemeOptionName): void {
-			if (!LIGHT_THEME_OPTIONS.includes(option)) return
-			this.currentLightThemeOption = option
-			if (import.meta.client) localStorage.setItem('selected-light-theme-option', option)
-		},
+			document.documentElement.style.backgroundColor = pageColor
 
-		setBadgeRingOption(option: BadgeRingOption): void {
-			if (!BADGE_RING_OPTIONS.includes(option)) return
-			this.currentBadgeRingOption = option
-			if (import.meta.client) localStorage.setItem('selected-badge-ring-option', option)
-		},
+			let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
 
-		init(): void {
-			if (!import.meta.client) return
-
-			const saved = {
-				theme: localStorage.getItem('selected-theme') as ThemeName,
-				lightThemeOption: localStorage.getItem(
-					'selected-light-theme-option'
-				) as LightThemeOptionName,
-				badgeRingOption: localStorage.getItem('selected-badge-ring-option') as BadgeRingOption,
+			if (!meta) {
+				meta = document.createElement('meta')
+				meta.name = 'theme-color'
+				document.head.appendChild(meta)
 			}
 
-			this.setTheme(THEMES.includes(saved.theme) ? saved.theme : this.currentTheme)
+			meta.content = pageColor
+		}
+	}
 
-			this.setLightThemeOption(
-				LIGHT_THEME_OPTIONS.includes(saved.lightThemeOption)
-					? saved.lightThemeOption
-					: this.currentLightThemeOption
-			)
-			this.setBadgeRingOption(
-				BADGE_RING_OPTIONS.includes(saved.badgeRingOption)
-					? saved.badgeRingOption
-					: this.currentBadgeRingOption
-			)
-		},
-	},
+	function setLightThemeOption(option: LightThemeOptionName): void {
+		if (!LIGHT_THEME_OPTIONS.includes(option)) return
+		currentLightThemeOption.value = option
+		if (import.meta.client) localStorage.setItem('selected-light-theme-option', option)
+	}
+
+	function setBadgeRingOption(option: BadgeRingOption): void {
+		if (!BADGE_RING_OPTIONS.includes(option)) return
+		currentBadgeRingOption.value = option
+		if (import.meta.client) localStorage.setItem('selected-badge-ring-option', option)
+	}
+
+	function init(): void {
+		if (!import.meta.client) return
+
+		const saved = {
+			theme: localStorage.getItem('selected-theme') as ThemeName,
+			lightThemeOption: localStorage.getItem('selected-light-theme-option') as LightThemeOptionName,
+			badgeRingOption: localStorage.getItem('selected-badge-ring-option') as BadgeRingOption,
+		}
+
+		setTheme(THEMES.includes(saved.theme) ? saved.theme : currentTheme.value)
+
+		setLightThemeOption(
+			LIGHT_THEME_OPTIONS.includes(saved.lightThemeOption)
+				? saved.lightThemeOption
+				: currentLightThemeOption.value
+		)
+
+		setBadgeRingOption(
+			BADGE_RING_OPTIONS.includes(saved.badgeRingOption)
+				? saved.badgeRingOption
+				: currentBadgeRingOption.value
+		)
+	}
+
+	return {
+		// State
+		currentTheme,
+		currentLightThemeOption,
+		currentBadgeRingOption,
+		ready,
+		// Static lists
+		themes,
+		lightThemeOptions,
+		badgeRingOptions,
+		// Computed colors
+		themeColor,
+		lightThemeColor,
+		extraLightThemeColor,
+		selectedLightThemeColor,
+		// Computed box shadows
+		themeBoxShadow,
+		lightThemeBoxShadow,
+		extraLightThemeBoxShadow,
+		selectedLightThemeBoxShadow,
+		// Color lookup functions
+		colorFor,
+		lightColorFor,
+		extraLightColorFor,
+		// Computed flags
+		isInsideBadgeRing,
+		// Actions
+		setTheme,
+		setLightThemeOption,
+		setBadgeRingOption,
+		init,
+	}
 })
