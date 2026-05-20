@@ -1,6 +1,6 @@
 <template>
 	<NModalProvider>
-		<div id="app-container" class="flex flex-col min-h-screen overflow-hidden">
+		<div id="app-container" class="flex flex-col h-screen overflow-hidden">
 			<!-- bg-[#f9f9fb] -->
 			<div class="ios-status-bar-bg"></div>
 
@@ -73,7 +73,7 @@ useHead({
 <style lang="scss">
 div#app-container {
 	touch-action: none;
-
+	overflow: hidden;
 	min-height: 100vh;
 
 	background: linear-gradient(

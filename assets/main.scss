@@ -1,18 +1,11 @@
 html {
 	font-size: 62.5%;
+	touch-action: none;
 }
 
 body {
 	height: 100%;
-}
-
-html,
-body {
-	overscroll-behavior: none;
 	touch-action: none;
-	overflow: hidden;
-
-	// position: fixed;
 }
 
 :root {
