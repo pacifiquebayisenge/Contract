@@ -181,7 +181,7 @@ main::-webkit-scrollbar-thumb:hover {
 	position: fixed;
 	left: 0;
 	right: 0;
-	bottom: max(1rem, env(safe-area-inset-bottom));
+	// bottom: max(1rem, env(safe-area-inset-bottom));
 	z-index: 50;
 
 	display: flex;
