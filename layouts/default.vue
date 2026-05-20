@@ -16,7 +16,7 @@
 			<!-- Scrollable page content only -->
 			<!-- bg-[#f9f9fb] -->
 			<main class="flex-1 overflow-hidden">
-				<div class="h-full px-6 pt-[2rem] overflow-hidden">
+				<div class="h-full px-6 pt-[2rem] overflow-hidden pb-10">
 					<slot />
 				</div>
 

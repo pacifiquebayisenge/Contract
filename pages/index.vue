@@ -31,8 +31,11 @@ onMounted(() => {
 	display: flex;
 	flex-direction: column;
 	gap: 3rem;
-	overflow: hidden;
+
 	overflow-y: auto;
+	overflow-x: hidden;
+
+	-webkit-overflow-scrolling: touch;
 
 	& div:last-child {
 		margin-bottom: 25rem;
