@@ -36,6 +36,7 @@ export default defineNuxtConfig({
 		},
 	},
 
+	// remove the safari browser ui sets on pwa installation
 	router: {
 		options: {
 			hashMode: true,

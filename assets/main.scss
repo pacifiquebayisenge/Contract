@@ -25,6 +25,9 @@ body {
 	touch-action: none;
 	padding-bottom: env(safe-area-inset-bottom);
 }
+* {
+	box-sizing: border-box;
+}
 
 :root {
 	--primary-color: #8a9a86; /* Default: Sage Green */

@@ -20,9 +20,7 @@
 					<slot />
 				</div>
 
-				<div
-	class="fixed left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent bottom-nav-wrapper"
->
+				<div class="bottom-nav-wrapper pointer-events-none !bg-transparent">
 					<div class="pointer-events-auto">
 						<BottomMenuBar />
 					</div>
@@ -77,7 +75,6 @@ div#app-container {
 	overflow: hidden;
 	min-height: 100dvh;
 
-	padding-top: env(safe-area-inset-top);
 
 	background: linear-gradient(
 		to bottom,
@@ -89,6 +86,15 @@ div#app-container {
 
 	background-attachment: fixed;
 	position: relative;
+	box-sizing: border-box;
+	position: fixed;
+	inset: 0;
+	width: 100%;
+	height: 100dvh;
+	padding-top: env(safe-area-inset-top);
+	padding-bottom: 0;
+	box-sizing: border-box;
+}
 
 	&::before {
 		content: '';
@@ -174,7 +180,15 @@ main::-webkit-scrollbar-thumb:hover {
 }
 
 .bottom-nav-wrapper {
-	bottom: calc(1rem + env(safe-area-inset-bottom));
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: max(1rem, env(safe-area-inset-bottom));
+	z-index: 50;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 // .app-background {
 // 	position: relative;
