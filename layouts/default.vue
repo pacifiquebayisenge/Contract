@@ -21,8 +21,8 @@
 				</div>
 
 				<div
-					class="fixed bottom-[4rem] left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent"
-				>
+	class="fixed left-0 right-0 z-50 flex justify-center items-center pointer-events-none !bg-transparent bottom-nav-wrapper"
+>
 					<div class="pointer-events-auto">
 						<BottomMenuBar />
 					</div>
@@ -78,7 +78,6 @@ div#app-container {
 	min-height: 100dvh;
 
 	padding-top: env(safe-area-inset-top);
-	padding-bottom: env(safe-area-inset-bottom);
 
 	background: linear-gradient(
 		to bottom,
@@ -174,6 +173,9 @@ main::-webkit-scrollbar-thumb:hover {
 	background-color: #a8a8a8;
 }
 
+.bottom-nav-wrapper {
+	bottom: calc(1rem + env(safe-area-inset-bottom));
+}
 // .app-background {
 // 	position: relative;
 // 	min-height: 100vh;

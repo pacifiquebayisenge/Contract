@@ -23,6 +23,7 @@ body {
 	width: 100%;
 	position: fixed;
 	touch-action: none;
+	padding-bottom: env(safe-area-inset-bottom);
 }
 
 :root {
