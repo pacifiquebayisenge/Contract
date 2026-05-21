@@ -1,5 +1,5 @@
 <template>
-	<div class="stats-page-container animate-item invisible-scroll pb-[10rem]">
+	<div class="stats-page-container animate-item invisible-scroll pb-[20rem]">
 		<!-- SUMMARY CARDS -->
 		<div class="stats-cards m-[5px]">
 			<StatCard title="Today's Contract Uses" :value="todayStreaks" />
@@ -10,7 +10,7 @@
 		</div>
 
 		<!-- CHARTS -->
-		<div class="charts">
+		<div class="charts mb-20">
 			<ChartCard title="Contract Usage per Day">
 				<StreakLineChart :data="streakPerDaySeries" />
 			</ChartCard>

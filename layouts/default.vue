@@ -87,7 +87,7 @@ div#app-container {
 	background-attachment: fixed;
 
 	padding-top: env(safe-area-inset-top);
-	padding-bottom: env(safe-area-inset-bottom);
+	// padding-bottom: env(safe-area-inset-bottom);
 }
 
 main > div:first-child {
