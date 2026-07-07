@@ -51,10 +51,14 @@ export default defineNuxtConfig({
 
 	runtimeConfig: {
 		privateVapid: process.env.NUXT_PRIVATE_VAPID,
-		publicVapid: process.env.NUXT_PUBLIC_VAPID,
 
 		supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
 		supabaseKey: process.env.NUXT_PUBLIC_SUPABASE_KEY,
+
+		public: {
+			// public runtime config goes here
+			publicVapid: process.env.NUXT_PUBLIC_VAPID,
+		},
 	},
 
 	css: ['assets/main.scss', 'assets/css/tailwind.css'],
