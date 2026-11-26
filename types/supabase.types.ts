@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      shop_items: {
+        Row: {
+          id: string
+          creator_id: string
+          partner_id: string
+          kind: "offer" | "request"
+          title: string
+          description: string
+          price: number
+          status: "open" | "accepted" | "completed" | "withdrawn"
+          created_at: string
+          accepted_at: string | null
+        }
+        Insert: {
+          creator_id: string
+          partner_id: string
+          kind: "offer" | "request"
+          title: string
+          description: string
+          price: number
+        }
+        Update: never
+        Relationships: []
+      }
       contract_rules: {
         Row: {
           author: string
@@ -237,6 +261,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_shop_action: {
+        Args: { p_item_id: string; p_action: "accept" | "complete" | "withdraw" }
+        Returns: undefined
+      }
       record_contract_use: {
         Args: { p_partner_id: string }
         Returns: { streak: number; credit: number; event_id: string }[]

@@ -29,7 +29,7 @@
 						</span>
 					</div>
 					<p v-if="item.targetId">Used by {{ userStore.getFullNameById(item.targetId) }}</p>
-					<p>{{ item.kind === 'reward' ? 'Given by' : 'Reported by' }}
+					<p>{{ item.kind === 'reward' ? 'Given by' : item.kind === 'shop' ? 'Accepted by' : 'Reported by' }}
 						{{ userStore.getFullNameById(item.actorId) }}</p>
 					<time v-if="item.createdAt" :datetime="item.createdAt">
 						{{ formatDateTime(item.createdAt) }}
@@ -46,9 +46,10 @@ import { formatDateTime } from '~/utils/formatDate'
 
 type Violation = Database['public']['Tables']['user_events']['Row']
 type Reward = Database['public']['Tables']['credit_increases']['Row']
+type ShopItem = Database['public']['Tables']['shop_items']['Row']
 type Activity = {
 	id: string
-	kind: 'violation' | 'reward' | 'contract'
+	kind: 'violation' | 'reward' | 'contract' | 'shop'
 	title: string
 	amount: number | null
 	actorId: string
@@ -56,7 +57,7 @@ type Activity = {
 	createdAt: string | null
 }
 
-const props = defineProps<{ focusedId: string | null; focusedKind: Activity['kind'] }>()
+const props = defineProps<{ focusedId: string | null; focusedKind: Exclude<Activity['kind'], 'shop'> }>()
 const supabase = useSupabaseClient<Database>()
 const userStore = useUserStore()
 const user = useSupabaseUser()
@@ -127,6 +128,18 @@ function contractActivity(row: Violation): Activity {
 	}
 }
 
+function shopActivity(item: ShopItem, userId: string): Activity {
+	const payerId = item.kind === 'offer' ? item.partner_id : item.creator_id
+	return {
+		id: item.id,
+		kind: 'shop',
+		title: item.title,
+		amount: payerId === userId ? -item.price : null,
+		actorId: item.partner_id,
+		createdAt: item.accepted_at,
+	}
+}
+
 function isFocused(item: Activity) {
 	return item.id === props.focusedId && item.kind === props.focusedKind
 }
@@ -141,19 +154,23 @@ async function loadActivity() {
 	errorMessage.value = ''
 
 	try {
-		const [violations, rewards, contracts] = await Promise.all([
+		const [violations, rewards, contracts, purchases] = await Promise.all([
 			eventQuery(userId, 'violation').order('created_at', { ascending: false, nullsFirst: false }).limit(25),
 			rewardQuery(userId).order('created_at', { ascending: false }).limit(25),
 			eventQuery(userId, 'streak_use').order('created_at', { ascending: false, nullsFirst: false }).limit(25),
+			supabase.from('shop_items').select('*').not('accepted_at', 'is', null)
+				.order('accepted_at', { ascending: false }).limit(25),
 		])
 		if (violations.error) throw violations.error
 		if (rewards.error) throw rewards.error
 		if (contracts.error) throw contracts.error
+		if (purchases.error) throw purchases.error
 
 		const recent = [
 			...(violations.data ?? []).map(violationActivity),
 			...(rewards.data ?? []).map(rewardActivity),
 			...(contracts.data ?? []).map(contractActivity),
+			...(purchases.data ?? []).map((item) => shopActivity(item, userId)),
 		].sort((a, b) => {
 			const timestamp = (value: string | null) => value ? Date.parse(value) : 0
 			return timestamp(b.createdAt) - timestamp(a.createdAt)
