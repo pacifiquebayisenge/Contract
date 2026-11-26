@@ -81,8 +81,8 @@ async function handleLogin() {
 	const success = await login(email.value, password.value)
 
 	if (success) {
-		const { violation, reward } = route.query
-		await navigateTo({ path: '/', query: typeof reward === 'string' ? { reward } : typeof violation === 'string' ? { violation } : {} })
+		const { violation, reward, contract } = route.query
+		await navigateTo({ path: '/', query: typeof contract === 'string' ? { contract } : typeof reward === 'string' ? { reward } : typeof violation === 'string' ? { violation } : {} })
 	}
 }
 </script>

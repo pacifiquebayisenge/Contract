@@ -183,6 +183,8 @@ export type Database = {
           actor_id: string
           amount: number | null
           balance: number | null
+          contract_use_number: number | null
+          contract_credit_cost: number | null
           created_at: string | null
           event_type: string
           id: string
@@ -193,6 +195,8 @@ export type Database = {
           actor_id: string
           amount?: number | null
           balance?: number | null
+          contract_use_number?: number | null
+          contract_credit_cost?: number | null
           created_at?: string | null
           event_type: string
           id?: string
@@ -203,6 +207,8 @@ export type Database = {
           actor_id?: string
           amount?: number | null
           balance?: number | null
+          contract_use_number?: number | null
+          contract_credit_cost?: number | null
           created_at?: string | null
           event_type?: string
           id?: string
@@ -231,6 +237,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      record_contract_use: {
+        Args: { p_partner_id: string }
+        Returns: { streak: number; credit: number; event_id: string }[]
+      }
       record_partner_reward: {
         Args: {
           p_partner_id: string

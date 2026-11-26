@@ -2,6 +2,8 @@
 	<n-modal
 		:show="props.show"
 		:auto-focus="false"
+		:mask-closable="!saving"
+		:close-on-esc="!saving"
 		transform-origin="center"
 		@update:show="emit('update:show', $event)"
 	>
@@ -34,8 +36,14 @@
 					again???
 				</span>
 
-				<button class="button-3D button-3D-colorful-warning" @click="updatePartnerStreak()">
-					Unbelievable !
+				<p v-if="errorMessage" role="alert">{{ errorMessage }}</p>
+				<button
+					type="button"
+					class="button-3D button-3D-colorful-warning"
+					:disabled="saving"
+					@click="updatePartnerStreak"
+				>
+					{{ saving ? 'Saving…' : 'Unbelievable !' }}
 				</button>
 			</n-card>
 		</div>
@@ -74,24 +82,29 @@ const emit = defineEmits(['update:show'])
 const currentThemeColor = computed(() => themeStore.themeColor)
 const currentLightThemeColor = computed(() => themeStore.lightThemeColor)
 
+const saving = ref(false)
+const errorMessage = ref('')
+
+watch(() => props.show, (show) => {
+	if (show) errorMessage.value = ''
+})
+
 const updatePartnerStreak = async () => {
-	const partner = userStore.partnerProfile
+	if (!userStore.partnerProfile || saving.value) return
 
-	if (!partner) {
-		console.warn('Partner profile not loaded yet')
-		return
+	saving.value = true
+	errorMessage.value = ''
+	try {
+		// Two short pulses with a longer finish, like a text notification.
+		trigger([{ duration: 65 }, { delay: 75, duration: 120 }], { intensity: 1 })
+		await streakStore.updatePartnerStreak()
+		emit('update:show', false)
+	} catch (error) {
+		console.error('Failed to register Contract:', error)
+		errorMessage.value = 'Could not save Contract. Please try again.'
+	} finally {
+		saving.value = false
 	}
-
-	// if ((partner.streak ?? 0) < 3) {
-	// } else {
-	// 	console.log("BLOCKED: streak >= 3");
-	// }
-
-	trigger([{ duration: 400 }], { intensity: 1 })
-
-	emit('update:show', false)
-
-	await streakStore.updatePartnerStreak()
 }
 </script>
 

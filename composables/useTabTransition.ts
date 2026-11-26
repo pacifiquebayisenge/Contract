@@ -1,7 +1,7 @@
 // Define your tabs with their order
 const tabs = [
 	{ name: 'Home', path: '/' },
-	{ name: 'Contract', path: '/contract' },
+	{ name: 'Contracts', path: '/contract' },
 	{ name: 'Stats', path: '/stats' },
 	// { name: 'Shop', path: '/shop' },
 	// { name: 'Memories', path: '/memories' },

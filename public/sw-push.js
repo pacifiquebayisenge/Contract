@@ -19,7 +19,7 @@ self.addEventListener('push', function (event) {
 		icon: '/icons/icon-192x192.png',
 		badge: '/icons/icon-96x96.png',
 		vibrate: [200, 100, 200],
-		tag: data.rewardId ? `reward-${data.rewardId}` : data.violationId ? `violation-${data.violationId}` : data.tag || 'ugovor-notification',
+		tag: data.contractId ? `contract-${data.contractId}` : data.rewardId ? `reward-${data.rewardId}` : data.violationId ? `violation-${data.violationId}` : data.tag || 'ugovor-notification',
 		data: data,
 		requireInteraction: false,
 		actions: data.actions || []
@@ -35,9 +35,9 @@ self.addEventListener('notificationclick', function (event) {
 
 	event.notification.close()
 
-	const { rewardId, violationId } = event.notification.data || {}
-	const activityId = rewardId || violationId
-	const activityKind = rewardId ? 'reward' : 'violation'
+	const { rewardId, violationId, contractId } = event.notification.data || {}
+	const activityId = contractId || rewardId || violationId
+	const activityKind = contractId ? 'contract' : rewardId ? 'reward' : 'violation'
 	// Ugovor uses hash routing. This same URL works for an open app or a cold start.
 	const activityUrl = activityId
 		? new URL(`#/?${activityKind}=${encodeURIComponent(activityId)}`, self.registration.scope).href

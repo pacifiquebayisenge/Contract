@@ -16,11 +16,12 @@
 					:class="{ 'activity-item-highlighted': isFocused(item) }"
 				>
 					<div class="activity-heading">
-						<strong>{{ item.title }}</strong>
-						<span class="activity-cost" :class="{ 'activity-reward': item.kind === 'reward' }">
+						<strong :class="{ 'activity-contract': item.kind === 'contract' }">{{ item.title }}</strong>
+						<span v-if="item.amount !== null" class="activity-cost" :class="{ 'activity-reward': item.kind === 'reward' }">
 							{{ item.kind === 'reward' ? `+${item.amount}` : item.amount }}
 						</span>
 					</div>
+					<p v-if="item.targetId">Used by {{ userStore.getFullNameById(item.targetId) }}</p>
 					<p>{{ item.kind === 'reward' ? 'Given by' : 'Reported by' }}
 						{{ userStore.getFullNameById(item.actorId) }}</p>
 					<time v-if="item.createdAt" :datetime="item.createdAt">
@@ -40,10 +41,11 @@ type Violation = Database['public']['Tables']['user_events']['Row']
 type Reward = Database['public']['Tables']['credit_increases']['Row']
 type Activity = {
 	id: string
-	kind: 'violation' | 'reward'
+	kind: 'violation' | 'reward' | 'contract'
 	title: string
-	amount: number
+	amount: number | null
 	actorId: string
+	targetId?: string
 	createdAt: string | null
 }
 
@@ -64,11 +66,11 @@ function violationCreditAmount(amount: number | null) {
 	return -100 * (amount !== null && amount > 0 ? amount : 1)
 }
 
-function violationQuery(userId: string) {
+function eventQuery(userId: string, kind: 'violation' | 'streak_use') {
 	return supabase
 		.from('user_events')
 		.select('*')
-		.eq('event_type', 'violation')
+		.eq('event_type', kind)
 		.or(`actor_id.eq.${userId},target_id.eq.${userId}`)
 }
 
@@ -101,6 +103,23 @@ function rewardActivity(row: Reward): Activity {
 	}
 }
 
+function contractActivity(row: Violation): Activity {
+	const number = row.contract_use_number
+	const cost = row.contract_credit_cost
+	const formatter = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Brussels' })
+	const today = row.created_at && formatter.format(new Date(row.created_at)) === formatter.format(new Date())
+
+	return {
+		id: row.id,
+		kind: 'contract',
+		title: number ? `Contract #${number}${today ? ' today' : ''}` : 'Contract used',
+		amount: cost && cost > 0 ? -cost : null,
+		actorId: row.actor_id,
+		targetId: row.target_id,
+		createdAt: row.created_at,
+	}
+}
+
 function isFocused(item: Activity) {
 	return item.id === props.focusedId && item.kind === props.focusedKind
 }
@@ -115,16 +134,19 @@ async function loadActivity() {
 	errorMessage.value = ''
 
 	try {
-		const [violations, rewards] = await Promise.all([
-			violationQuery(userId).order('created_at', { ascending: false, nullsFirst: false }).limit(25),
+		const [violations, rewards, contracts] = await Promise.all([
+			eventQuery(userId, 'violation').order('created_at', { ascending: false, nullsFirst: false }).limit(25),
 			rewardQuery(userId).order('created_at', { ascending: false }).limit(25),
+			eventQuery(userId, 'streak_use').order('created_at', { ascending: false, nullsFirst: false }).limit(25),
 		])
 		if (violations.error) throw violations.error
 		if (rewards.error) throw rewards.error
+		if (contracts.error) throw contracts.error
 
 		const recent = [
 			...(violations.data ?? []).map(violationActivity),
 			...(rewards.data ?? []).map(rewardActivity),
+			...(contracts.data ?? []).map(contractActivity),
 		].sort((a, b) => {
 			const timestamp = (value: string | null) => value ? Date.parse(value) : 0
 			return timestamp(b.createdAt) - timestamp(a.createdAt)
@@ -138,9 +160,10 @@ async function loadActivity() {
 				if (error) throw error
 				if (data) focused = rewardActivity(data)
 			} else {
-				const { data, error } = await violationQuery(userId).eq('id', focusedId).maybeSingle()
+				const eventType = focusedKind === 'contract' ? 'streak_use' : 'violation'
+				const { data, error } = await eventQuery(userId, eventType).eq('id', focusedId).maybeSingle()
 				if (error) throw error
-				if (data) focused = violationActivity(data)
+				if (data) focused = focusedKind === 'contract' ? contractActivity(data) : violationActivity(data)
 			}
 		}
 
@@ -197,5 +220,8 @@ watch([() => props.focusedId, () => props.focusedKind, () => user.value?.sub], l
 }
 .activity-reward {
 	color: #55af7a;
+}
+.activity-contract {
+	color: #cc5200;
 }
 </style>

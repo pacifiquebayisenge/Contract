@@ -13,40 +13,22 @@ export const useStreakStore = defineStore('streak', () => {
 	}
 
 	async function updatePartnerStreak() {
+		const partner = useUserStore().partnerProfile
+		if (!partner) throw new Error('Partner profile is not loaded.')
+
 		const supabase = useSupabaseClient<Database>()
-		const userStore = useUserStore()
-
-		const partner = userStore.partnerProfile
-
-		if (!partner) {
-			console.error('Partner profile is not loaded, cannot update streak.')
-			return
-		}
-
-		const newStreak = partner.streak + 1
-
 		const { data, error } = await supabase
-			.from('profiles')
-			.update({ streak: newStreak })
-			.eq('id', partner.id)
-			.select('*')
+			.rpc('record_contract_use', { p_partner_id: partner.id })
+			.single()
 
-		if (error) {
-			console.error('Failed to update streak:', error)
-			return
-		}
+		if (error) throw error
+		partner.streak = data.streak
+		partner.credit = data.credit
 
-		if (data && data.length > 0) {
-			userStore.partnerProfile!.streak = newStreak
-		}
-
-		await $fetch('/api/send-notification', {
+		void $fetch('/api/send-notification', {
 			method: 'POST',
-			body: {
-				title: 'Unbelievable !!',
-				body: ` You used Contract again 😒`,
-			},
-		})
+			body: { contractId: data.event_id },
+		}).catch((error) => console.error('Failed to send Contract notification:', error))
 	}
 
 	async function resetPartnerStreak() {

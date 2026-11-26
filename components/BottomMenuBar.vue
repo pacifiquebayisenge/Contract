@@ -188,7 +188,10 @@ const showAccount = ref(false)
 const showInbox = ref(false)
 const route = useRoute()
 const router = useRouter()
-const focusedKind = computed(() => typeof route.query.reward === 'string' ? 'reward' : 'violation')
+const focusedKind = computed(() => {
+	if (typeof route.query.contract === 'string') return 'contract'
+	return typeof route.query.reward === 'string' ? 'reward' : 'violation'
+})
 const focusedActivityId = computed(() => {
 	const id = route.query[focusedKind.value]
 	return typeof id === 'string' && /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(id) ? id : null
@@ -202,7 +205,7 @@ function updateInbox(show: boolean) {
 	showInbox.value = show
 	if (!show && focusedActivityId.value) {
 		// Remove the consumed link so tapping the same notification can open it again.
-		void router.replace({ query: { ...route.query, violation: undefined, reward: undefined } })
+		void router.replace({ query: { ...route.query, violation: undefined, reward: undefined, contract: undefined } })
 	}
 }
 const showSettings = ref(false)

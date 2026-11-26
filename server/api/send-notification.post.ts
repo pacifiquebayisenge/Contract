@@ -9,7 +9,8 @@
  *   title?: string,  // defaults to 'Notification'
  *   body?: string,   // defaults to ''
  *   violationId?: string, // sends a saved violation to its recipient only
- *   rewardId?: string // sends a saved reward to its recipient only
+ *   rewardId?: string, // sends a saved reward to its recipient only
+ *   contractId?: string // sends a saved Contract use to its recipient only
  * }
  *
  * Behaviour:
@@ -44,7 +45,7 @@ export default defineEventHandler(async (event) => {
 	const body = await readBody(event)
 	const client = serverSupabaseServiceRole<Database>(event)
 
-	let notification: { title: string; body: string; violationId?: string; rewardId?: string } = {
+	let notification: { title: string; body: string; violationId?: string; rewardId?: string; contractId?: string } = {
 		title: body.title || 'Notification',
 		body: body.body || '',
 	}
@@ -94,6 +95,31 @@ export default defineEventHandler(async (event) => {
 			rewardId: reward.id,
 		}
 		subscriptions = subscriptions.eq('user_id', reward.receiver_id)
+	} else if (body.contractId !== undefined) {
+		if (typeof body.contractId !== 'string' || !/^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(body.contractId)) {
+			throw createError({ statusCode: 400, statusMessage: 'Invalid Contract ID' })
+		}
+
+		const { data: contract, error } = await client
+			.from('user_events')
+			.select('id, target_id, contract_use_number, contract_credit_cost')
+			.eq('id', body.contractId)
+			.eq('actor_id', currentUserId)
+			.eq('event_type', 'streak_use')
+			.maybeSingle()
+
+		if (error) throw createError({ statusCode: 500, statusMessage: 'Could not load Contract use' })
+		if (!contract || contract.contract_use_number === null) {
+			throw createError({ statusCode: 404, statusMessage: 'Contract use not found' })
+		}
+
+		const cost = contract.contract_credit_cost
+		notification = {
+			title: 'Unbelievable !!',
+			body: `Contract #${contract.contract_use_number} today${cost ? ` · -${cost} credits` : ''}`,
+			contractId: contract.id,
+		}
+		subscriptions = subscriptions.eq('user_id', contract.target_id)
 	} else {
 		subscriptions = subscriptions.neq('user_id', currentUserId)
 	}
