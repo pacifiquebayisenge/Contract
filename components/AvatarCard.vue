@@ -45,6 +45,7 @@
 								Contract
 								<span
 									v-if="contractUseCount"
+									:key="contractUseCount"
 									class="contract-use-count"
 									:class="{ 'contract-use-count-pulse': showContractCountPulse }"
 									@animationend="showContractCountPulse = false"
@@ -154,8 +155,7 @@ const banknotesIcon = ref()
 
 const profile = computed(() => props.profile)
 
-// The corner counter only shows the three daily uses.
-const contractUseCount = computed(() => Math.min(profile.value?.streak ?? 0, 3))
+const contractUseCount = computed(() => profile.value?.streak ?? 0)
 const showContractCountPulse = ref(false)
 
 const fullName = computed(() => {
@@ -186,9 +186,8 @@ watch(
 	() => props.profile?.streak,
 	(newVal, oldVal) => {
 		if (oldVal !== undefined && newVal !== oldVal) fireIcon.value?.trigger()
-		// Play the ring only when the count changes from two to three.
-		if (newVal === 3 && oldVal === 2) showContractCountPulse.value = true
-		if ((newVal ?? 0) < 3) showContractCountPulse.value = false
+		// Play the ring on every new use from the third onward.
+		showContractCountPulse.value = newVal != null && oldVal != null && newVal >= 3 && newVal > oldVal
 	}
 )
 
