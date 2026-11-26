@@ -10,9 +10,9 @@
 		<div class="shop-modal">
 			<n-card class="shop-modal-card" :bordered="false" role="dialog" aria-labelledby="shop-modal-title">
 				<template #header>
-					<h2 id="shop-modal-title">New item</h2>
+					<h2 id="shop-modal-title">{{ item ? 'Edit item' : 'New item' }}</h2>
 				</template>
-				<form class="shop-form" @submit.prevent="publish">
+				<form class="shop-form" @submit.prevent="saveItem">
 					<div class="shop-avatar">
 						<AvatarIcon mood="idea" :fullname="userStore.getFullname" />
 					</div>
@@ -21,7 +21,7 @@
 					<label>Price in credits <input v-model.number="draft.price" type="number" required min="1" max="100000" /></label>
 					<p v-if="error" role="alert">{{ error }}</p>
 					<button type="submit" class="button-3D shop-button shop-new" :disabled="busy">
-						<SparklesIcon aria-hidden="true" /> {{ busy ? 'Publishing…' : 'Publish' }}
+						<SparklesIcon aria-hidden="true" /> {{ busy ? 'Saving…' : item ? 'Save changes' : 'Publish' }}
 					</button>
 				</form>
 			</n-card>
@@ -34,7 +34,8 @@ import { SparklesIcon } from '@heroicons/vue/24/outline'
 import type { Database } from '~/types/supabase.types'
 import { useUserStore } from '~/stores/user'
 
-defineProps<{ show: boolean }>()
+type Item = Database['public']['Tables']['shop_items']['Row']
+const props = defineProps<{ show: boolean; item?: Item }>()
 const emit = defineEmits<{ 'update:show': [show: boolean] }>()
 const supabase = useSupabaseClient<Database>()
 const user = useSupabaseUser()
@@ -42,37 +43,57 @@ const userStore = useUserStore()
 const userId = computed(() => user.value?.sub)
 const busy = ref(false)
 const error = ref('')
-const draft = reactive({
-	title: '',
-	description: '',
-	price: 100,
-})
+const draft = reactive({ title: '', description: '', price: 100 })
+
+watch(() => props.show, (show) => {
+	if (!show) return
+	const { title = '', description = '', price = 100 } = props.item ?? {}
+	Object.assign(draft, { title, description, price })
+	error.value = ''
+}, { immediate: true })
 const shopRevision = useState('shop-revision', () => 0)
 
-async function publish() {
-	if (busy.value || !userId.value || !userStore.partnerProfile) return
+async function saveItem() {
+	if (busy.value || !userId.value) return
 
 	busy.value = true
 	error.value = ''
 	try {
-		const { error: failure } = await supabase.from('shop_items').insert({
-			...draft,
-			creator_id: userId.value,
-			partner_id: userStore.partnerProfile.id,
-		})
-		if (failure) throw failure
+		if (props.item) {
+			const { data, error: failure } = await supabase.from('shop_items')
+				.update(draft)
+				.eq('id', props.item.id)
+				.eq('creator_id', userId.value)
+				.eq('status', 'open')
+				.select('id')
+				.maybeSingle()
+			if (failure) throw failure
+			if (!data) {
+				error.value = 'This item can no longer be edited.'
+				return
+			}
+		} else {
+			const partner = userStore.partnerProfile
+			if (!partner) return
+			const { error: failure } = await supabase.from('shop_items').insert({
+				...draft,
+				creator_id: userId.value,
+				partner_id: partner.id,
+			})
+			if (failure) throw failure
+		}
 		emit('update:show', false)
 		Object.assign(draft, { title: '', description: '', price: 100 })
 		shopRevision.value++
 	} catch (cause) {
-		console.error('Could not publish item:', cause)
+		console.error('Could not save Shop item:', cause)
 		const code = typeof cause === 'object' && cause !== null && 'code' in cause ? cause.code : null
 		const message = typeof cause === 'object' && cause !== null && 'message' in cause ? cause.message : null
 		if (code === 'PGRST205' || code === '42P01' ||
 			(code === '23502' && typeof message === 'string' && message.includes('"kind"'))) {
 			error.value = 'The Shop database needs the latest migrations.'
 		} else {
-			error.value = 'Could not publish this item.'
+			error.value = props.item ? 'Could not edit this item.' : 'Could not publish this item.'
 		}
 	} finally {
 		busy.value = false

@@ -35,7 +35,7 @@ export type Database = {
           description: string
           price: number
         }
-        Update: never
+        Update: { title?: string; description?: string; price?: number }
         Relationships: []
       }
       contract_rules: {
@@ -261,6 +261,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_shop_action_at_price: {
+        Args: { p_item_id: string; p_action: string; p_expected_price: number }
+        Returns: undefined
+      }
       apply_shop_action: {
         Args: { p_item_id: string; p_action: "accept" | "complete" | "withdraw" | "propose" | "approve" | "decline" }
         Returns: undefined

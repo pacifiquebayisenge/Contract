@@ -26,7 +26,7 @@
 			<button v-if="loadFailed" type="button" class="button-3D shop-button shop-refresh" @click="loadShop">Try again</button>
 		</div>
 		<p v-if="!loading && !loadFailed && !visibleItems.length">{{ emptyMessages[view] }}</p>
-		<article v-for="item in visibleItems" :key="item.id" class="shop-item" :class="{ 'shop-item-focused': item.id === focusedItemId }">
+		<n-card v-for="item in visibleItems" :key="item.id" class="shop-item" :bordered="true" :class="{ 'shop-item-focused': item.id === focusedItemId }">
 			<button
 				type="button"
 				class="shop-item-details"
@@ -34,33 +34,46 @@
 				:aria-expanded="confirming === item.id"
 				@click="confirming = confirming === item.id ? null : item.id"
 			>
-				<span class="item-heading">
-					<span>
-						<small>Added by {{ personName(item.creator_id) }}</small>
-						<strong class="shop-item-title">{{ item.title }}</strong>
-					</span>
-					<strong>{{ item.price }} credits</strong>
+				<strong class="shop-item-title">{{ item.title }}</strong>
+				<span class="shop-meta">
+					<time :datetime="item.created_at">{{ formatDateTime(item.created_at) }}</time>
+					<span>·</span>
+					<span>{{ personName(item.creator_id) }}</span>
 				</span>
-				<span class="shop-description">{{ item.description }}</span>
 			</button>
-			<p v-if="item.status === 'accepted'">To be done by {{ personName(performer(item)) }}</p>
-			<div v-if="item.status === 'open' && item.partner_id === userId && confirming === item.id" class="shop-confirmation">
-				<p v-if="item.kind === 'undecided'">Choose who will do it. The other person pays {{ item.price }} credits.</p>
-				<p v-else>{{ item.kind === 'offer' ? 'You' : 'Your partner' }} will spend {{ item.price }} credits.</p>
-				<button type="button" class="button-3D shop-button shop-refresh" :disabled="busy" @click="confirming = null">Cancel</button>
-				<button type="button" class="button-3D shop-button shop-owed" :disabled="busy" @click="applyAction(item, 'accept')">
-					{{ item.kind === 'undecided' ? 'Ask my partner to do it' : item.kind === 'offer' ? 'Redeem' : 'Accept request' }}
-				</button>
-				<button v-if="item.kind === 'undecided'" type="button" class="button-3D shop-button shop-aqua" :disabled="busy" @click="applyAction(item, 'propose')">I can do it</button>
-			</div>
-			<div v-if="item.status === 'proposed'" class="shop-confirmation">
-				<p>{{ item.creator_id === userId ? `Your partner offered to do it. Accept for ${item.price} credits?` : 'Waiting for your partner to confirm.' }}</p>
-				<button v-if="item.creator_id === userId" type="button" class="button-3D shop-button shop-owed" :disabled="busy" @click="applyAction(item, 'approve')">Accept and pay</button>
-				<button type="button" class="button-3D shop-button shop-refresh" :disabled="busy" @click="applyAction(item, 'decline')">{{ item.creator_id === userId ? 'Decline' : 'Cancel proposal' }}</button>
-			</div>
-			<button type="button" class="button-3D shop-button shop-aqua" v-if="item.status === 'open' && item.creator_id === userId" :disabled="busy" @click="applyAction(item, 'withdraw')">Withdraw</button>
-			<button type="button" class="button-3D shop-button shop-aqua" v-if="item.status === 'accepted' && performer(item) === userId" :disabled="busy" @click="applyAction(item, 'complete')">Mark as done</button>
-		</article>
+			<n-collapse-transition :show="confirming === item.id">
+				<div class="shop-expanded">
+					<p class="shop-description">{{ item.description }}</p>
+					<div v-if="item.status === 'open' && item.creator_id === userId" class="shop-owner-actions">
+						<button type="button" class="button-3D shop-button shop-new" :disabled="busy" @click="openEdit(item)">Edit</button>
+						<n-popconfirm @positive-click="applyAction(item, 'withdraw')">
+							<template #trigger>
+								<button type="button" class="button-3D shop-button shop-delete" :disabled="busy">Delete</button>
+							</template>
+							Remove this item from the Shop?
+						</n-popconfirm>
+					</div>
+					<p class="shop-price">{{ item.price }} credits</p>
+					<p v-if="item.status === 'accepted'">To be done by {{ personName(performer(item)) }}</p>
+					<div v-if="item.status === 'open' && item.partner_id === userId && confirming === item.id" class="shop-confirmation">
+						<p v-if="item.kind === 'undecided'">Choose who will do it. The other person pays {{ item.price }} credits.</p>
+						<p v-else>{{ item.kind === 'offer' ? 'You' : 'Your partner' }} will spend {{ item.price }} credits.</p>
+						<button type="button" class="button-3D shop-button shop-refresh" :disabled="busy" @click="confirming = null">Cancel</button>
+						<button type="button" class="button-3D shop-button shop-owed" :disabled="busy" @click="applyAction(item, 'accept')">
+							{{ item.kind === 'request' ? 'Accept request' : 'Buy' }}
+						</button>
+						<button v-if="item.kind === 'undecided'" type="button" class="button-3D shop-button shop-aqua" :disabled="busy" @click="applyAction(item, 'propose')">I can do it</button>
+					</div>
+					<div v-if="item.status === 'proposed'" class="shop-confirmation">
+						<p>{{ item.creator_id === userId ? `Your partner offered to do it. Accept for ${item.price} credits?` : 'Waiting for your partner to confirm.' }}</p>
+						<button v-if="item.creator_id === userId" type="button" class="button-3D shop-button shop-owed" :disabled="busy" @click="applyAction(item, 'approve')">Accept and pay</button>
+						<button type="button" class="button-3D shop-button shop-refresh" :disabled="busy" @click="applyAction(item, 'decline')">{{ item.creator_id === userId ? 'Decline' : 'Cancel proposal' }}</button>
+					</div>
+					<button type="button" class="button-3D shop-button shop-aqua" v-if="item.status === 'accepted' && performer(item) === userId" :disabled="busy" @click="applyAction(item, 'complete')">Mark as done</button>
+				</div>
+			</n-collapse-transition>
+		</n-card>
+		<ShopItemModal v-model:show="showEdit" :item="editingItem" />
 	</section>
 </template>
 
@@ -69,6 +82,7 @@ import { ArrowPathIcon, CheckCircleIcon, ClockIcon, ShoppingBagIcon } from '@her
 import type { Database } from '~/types/supabase.types'
 import { useCreditStore } from '~/stores/credit'
 import { useUserStore } from '~/stores/user'
+import { formatDateTime } from '~/utils/formatDate'
 
 type Item = Database['public']['Tables']['shop_items']['Row']
 type ShopView = 'open' | 'accepted' | 'completed'
@@ -88,6 +102,14 @@ const balance = computed(() => userStore.profile?.credit ?? null)
 const items = ref<Item[]>([])
 const view = ref<ShopView>('open')
 const confirming = ref<string | null>(null)
+const showEdit = ref(false)
+const editingItem = ref<Item>()
+
+function openEdit(item: Item) {
+	editingItem.value = item
+	showEdit.value = true
+}
+
 const shopRevision = useState('shop-revision', () => 0)
 const loading = ref(false)
 const loadFailed = ref(false)
@@ -148,9 +170,10 @@ async function applyAction(item: Item, action: Action) {
 	busy.value = true
 	error.value = ''
 	try {
-		const { error: failure } = await supabase.rpc('apply_shop_action', {
+		const { error: failure } = await supabase.rpc('apply_shop_action_at_price', {
 			p_item_id: item.id,
 			p_action: action,
+			p_expected_price: item.price,
 		})
 		if (failure) throw failure
 		if (action === 'propose') {
@@ -179,6 +202,7 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	await loadShop()
 	if (!id || focusedItemId.value !== id) return
 	const item = items.value.find((entry) => entry.id === id)
+	if (item) confirming.value = item.id
 	if (item?.status === 'accepted' || item?.status === 'completed') view.value = item.status
 	else view.value = 'open'
 }, { immediate: true })
@@ -206,16 +230,25 @@ watch([userId, shopRevision, focusedItemId], async () => {
 .shop-tabs, .shop-item { margin: 1rem 0; }
 
 .shop-item {
-	display: grid;
-	gap: 0.65rem;
-	justify-items: start;
-	background: white;
-	border: 1px solid #dedee3;
-	border-radius: 1rem;
-	padding: 1rem;
+	border-radius: 1.15rem;
+	border-color: #e4d9eb;
+	background: #fff;
 }
 
-.item-heading { width: 100%; }
+.shop-expanded {
+	display: grid;
+	gap: 0.85rem;
+	margin-top: 0.85rem;
+	padding-top: 0.85rem;
+	border-top: 1px solid #eee5f1;
+}
+
+.shop-meta { display: flex; flex-wrap: wrap; gap: 0.3rem 0.55rem; color: #655d69; }
+.shop-owner-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+.shop-expanded :is(.shop-button, .shop-confirmation) { width: 100%; }
+.shop-delete { --shop-top: #fde5eb; --shop-edge: #e9a8bc; --shop-ink: #87344d; }
+.shop-price { font-weight: 700; }
+
 .shop-description { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; }
 /* The grid and divider share the same available width. */
 .shop-header {
