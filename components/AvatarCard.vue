@@ -43,6 +43,15 @@
 								@click="showContractDialog = !showContractDialog"
 							>
 								Contract
+								<span
+									v-if="contractUseCount"
+									:key="contractUseCount"
+									class="contract-use-count"
+									:class="{ 'contract-use-count-pulse': showContractCountPulse }"
+									@animationend="showContractCountPulse = false"
+								>
+									{{ contractUseCount }}
+								</span>
 							</button>
 
 							<button
@@ -146,6 +155,9 @@ const banknotesIcon = ref()
 
 const profile = computed(() => props.profile)
 
+const contractUseCount = computed(() => profile.value?.streak ?? 0)
+const showContractCountPulse = ref(false)
+
 const fullName = computed(() => {
 	if (!profile.value || !profile.value.firstname || !profile.value.lastname) return 'Full name ?'
 	return profile.value.firstname + ' ' + profile.value.lastname
@@ -174,6 +186,8 @@ watch(
 	() => props.profile?.streak,
 	(newVal, oldVal) => {
 		if (oldVal !== undefined && newVal !== oldVal) fireIcon.value?.trigger()
+		// Play the ring on every new use from the third onward.
+		showContractCountPulse.value = newVal != null && oldVal != null && newVal >= 3 && newVal > oldVal
 	}
 )
 
@@ -299,7 +313,42 @@ onMounted(() => {
 			align-items: center;
 			gap: 1.6rem;
 			width: 100%;
+
+			.contract-use-count {
+				position: absolute;
+				top: 0.15rem;
+				right: 0.5rem;
+				padding: 0;
+				color: inherit;
+				font-size: 1rem;
+				font-weight: 700;
+				line-height: 1.2;
+			}
+
+			@media (prefers-reduced-motion: no-preference) {
+				.contract-use-count-pulse::after {
+					content: '';
+					position: absolute;
+					inset: -0.25rem -0.45rem;
+					border: 1px solid #d89824;
+					border-radius: 50%;
+					pointer-events: none;
+					animation: contract-count-pulse 600ms ease-out both;
+				}
+			}
 		}
+	}
+}
+
+@keyframes contract-count-pulse {
+	from {
+		opacity: 0.9;
+		transform: scale(0.8);
+	}
+
+	to {
+		opacity: 0;
+		transform: scale(1.55);
 	}
 }
 </style>
