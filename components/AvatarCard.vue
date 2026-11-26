@@ -43,7 +43,12 @@
 								@click="showContractDialog = !showContractDialog"
 							>
 								Contract
-								<span v-if="contractUseCount" class="contract-use-count">
+								<span
+									v-if="contractUseCount"
+									class="contract-use-count"
+									:class="{ 'contract-use-count-pulse': showContractCountPulse }"
+									@animationend="showContractCountPulse = false"
+								>
 									{{ contractUseCount }}
 								</span>
 							</button>
@@ -151,6 +156,7 @@ const profile = computed(() => props.profile)
 
 // The corner counter only shows the three daily uses.
 const contractUseCount = computed(() => Math.min(profile.value?.streak ?? 0, 3))
+const showContractCountPulse = ref(false)
 
 const fullName = computed(() => {
 	if (!profile.value || !profile.value.firstname || !profile.value.lastname) return 'Full name ?'
@@ -180,6 +186,9 @@ watch(
 	() => props.profile?.streak,
 	(newVal, oldVal) => {
 		if (oldVal !== undefined && newVal !== oldVal) fireIcon.value?.trigger()
+		// Play the ring only when the count changes from two to three.
+		if (newVal === 3 && oldVal === 2) showContractCountPulse.value = true
+		if ((newVal ?? 0) < 3) showContractCountPulse.value = false
 	}
 )
 
@@ -311,12 +320,36 @@ onMounted(() => {
 				top: 0.15rem;
 				right: 0.5rem;
 				padding: 0;
-				color: #545454;
+				color: #707070;
 				font-size: 1rem;
-				font-weight: 600;
+				font-weight: 700;
 				line-height: 1.2;
 			}
+
+			@media (prefers-reduced-motion: no-preference) {
+				.contract-use-count-pulse::after {
+					content: '';
+					position: absolute;
+					inset: -0.25rem -0.45rem;
+					border: 1px solid #d89824;
+					border-radius: 50%;
+					pointer-events: none;
+					animation: contract-count-pulse 600ms ease-out both;
+				}
+			}
 		}
+	}
+}
+
+@keyframes contract-count-pulse {
+	from {
+		opacity: 0.9;
+		transform: scale(0.8);
+	}
+
+	to {
+		opacity: 0;
+		transform: scale(1.55);
 	}
 }
 </style>
