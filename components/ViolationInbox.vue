@@ -127,7 +127,7 @@ watch([() => props.focusedId, () => user.value?.sub], loadActivity, { immediate:
 }
 
 .activity-cost {
-	color: #9c2525;
+	color: #d03050;
 	font-weight: 600;
 }
 </style>
