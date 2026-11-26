@@ -22,21 +22,20 @@ on public.contract_violations for insert to authenticated
 with check ((select auth.uid()) = actor_id and actor_id <> partner_id);
 
 create function public.record_contract_violation(p_rule_id uuid, p_partner_id uuid)
-returns table (credit integer, violation integer)
+returns table (credit integer, violation integer, rule_title text)
 language plpgsql
 security invoker
 set search_path = ''
 as $$
 declare
   reporter_id uuid := auth.uid();
-  selected_title text;
   violation_cost constant integer := 100;
 begin
   if reporter_id is null or p_partner_id is null or reporter_id = p_partner_id then
     raise exception 'A signed-in reporter and another profile are required';
   end if;
 
-  select rule.title into strict selected_title
+  select rule.title into strict rule_title
   from public.contract_rules as rule
   where rule.id = p_rule_id;
 
@@ -49,7 +48,7 @@ begin
 
   -- Keep the title in history even if the rule is renamed or deleted.
   insert into public.contract_violations (actor_id, partner_id, rule_id, rule_title, credit_cost)
-  values (reporter_id, p_partner_id, p_rule_id, selected_title, violation_cost);
+  values (reporter_id, p_partner_id, p_rule_id, rule_title, violation_cost);
 
   return next;
 end;

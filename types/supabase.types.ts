@@ -236,6 +236,7 @@ export type Database = {
         Returns: {
           credit: number
           violation: number
+          rule_title: string
         }[]
       }
       give_credits: {

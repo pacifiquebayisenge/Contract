@@ -38,7 +38,7 @@ export const useViolationStore = defineStore('violation', () => {
 			method: 'POST',
 			body: {
 				title: 'Shamefull !! 😡',
-				body: 'You violated a contract rule again 🤬',
+				body: `You violated: ${data.rule_title}`,
 			},
 		}).catch((error) => console.error('Failed to send violation notification:', error))
 	}
