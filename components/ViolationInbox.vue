@@ -17,7 +17,7 @@
 				>
 					<div class="activity-heading">
 						<strong>{{ violation.rule_title || 'Contract violation' }}</strong>
-						<span v-if="violation.amount !== null" class="activity-cost">
+						<span v-if="violation.amount !== null && violation.amount < 0" class="activity-cost">
 							{{ violation.amount }} credits
 						</span>
 					</div>
