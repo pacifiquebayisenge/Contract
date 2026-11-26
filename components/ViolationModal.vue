@@ -2,6 +2,8 @@
 	<n-modal
 		:show="props.show"
 		:auto-focus="false"
+		:mask-closable="!saving"
+		:close-on-esc="!saving"
 		transform-origin="center"
 		@update:show="emit('update:show', $event)"
 	>
@@ -34,8 +36,27 @@
 					again ???
 				</span>
 
-				<button class="button-3D button-3D-colorful-error" @click="updatePartnerViolation()">
-					Shameful !
+				<div class="rule-field">
+					<label for="violation-rule">Which rule?</label>
+					<select id="violation-rule" v-model="selectedRuleId" :disabled="saving || !rules.length">
+						<option disabled value="">
+							{{ rules.length ? 'Choose a contract rule' : 'No contract rules available' }}
+						</option>
+						<option v-for="rule in rules" :key="rule.id" :value="rule.id">
+							{{ rule.title }}
+						</option>
+					</select>
+				</div>
+
+				<p v-if="errorMessage" class="error-message" role="alert">{{ errorMessage }}</p>
+
+				<button
+					type="button"
+					class="button-3D button-3D-colorful-error"
+					:disabled="!selectedRuleId || !partner || saving"
+					@click="updatePartnerViolation"
+				>
+					{{ saving ? 'Saving…' : 'Shameful !' }}
 				</button>
 			</n-card>
 		</div>
@@ -44,6 +65,7 @@
 
 <script setup>
 import { useWebHaptics } from 'web-haptics/vue'
+import { useContractStore } from '~/stores/contract'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 import { useViolationStore } from '~/stores/violation'
@@ -66,6 +88,11 @@ const props = defineProps({
 const themeStore = useThemeStore()
 const userStore = useUserStore()
 const violationStore = useViolationStore()
+const contractStore = useContractStore()
+const rules = computed(() => contractStore.contractList)
+const selectedRuleId = ref('')
+const saving = ref(false)
+const errorMessage = ref('')
 
 const { trigger } = useWebHaptics()
 
@@ -76,17 +103,31 @@ const currentLightThemeColor = computed(() => themeStore.lightThemeColor)
 
 const partner = computed(() => userStore.partnerProfile)
 
-const updatePartnerViolation = async () => {
-	if (!partner.value) {
-		console.warn('Partner profile not loaded yet')
-		return
+watch(
+	() => props.show,
+	(isOpen) => {
+		if (!isOpen) return
+		selectedRuleId.value = ''
+		errorMessage.value = ''
 	}
+)
 
+const updatePartnerViolation = async () => {
+	if (!partner.value || !selectedRuleId.value || saving.value) return
+
+	saving.value = true
+	errorMessage.value = ''
 	trigger([{ duration: 400 }], { intensity: 1 })
 
-	emit('update:show', false)
-
-	await violationStore.updatePartnerViolation()
+	try {
+		await violationStore.updatePartnerViolation(selectedRuleId.value)
+		emit('update:show', false)
+	} catch (error) {
+		console.error('Failed to save violation:', error)
+		errorMessage.value = 'Could not save the violation. Please try again.'
+	} finally {
+		saving.value = false
+	}
 }
 </script>
 
@@ -120,6 +161,30 @@ const updatePartnerViolation = async () => {
 :deep(.special) {
 	color: var(--theme-color);
 	font-weight: 700;
+}
+
+.rule-field {
+	display: grid;
+	gap: 0.5rem;
+	width: 100%;
+
+	select {
+		width: 100%;
+		padding: 0.7rem 1rem;
+		border: 1px solid #b9baba;
+		border-radius: 0.8rem;
+		background: #fff;
+		color: #333;
+	}
+}
+
+.error-message {
+	color: #9c2525;
+}
+
+button:disabled {
+	opacity: 0.55;
+	cursor: default;
 }
 
 .gradient-background {
