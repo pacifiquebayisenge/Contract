@@ -16,8 +16,15 @@
 					:class="{ 'activity-item-highlighted': isFocused(item) }"
 				>
 					<div class="activity-heading">
-						<strong :class="{ 'activity-contract': item.kind === 'contract' }">{{ item.title }}</strong>
-						<span v-if="item.amount !== null" class="activity-cost" :class="{ 'activity-reward': item.kind === 'reward' }">
+						<strong>{{ item.title }}</strong>
+						<span
+							v-if="item.amount !== null"
+							class="activity-cost"
+							:class="{
+								'activity-reward': item.kind === 'reward',
+								'activity-contract': item.kind === 'contract',
+							}"
+						>
 							{{ item.kind === 'reward' ? `+${item.amount}` : item.amount }}
 						</span>
 					</div>
