@@ -67,7 +67,7 @@
 						:disabled="busy"
 						@click="applyAction(item, 'buy_own')"
 					>
-						Buy for {{ item.price }} credits · partner does it
+						Buy
 					</button>
 					<p v-if="item.status === 'accepted'">To be done by {{ personName(performer(item)) }}</p>
 					<div v-if="item.status === 'open' && item.partner_id === userId && confirming === item.id" class="shop-confirmation">

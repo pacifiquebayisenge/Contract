@@ -14,7 +14,7 @@
 				</template>
 				<form class="shop-form" @submit.prevent="saveItem">
 					<div class="shop-avatar">
-						<AvatarIcon background-color="#dcc5ef" mood="idea" :fullname="userStore.getFullname" />
+						<AvatarIcon mood="idea" :fullname="userStore.getFullname" />
 					</div>
 					<label>Title <input v-model.trim="draft.title" required maxlength="80" /></label>
 					<label>Description <textarea v-model.trim="draft.description" required maxlength="500" rows="3" /></label>
