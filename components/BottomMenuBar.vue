@@ -151,7 +151,7 @@
 					</div>
 				</template>
 
-				<ViolationInbox v-if="showInbox" :focused-id="focusedViolationId" />
+				<ActivityInbox v-if="showInbox" :focused-id="focusedActivityId" :focused-kind="focusedKind" />
 			</n-drawer-content>
 		</n-drawer>
 	</div>
@@ -188,20 +188,21 @@ const showAccount = ref(false)
 const showInbox = ref(false)
 const route = useRoute()
 const router = useRouter()
-const focusedViolationId = computed(() => {
-	const id = route.query.violation
+const focusedKind = computed(() => typeof route.query.reward === 'string' ? 'reward' : 'violation')
+const focusedActivityId = computed(() => {
+	const id = route.query[focusedKind.value]
 	return typeof id === 'string' && /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(id) ? id : null
 })
 
-watch(focusedViolationId, (id) => {
+watch([focusedActivityId, focusedKind], ([id]) => {
 	if (id) showInbox.value = true
 }, { immediate: true })
 
 function updateInbox(show: boolean) {
 	showInbox.value = show
-	if (!show && focusedViolationId.value) {
+	if (!show && focusedActivityId.value) {
 		// Remove the consumed link so tapping the same notification can open it again.
-		void router.replace({ query: { ...route.query, violation: undefined } })
+		void router.replace({ query: { ...route.query, violation: undefined, reward: undefined } })
 	}
 }
 const showSettings = ref(false)

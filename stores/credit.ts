@@ -37,56 +37,27 @@ export const useCreditStore = defineStore('credit', () => {
 		userStore.profile!.credit = newCredit
 	}
 
-	// update partner credit
-	async function updatePartnerCredit(n: number, description?: string) {
-		const userStore = useUserStore()
+	async function givePartnerReward(amount: number, description: string) {
+		const partner = useUserStore().partnerProfile
+		if (!partner) throw new Error('Partner profile is not loaded.')
+
 		const supabase = useSupabaseClient<Database>()
-
-		const partner = userStore?.partnerProfile
-
-		if (!partner) {
-			console.error('Partner profile is not loaded, cannot update credit.')
-			return
-		}
-
-		const { data: partnerProfile } = await supabase
-			.from('profiles')
-			.select('credit')
-			.eq('id', partner.id)
+		const { data, error } = await supabase
+			.rpc('record_partner_reward', {
+				p_partner_id: partner.id,
+				p_amount: amount,
+				p_description: description,
+			})
 			.single()
 
-		if (!partnerProfile) {
-			console.error('Partner profile is not found, cannot update credit.')
-			return
-		}
+		if (error) throw error
+		partner.credit = data.credit
 
-		const newCredit = (partnerProfile.credit ?? 0) + n
-
-		const { data, error } = await supabase
-			.from('profiles')
-			.update({ credit: newCredit })
-			.eq('id', partner.id)
-			.select('*')
-
-		if (error) {
-			console.error(`Failed to update credit with ${n}:`, error)
-			return
-		}
-
-		console.error(`${partner.firstname} ' credit updated with ${n}`)
-		userStore.partnerProfile!.credit = newCredit
-
-		if (n > 0) await rewardNotif(description!)
-	}
-
-	async function rewardNotif(description: string) {
-		await $fetch('/api/send-notification', {
+		// A push error must not prompt a second reward after the database commit.
+		void $fetch('/api/send-notification', {
 			method: 'POST',
-			body: {
-				title: "you've earned a reward 🥳",
-				body: `${description}`,
-			},
-		})
+			body: { rewardId: data.reward_id },
+		}).catch((error) => console.error('Failed to send reward notification:', error))
 	}
 
 	function init() {
@@ -98,7 +69,7 @@ export const useCreditStore = defineStore('credit', () => {
 		value,
 		setCredit,
 		updateCredit,
-		updatePartnerCredit,
+		givePartnerReward,
 		init,
 	}
 })

@@ -8,7 +8,8 @@
  * {
  *   title?: string,  // defaults to 'Notification'
  *   body?: string,   // defaults to ''
- *   violationId?: string // sends a saved violation to its recipient only
+ *   violationId?: string, // sends a saved violation to its recipient only
+ *   rewardId?: string // sends a saved reward to its recipient only
  * }
  *
  * Behaviour:
@@ -43,10 +44,9 @@ export default defineEventHandler(async (event) => {
 	const body = await readBody(event)
 	const client = serverSupabaseServiceRole<Database>(event)
 
-	let notification = {
+	let notification: { title: string; body: string; violationId?: string; rewardId?: string } = {
 		title: body.title || 'Notification',
 		body: body.body || '',
-		violationId: undefined as string | undefined,
 	}
 	let subscriptions = client.from('push_subscriptions').select('*')
 
@@ -73,6 +73,27 @@ export default defineEventHandler(async (event) => {
 			violationId: violation.id,
 		}
 		subscriptions = subscriptions.eq('user_id', violation.target_id)
+	} else if (body.rewardId !== undefined) {
+		if (typeof body.rewardId !== 'string' || !/^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(body.rewardId)) {
+			throw createError({ statusCode: 400, statusMessage: 'Invalid reward ID' })
+		}
+
+		const { data: reward, error } = await client
+			.from('credit_increases')
+			.select('id, receiver_id, description')
+			.eq('id', body.rewardId)
+			.eq('giver_id', currentUserId)
+			.maybeSingle()
+
+		if (error) throw createError({ statusCode: 500, statusMessage: 'Could not load reward' })
+		if (!reward) throw createError({ statusCode: 404, statusMessage: 'Reward not found' })
+
+		notification = {
+			title: "you've earned a reward 🥳",
+			body: reward.description || 'You received a reward.',
+			rewardId: reward.id,
+		}
+		subscriptions = subscriptions.eq('user_id', reward.receiver_id)
 	} else {
 		subscriptions = subscriptions.neq('user_id', currentUserId)
 	}

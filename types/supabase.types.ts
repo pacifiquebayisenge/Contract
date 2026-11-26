@@ -231,6 +231,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      record_partner_reward: {
+        Args: {
+          p_partner_id: string
+          p_amount: number
+          p_description: string
+        }
+        Returns: { reward_id: string; credit: number }[]
+      }
       record_contract_violation: {
         Args: {
           p_rule_id: string
