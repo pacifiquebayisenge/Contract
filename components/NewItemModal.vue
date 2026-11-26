@@ -36,13 +36,13 @@
 						</div>
 					</button>
 
-					<button class="new-option" type="button" @click="submit">
+					<button class="new-option" type="button" :disabled="!userStore.partnerProfile" @click="openShopItem">
 						<div class="icon-box purple shadow-md">
 							<NIcon class="base-icon" :size="30" :component="BuildingStorefrontIcon" />
 						</div>
 
 						<div class="option-text">
-							<p class="option-title">Item</p>
+							<p class="option-title">New item</p>
 						</div>
 					</button>
 
@@ -70,6 +70,7 @@
 		</div>
 	</n-modal>
 
+	<ShopItemModal v-model:show="showShopItem" />
 	<NewContractModal v-model:show="showNewContractModal" :fullname="userStore.getFullname" />
 </template>
 
@@ -81,7 +82,6 @@ import {
 	GiftIcon,
 	SparklesIcon,
 } from '@heroicons/vue/24/outline'
-import { useContractStore } from '~/stores/contract'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 
@@ -100,6 +100,12 @@ const userStore = useUserStore()
 const currentLightThemeColor = computed(() => themeStore.lightThemeColor)
 
 let showNewContractModal = ref(false)
+const showShopItem = ref(false)
+
+function openShopItem() {
+	emit('update:show', false)
+	showShopItem.value = true
+}
 
 const submit = async () => {
 	emit('update:show', false)
