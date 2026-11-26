@@ -87,7 +87,8 @@ const updatePartnerStreak = async () => {
 	// 	console.log("BLOCKED: streak >= 3");
 	// }
 
-	trigger([{ duration: 400 }], { intensity: 1 })
+	// Two short pulses with a longer finish, like a text notification.
+	trigger([{ duration: 65 }, { delay: 75, duration: 120 }], { intensity: 1 })
 
 	emit('update:show', false)
 

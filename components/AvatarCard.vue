@@ -43,6 +43,9 @@
 								@click="showContractDialog = !showContractDialog"
 							>
 								Contract
+								<span v-if="contractUseCount" class="contract-use-count">
+									{{ contractUseCount }}
+								</span>
 							</button>
 
 							<button
@@ -145,6 +148,9 @@ const fireIcon = ref()
 const banknotesIcon = ref()
 
 const profile = computed(() => props.profile)
+
+// The corner counter only shows the three daily uses.
+const contractUseCount = computed(() => Math.min(profile.value?.streak ?? 0, 3))
 
 const fullName = computed(() => {
 	if (!profile.value || !profile.value.firstname || !profile.value.lastname) return 'Full name ?'
@@ -299,6 +305,17 @@ onMounted(() => {
 			align-items: center;
 			gap: 1.6rem;
 			width: 100%;
+
+			.contract-use-count {
+				position: absolute;
+				top: 0.15rem;
+				right: 0.5rem;
+				padding: 0;
+				color: #545454;
+				font-size: 1rem;
+				font-weight: 600;
+				line-height: 1.2;
+			}
 		}
 	}
 }
