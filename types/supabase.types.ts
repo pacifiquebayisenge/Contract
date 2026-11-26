@@ -41,28 +41,6 @@ export type Database = {
         }
         Relationships: []
       }
-      contract_violations: {
-        Row: {
-          id: string
-          actor_id: string
-          partner_id: string
-          rule_id: string | null
-          rule_title: string
-          credit_cost: number
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          actor_id: string
-          partner_id: string
-          rule_id?: string | null
-          rule_title: string
-          credit_cost: number
-          created_at?: string
-        }
-        Update: Partial<Database['public']['Tables']['contract_violations']['Insert']>
-        Relationships: []
-      }
       contract_rules_votes: {
         Row: {
           id: string
@@ -208,6 +186,7 @@ export type Database = {
           created_at: string | null
           event_type: string
           id: string
+          rule_title: string | null
           target_id: string
         }
         Insert: {
@@ -217,6 +196,7 @@ export type Database = {
           created_at?: string | null
           event_type: string
           id?: string
+          rule_title?: string | null
           target_id: string
         }
         Update: {
@@ -226,6 +206,7 @@ export type Database = {
           created_at?: string | null
           event_type?: string
           id?: string
+          rule_title?: string | null
           target_id?: string
         }
         Relationships: [

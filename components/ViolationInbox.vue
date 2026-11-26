@@ -16,11 +16,15 @@
 					:class="{ 'activity-item-highlighted': violation.id === focusedId }"
 				>
 					<div class="activity-heading">
-						<strong>{{ violation.rule_title }}</strong>
-						<span class="activity-cost">−{{ violation.credit_cost }} credits</span>
+						<strong>{{ violation.rule_title || 'Contract violation' }}</strong>
+						<span v-if="violation.amount !== null" class="activity-cost">
+							{{ violation.amount }} credits
+						</span>
 					</div>
 					<p>Reported by {{ userStore.getFullNameById(violation.actor_id) }}</p>
-					<time :datetime="violation.created_at">{{ formatDateTime(violation.created_at) }}</time>
+					<time v-if="violation.created_at" :datetime="violation.created_at">
+						{{ formatDateTime(violation.created_at) }}
+					</time>
 				</li>
 			</ol>
 		</template>
@@ -31,27 +35,36 @@
 import type { Database } from '~/types/supabase.types'
 import { formatDateTime } from '~/utils/formatDate'
 
-type Violation = Database['public']['Tables']['contract_violations']['Row']
+type Violation = Database['public']['Tables']['user_events']['Row']
 
 const props = defineProps<{ focusedId: string | null }>()
 const supabase = useSupabaseClient<Database>()
 const userStore = useUserStore()
+const user = useSupabaseUser()
 const violations = ref<Violation[]>([])
 const loading = ref(false)
 const errorMessage = ref('')
 const focusedViolation = computed(() => violations.value.find(({ id }) => id === props.focusedId))
 let latestRequest = 0
 
+function violationQuery(userId: string) {
+	return supabase
+		.from('user_events')
+		.select('*')
+		.eq('event_type', 'violation')
+		.or(`actor_id.eq.${userId},target_id.eq.${userId}`)
+}
+
 async function loadActivity() {
+	const userId = user.value?.sub
+	if (!userId) return
 	const request = ++latestRequest
 	const focusedId = props.focusedId
 	loading.value = true
 	errorMessage.value = ''
 
 	try {
-		const { data, error } = await supabase
-			.from('contract_violations')
-			.select('*')
+		const { data, error } = await violationQuery(userId)
 			.order('created_at', { ascending: false })
 			.limit(25)
 		if (error) throw error
@@ -61,11 +74,7 @@ async function loadActivity() {
 
 		// A notification can point to a violation older than the most recent 25.
 		if (focusedId && !focused) {
-			const { data: older, error: lookupError } = await supabase
-				.from('contract_violations')
-				.select('*')
-				.eq('id', focusedId)
-				.maybeSingle()
+			const { data: older, error: lookupError } = await violationQuery(userId).eq('id', focusedId).maybeSingle()
 			if (lookupError) throw lookupError
 			focused = older ?? undefined
 		}
@@ -81,7 +90,7 @@ async function loadActivity() {
 	}
 }
 
-watch(() => props.focusedId, loadActivity, { immediate: true })
+watch([() => props.focusedId, () => user.value?.sub], loadActivity, { immediate: true })
 </script>
 
 <style scoped>

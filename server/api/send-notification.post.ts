@@ -57,10 +57,11 @@ export default defineEventHandler(async (event) => {
 
 		// Resolve the recipient and message from the saved record, never from the request.
 		const { data: violation, error } = await client
-			.from('contract_violations')
-			.select('id, partner_id, rule_title')
+			.from('user_events')
+			.select('id, target_id, rule_title')
 			.eq('id', body.violationId)
 			.eq('actor_id', currentUserId)
+			.eq('event_type', 'violation')
 			.maybeSingle()
 
 		if (error) throw createError({ statusCode: 500, statusMessage: 'Could not load violation' })
@@ -68,10 +69,10 @@ export default defineEventHandler(async (event) => {
 
 		notification = {
 			title: 'Shameful !! 😡',
-			body: `You violated: ${violation.rule_title}`,
+			body: violation.rule_title ? `You violated: ${violation.rule_title}` : 'You violated a contract rule.',
 			violationId: violation.id,
 		}
-		subscriptions = subscriptions.eq('user_id', violation.partner_id)
+		subscriptions = subscriptions.eq('user_id', violation.target_id)
 	} else {
 		subscriptions = subscriptions.neq('user_id', currentUserId)
 	}
