@@ -228,6 +228,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      record_contract_violation: {
+        Args: {
+          p_rule_id: string
+          p_partner_id: string
+        }
+        Returns: {
+          credit: number
+          violation: number
+        }[]
+      }
       give_credits: {
         Args: {
           p_amount: number
