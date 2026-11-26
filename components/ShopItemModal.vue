@@ -16,12 +16,11 @@
 					<div class="shop-avatar">
 						<AvatarIcon mood="idea" :fullname="userStore.getFullname" />
 					</div>
-					<label>Type
-						<select v-model="draft.kind">
-							<option value="offer">I offer something</option>
-							<option value="request">I ask for something</option>
-						</select>
-					</label>
+					<fieldset class="shop-performer">
+						<legend>Who will do it?</legend>
+						<label><input v-model="draft.kind" type="radio" value="offer" /> I will</label>
+						<label><input v-model="draft.kind" type="radio" value="request" /> My partner will</label>
+					</fieldset>
 					<p>{{ draft.kind === 'offer' ? 'Your partner spends the credits when they redeem your offer.' : 'You spend the credits when your partner accepts your request.' }}</p>
 					<label>Title <input v-model.trim="draft.title" required maxlength="80" /></label>
 					<label>Description <textarea v-model.trim="draft.description" required maxlength="500" rows="3" /></label>
@@ -121,6 +120,35 @@ async function publish() {
 }
 
 .shop-form .shop-button { width: 100%; }
+
+.shop-performer {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.shop-performer legend {
+	margin-bottom: 0.4rem;
+	font-weight: 600;
+}
+
+.shop-performer label {
+	display: flex;
+	align-items: center;
+	flex: 1 1 auto;
+	padding: 0.5rem;
+	border-radius: 0.75rem;
+	background: #0000000a;
+}
+
+.shop-performer input {
+	width: auto;
+	accent-color: #63366e;
+}
+
+@media (max-width: 600px) {
+	.shop-modal { width: 70vw; }
+}
 </style>
 
 <style scoped src="~/assets/css/shop-buttons.css"></style>
