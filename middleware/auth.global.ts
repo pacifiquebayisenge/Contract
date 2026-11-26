@@ -15,6 +15,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
 	// No user/session → go to signin
 	if (!session?.user) {
-		return navigateTo('/signin')
+		const violation = to.query.violation
+		return navigateTo({
+			path: '/signin',
+			query: typeof violation === 'string' ? { violation } : {},
+		})
 	}
 })

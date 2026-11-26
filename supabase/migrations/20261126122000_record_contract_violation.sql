@@ -22,7 +22,7 @@ on public.contract_violations for insert to authenticated
 with check ((select auth.uid()) = actor_id and actor_id <> partner_id);
 
 create function public.record_contract_violation(p_rule_id uuid, p_partner_id uuid)
-returns table (credit integer, violation integer, rule_title text)
+returns table (credit integer, violation integer, rule_title text, violation_id uuid)
 language plpgsql
 security invoker
 set search_path = ''
@@ -48,7 +48,8 @@ begin
 
   -- Keep the title in history even if the rule is renamed or deleted.
   insert into public.contract_violations (actor_id, partner_id, rule_id, rule_title, credit_cost)
-  values (reporter_id, p_partner_id, p_rule_id, rule_title, violation_cost);
+  values (reporter_id, p_partner_id, p_rule_id, rule_title, violation_cost)
+  returning id into violation_id;
 
   return next;
 end;

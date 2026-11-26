@@ -7,7 +7,8 @@
  * Expected body:
  * {
  *   title?: string,  // defaults to 'Notification'
- *   body?: string    // defaults to ''
+ *   body?: string,   // defaults to ''
+ *   violationId?: string // sends a saved violation to its recipient only
  * }
  *
  * Behaviour:
@@ -40,29 +41,48 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const body = await readBody(event)
+	const client = serverSupabaseServiceRole<Database>(event)
 
-	// This payload is what the service worker (sw-push.js) receives in its
-	// 'push' event and turns into a visible notification.
-	const payload = JSON.stringify({
+	let notification = {
 		title: body.title || 'Notification',
 		body: body.body || '',
-	})
+		violationId: undefined as string | undefined,
+	}
+	let subscriptions = client.from('push_subscriptions').select('*')
+
+	if (body.violationId !== undefined) {
+		if (typeof body.violationId !== 'string' || !/^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(body.violationId)) {
+			throw createError({ statusCode: 400, statusMessage: 'Invalid violation ID' })
+		}
+
+		// Resolve the recipient and message from the saved record, never from the request.
+		const { data: violation, error } = await client
+			.from('contract_violations')
+			.select('id, partner_id, rule_title')
+			.eq('id', body.violationId)
+			.eq('actor_id', currentUserId)
+			.maybeSingle()
+
+		if (error) throw createError({ statusCode: 500, statusMessage: 'Could not load violation' })
+		if (!violation) throw createError({ statusCode: 404, statusMessage: 'Violation not found' })
+
+		notification = {
+			title: 'Shameful !! 😡',
+			body: `You violated: ${violation.rule_title}`,
+			violationId: violation.id,
+		}
+		subscriptions = subscriptions.eq('user_id', violation.partner_id)
+	} else {
+		subscriptions = subscriptions.neq('user_id', currentUserId)
+	}
+
+	const payload = JSON.stringify(notification)
 
 	// VAPID identifies our server to the push services (Apple, FCM, Mozilla).
 	// Keys come from runtimeConfig (NUXT_PRIVATE_VAPID / NUXT_PUBLIC_VAPID).
 	webpush.setVapidDetails('mailto:you@example.com', config.public.publicVapid, config.privateVapid)
 
-	// Service role client: we need to read OTHER users' subscriptions,
-	// which RLS would block for a user-scoped client.
-	const client = serverSupabaseServiceRole<Database>(event)
-
-	// All devices except the sender's. user_id is NOT NULL, so a plain
-	// .neq() is safe here (NULL rows, which .neq() would silently skip
-	// due to SQL null semantics, cannot exist).
-	const { data: subs, error } = await client
-		.from('push_subscriptions')
-		.select('*')
-		.neq('user_id', currentUserId)
+	const { data: subs, error } = await subscriptions
 
 	if (error) {
 		console.error('[send-notification] failed to load subscriptions:', error)

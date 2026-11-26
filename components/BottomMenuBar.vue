@@ -128,7 +128,8 @@
 
 		<!-- inbox drawer -->
 		<n-drawer
-			v-model:show="showInbox"
+			:show="showInbox"
+			@update:show="updateInbox"
 			:height="650"
 			placement="bottom"
 			:block-scroll="true"
@@ -136,6 +137,7 @@
 			style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
 		>
 			<n-drawer-content
+				:native-scrollbar="false"
 				class="drawer-gradient-background"
 				:style="{
 					'--theme-color': currentLightThemeColor,
@@ -149,24 +151,7 @@
 					</div>
 				</template>
 
-				<div class="drawer-body invisible-scroll">
-					<div class="settings-items px-5 mb-24">
-						<n-collapse arrow-placement="right">
-							<n-collapse-item title="Primary" name="1">
-								<div>
-									<EmptyState />
-								</div>
-							</n-collapse-item>
-
-							<n-collapse-item title="Events" name="2">
-								<EmptyState />
-								<!-- <div class="overflow-y-auto">
-									<EventItem v-for="(event, index) in getAllEvents" :index="index" :item="event" />
-								</div> -->
-							</n-collapse-item>
-						</n-collapse>
-					</div>
-				</div>
+				<ViolationInbox v-if="showInbox" :focused-id="focusedViolationId" />
 			</n-drawer-content>
 		</n-drawer>
 	</div>
@@ -175,9 +160,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { InboxIcon, Squares2X2Icon, UserIcon, WalletIcon } from '@heroicons/vue/24/outline'
-import { useEventsHistory } from '~/composables/useEventsHistory'
 import { usePseudoStore } from '~/stores/pseudo'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
@@ -198,12 +182,28 @@ const {
 	disableNotifications,
 } = usePushNotifications()
 
-const { getAllEvents } = useEventsHistory()
-
 const { logout } = useAuth()
 
 const showAccount = ref(false)
 const showInbox = ref(false)
+const route = useRoute()
+const router = useRouter()
+const focusedViolationId = computed(() => {
+	const id = route.query.violation
+	return typeof id === 'string' && /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(id) ? id : null
+})
+
+watch(focusedViolationId, (id) => {
+	if (id) showInbox.value = true
+}, { immediate: true })
+
+function updateInbox(show: boolean) {
+	showInbox.value = show
+	if (!show && focusedViolationId.value) {
+		// Remove the consumed link so tapping the same notification can open it again.
+		void router.replace({ query: { ...route.query, violation: undefined } })
+	}
+}
 const showSettings = ref(false)
 
 let showNewItemModal = ref(false)
