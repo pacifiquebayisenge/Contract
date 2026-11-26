@@ -3,39 +3,65 @@
 		<header class="shop-header">
 			<h1>Shop</h1>
 			<span v-if="balance !== null">{{ balance.toLocaleString() }} credits</span>
-			<button type="button" class="button-3D button-3D-colorful" :disabled="!partnerId" @click="showForm = true">
-				Add an item
+			<button type="button" class="button-3D shop-button shop-plum" :disabled="!partnerId" @click="showForm = true">
+				<PlusIcon aria-hidden="true" /> Add an item
 			</button>
 		</header>
 
-		<n-modal v-model:show="showForm" preset="card" title="Add to the Shop" class="shop-modal" :mask-closable="!busy" :close-on-esc="!busy" :closable="!busy">
-			<form class="shop-form" @submit.prevent="publish">
-				<label>Type
-					<select v-model="draft.kind">
-						<option value="offer">I offer something</option>
-						<option value="request">I ask for something</option>
-					</select>
-				</label>
-				<p>{{ draft.kind === 'offer' ? 'Your partner spends the credits when they redeem your offer.' : 'You spend the credits when your partner accepts your request.' }}</p>
-				<label>Title <input v-model.trim="draft.title" required maxlength="80" /></label>
-				<label>Description <textarea v-model.trim="draft.description" required maxlength="500" rows="3" /></label>
-				<label>Price in credits <input v-model.number="draft.price" type="number" required min="1" max="100000" /></label>
-				<p v-if="error" role="alert">{{ error }}</p>
-				<button class="button-3D button-3D-colorful" :disabled="busy">Publish</button>
-			</form>
+		<n-modal
+			v-model:show="showForm"
+			:auto-focus="false"
+			:mask-closable="!busy"
+			:close-on-esc="!busy"
+			transform-origin="center"
+		>
+			<div class="shop-modal">
+				<n-card class="shop-modal-card" :bordered="false" role="dialog" aria-labelledby="shop-modal-title">
+					<template #header>
+						<h2 id="shop-modal-title">Add to the Shop</h2>
+					</template>
+					<form class="shop-form" @submit.prevent="publish">
+						<div class="shop-avatar">
+							<AvatarIcon mood="idea" :fullname="userStore.getFullname" />
+						</div>
+						<label>Type
+							<select v-model="draft.kind">
+								<option value="offer">I offer something</option>
+								<option value="request">I ask for something</option>
+							</select>
+						</label>
+						<p>{{ draft.kind === 'offer' ? 'Your partner spends the credits when they redeem your offer.' : 'You spend the credits when your partner accepts your request.' }}</p>
+						<label>Title <input v-model.trim="draft.title" required maxlength="80" /></label>
+						<label>Description <textarea v-model.trim="draft.description" required maxlength="500" rows="3" /></label>
+						<label>Price in credits <input v-model.number="draft.price" type="number" required min="1" max="100000" /></label>
+						<p v-if="error" role="alert">{{ error }}</p>
+						<button type="submit" class="button-3D shop-button shop-plum" :disabled="busy">
+							<SparklesIcon aria-hidden="true" /> {{ busy ? 'Publishing…' : 'Publish' }}
+						</button>
+					</form>
+				</n-card>
+			</div>
 		</n-modal>
 
-		<div class="shop-tabs" aria-label="Shop views">
-			<n-button :type="view === 'open' ? 'primary' : 'default'" @click="view = 'open'">Available</n-button>
-			<n-button :type="view === 'accepted' ? 'primary' : 'default'" @click="view = 'accepted'">Still owed</n-button>
-			<n-button :type="view === 'completed' ? 'primary' : 'default'" @click="view = 'completed'">Completed</n-button>
-			<n-button text :disabled="loading || busy" @click="loadShop">Refresh</n-button>
+		<div class="shop-tabs" role="group" aria-label="Shop views">
+			<button type="button" class="button-3D shop-button shop-aqua" :aria-pressed="view === 'open'" @click="view = 'open'">
+				<ShoppingBagIcon aria-hidden="true" /> Available
+			</button>
+			<button type="button" class="button-3D shop-button shop-plum" :aria-pressed="view === 'accepted'" @click="view = 'accepted'">
+				<ClockIcon aria-hidden="true" /> Still owed
+			</button>
+			<button type="button" class="button-3D shop-button shop-blue" :aria-pressed="view === 'completed'" @click="view = 'completed'">
+				<CheckCircleIcon aria-hidden="true" /> Completed
+			</button>
+			<button type="button" class="button-3D shop-button shop-lilac" :disabled="loading || busy" @click="loadShop">
+				<ArrowPathIcon aria-hidden="true" /> Refresh
+			</button>
 		</div>
 
 		<p v-if="loading" role="status">Loading Shop…</p>
 		<div v-if="error && !showForm" role="alert">
 			{{ error }}
-			<n-button v-if="loadFailed" text @click="loadShop">Try again</n-button>
+			<button v-if="loadFailed" type="button" class="button-3D shop-button shop-lilac" @click="loadShop">Try again</button>
 		</div>
 		<p v-if="!loading && !loadFailed && !visibleItems.length">{{ emptyMessages[view] }}</p>
 		<article v-for="item in visibleItems" :key="item.id" class="shop-item">
@@ -48,21 +74,22 @@
 			</div>
 			<p class="shop-description">{{ item.description }}</p>
 			<p v-if="item.status === 'accepted'">To be done by {{ personName(performer(item)) }}</p>
-			<n-button v-if="item.status === 'open' && item.partner_id === userId && confirming !== item.id" :disabled="busy" @click="confirming = item.id">
+			<button type="button" class="button-3D shop-button shop-aqua" v-if="item.status === 'open' && item.partner_id === userId && confirming !== item.id" :disabled="busy" @click="confirming = item.id">
 				{{ item.kind === 'offer' ? 'Redeem' : 'Accept request' }}
-			</n-button>
+			</button>
 			<div v-if="item.status === 'open' && item.partner_id === userId && confirming === item.id" class="shop-confirmation">
 				<p>{{ item.kind === 'offer' ? 'You' : 'Your partner' }} will spend {{ item.price }} credits.</p>
-				<n-button :disabled="busy" @click="confirming = null">Cancel</n-button>
-				<n-button type="primary" :disabled="busy" @click="applyAction(item, 'accept')">Confirm</n-button>
+				<button type="button" class="button-3D shop-button shop-lilac" :disabled="busy" @click="confirming = null">Cancel</button>
+				<button type="button" class="button-3D shop-button shop-plum" :disabled="busy" @click="applyAction(item, 'accept')">Confirm</button>
 			</div>
-			<n-button v-if="item.status === 'open' && item.creator_id === userId" text :disabled="busy" @click="applyAction(item, 'withdraw')">Withdraw</n-button>
-			<n-button v-if="item.status === 'accepted' && performer(item) === userId" :disabled="busy" @click="applyAction(item, 'complete')">Mark as done</n-button>
+			<button type="button" class="button-3D shop-button shop-aqua" v-if="item.status === 'open' && item.creator_id === userId" :disabled="busy" @click="applyAction(item, 'withdraw')">Withdraw</button>
+			<button type="button" class="button-3D shop-button shop-aqua" v-if="item.status === 'accepted' && performer(item) === userId" :disabled="busy" @click="applyAction(item, 'complete')">Mark as done</button>
 		</article>
 	</section>
 </template>
 
 <script setup lang="ts">
+import { ArrowPathIcon, CheckCircleIcon, ClockIcon, PlusIcon, ShoppingBagIcon, SparklesIcon } from '@heroicons/vue/24/outline'
 import type { Database } from '~/types/supabase.types'
 import { useCreditStore } from '~/stores/credit'
 import { useUserStore } from '~/stores/user'
@@ -216,17 +243,78 @@ watch(userId, loadShop, { immediate: true })
 
 .item-heading { width: 100%; }
 .shop-description { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; }
-.shop-form, .shop-form label { display: grid; gap: 0.5rem; }
-.shop-form { gap: 1rem; }
+.shop-modal {
+	width: min(30rem, 92vw);
+	max-height: 90dvh;
+	overflow-y: auto;
+	border-radius: 2rem;
+}
+
+.shop-modal-card {
+	border-radius: 2rem;
+	background: linear-gradient(180deg, #f9f9fb 5%, #f3edf9 60%, #eadcf6);
+}
+
+#shop-modal-title {
+	color: #45404b;
+	text-align: center;
+	font-weight: 700;
+}
+
+.shop-avatar { display: flex; justify-content: center; }
+.shop-form, .shop-form label { display: grid; gap: 0.4rem; }
+.shop-form { gap: 1rem; color: #504758; }
+.shop-form label { font-weight: 600; }
 
 .shop-form input, .shop-form select, .shop-form textarea {
 	width: 100%;
-	border: 1px solid #bbb;
-	border-radius: 0.5rem;
-	padding: 0.5rem;
+	border: 1px solid transparent;
+	border-radius: 1rem;
+	padding: 0.6rem 0.9rem;
+	background: #0000000a;
+	color: #423747;
 }
-</style>
 
-<style>
-.shop-modal { width: min(30rem, 92vw); }
+.shop-form :is(input, select, textarea):focus-visible {
+	border-color: #a182bf;
+	outline: 2px solid #c9b4df;
+}
+
+.shop-plum { --shop-top: #eedcf5; --shop-edge: #c8a6d9; --shop-ink: #63366e; }
+.shop-aqua { --shop-top: #d6f2ef; --shop-edge: #8ccbc5; --shop-ink: #205e59; }
+.shop-blue { --shop-top: #dbe9fd; --shop-edge: #a4bce7; --shop-ink: #315181; }
+.shop-lilac { --shop-top: #ede7fa; --shop-edge: #c3b4e1; --shop-ink: #514275; }
+
+/* Keep the same raised and pressed motion as the existing action buttons. */
+.button-3D.shop-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4em;
+	width: auto;
+	padding: 0.5rem 0.85rem;
+	background: var(--shop-top);
+	border-color: var(--shop-edge);
+	color: var(--shop-ink);
+	box-shadow: 0 0.4rem 0 var(--shop-edge);
+	font-size: clamp(0.85rem, 2.5vw, 1.05rem) !important;
+}
+
+.shop-button svg { width: 1.15em; height: 1.15em; flex: none; }
+.button-3D.shop-button:hover:not(:disabled) {
+	background: color-mix(in srgb, var(--shop-top) 75%, var(--shop-edge));
+	box-shadow: 0 0.5rem 0 var(--shop-edge);
+}
+.button-3D.shop-button:is(:active, [aria-pressed='true']) {
+	transform: translateY(0);
+	box-shadow: none;
+	background: color-mix(in srgb, var(--shop-top) 75%, var(--shop-edge));
+}
+.shop-button:focus-visible { outline: 2px solid var(--shop-ink); outline-offset: 3px; }
+.shop-button:disabled { opacity: 0.6; cursor: default; }
+.shop-form .shop-button { width: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+	.shop-button { transition: none; }
+}
 </style>
