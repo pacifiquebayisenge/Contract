@@ -34,9 +34,12 @@
 				:aria-expanded="confirming === item.id"
 				@click="confirming = confirming === item.id ? null : item.id"
 			>
-				<strong class="shop-item-title">{{ item.title }}</strong>
+				<span class="shop-title-row">
+					<strong class="shop-item-title">{{ item.title }}</strong>
+					<strong class="shop-price">{{ item.price }} credits</strong>
+				</span>
 				<span class="shop-meta">
-					<time :datetime="item.created_at">{{ formatDateTime(item.created_at) }}</time>
+					<time :datetime="item.created_at">{{ formatTimeAgo(item.created_at) }}</time>
 					<span>·</span>
 					<span>{{ personName(item.creator_id) }}</span>
 				</span>
@@ -45,21 +48,24 @@
 				<div class="shop-expanded">
 					<p class="shop-description">{{ item.description }}</p>
 					<div v-if="item.status === 'open' && item.creator_id === userId" class="shop-owner-actions">
-						<button type="button" class="button-3D shop-button shop-new" :disabled="busy" @click="openEdit(item)">Edit</button>
-						<n-popconfirm @positive-click="applyAction(item, 'withdraw')">
+						<button type="button" class="button-3D shop-button shop-refresh" aria-label="Edit item" :disabled="busy" @click="openEdit(item)">
+							<PencilSquareIcon aria-hidden="true" />
+						</button>
+						<NPopconfirm @positive-click="applyAction(item, 'withdraw')">
 							<template #trigger>
-								<button type="button" class="button-3D shop-button shop-delete" :disabled="busy">Delete</button>
+								<button type="button" class="button-3D shop-button shop-delete" aria-label="Delete item" :disabled="busy">
+									<TrashIcon aria-hidden="true" />
+								</button>
 							</template>
 							Remove this item from the Shop?
-						</n-popconfirm>
+						</NPopconfirm>
 					</div>
-					<p class="shop-price">{{ item.price }} credits</p>
 					<p v-if="item.status === 'accepted'">To be done by {{ personName(performer(item)) }}</p>
 					<div v-if="item.status === 'open' && item.partner_id === userId && confirming === item.id" class="shop-confirmation">
 						<p v-if="item.kind === 'undecided'">Choose who will do it. The other person pays {{ item.price }} credits.</p>
 						<p v-else>{{ item.kind === 'offer' ? 'You' : 'Your partner' }} will spend {{ item.price }} credits.</p>
 						<button type="button" class="button-3D shop-button shop-refresh" :disabled="busy" @click="confirming = null">Cancel</button>
-						<button type="button" class="button-3D shop-button shop-owed" :disabled="busy" @click="applyAction(item, 'accept')">
+						<button type="button" class="button-3D shop-button shop-buy" :disabled="busy" @click="applyAction(item, 'accept')">
 							{{ item.kind === 'request' ? 'Accept request' : 'Buy' }}
 						</button>
 						<button v-if="item.kind === 'undecided'" type="button" class="button-3D shop-button shop-aqua" :disabled="busy" @click="applyAction(item, 'propose')">I can do it</button>
@@ -78,11 +84,12 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowPathIcon, CheckCircleIcon, ClockIcon, ShoppingBagIcon } from '@heroicons/vue/24/outline'
+import { ArrowPathIcon, CheckCircleIcon, ClockIcon, PencilSquareIcon, ShoppingBagIcon, TrashIcon } from '@heroicons/vue/24/outline'
+import { NPopconfirm } from 'naive-ui'
 import type { Database } from '~/types/supabase.types'
 import { useCreditStore } from '~/stores/credit'
 import { useUserStore } from '~/stores/user'
-import { formatDateTime } from '~/utils/formatDate'
+import { formatTimeAgo } from '~/utils/formatDate'
 
 type Item = Database['public']['Tables']['shop_items']['Row']
 type ShopView = 'open' | 'accepted' | 'completed'
@@ -245,9 +252,23 @@ watch([userId, shopRevision, focusedItemId], async () => {
 
 .shop-meta { display: flex; flex-wrap: wrap; gap: 0.3rem 0.55rem; color: #655d69; }
 .shop-owner-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
-.shop-expanded :is(.shop-button, .shop-confirmation) { width: 100%; }
+.shop-expanded .shop-confirmation {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	width: 100%;
+}
+
+.shop-expanded .button-3D.shop-button { width: 100%; }
+.shop-buy { --shop-top: #d6f2ef; --shop-edge: #8ccbc5; --shop-ink: #205e59; }
 .shop-delete { --shop-top: #fde5eb; --shop-edge: #e9a8bc; --shop-ink: #87344d; }
-.shop-price { font-weight: 700; }
+.shop-title-row {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.75rem;
+}
+
+.shop-price { margin-inline-start: auto; white-space: nowrap; color: #63366e; }
 
 .shop-description { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; }
 /* The grid and divider share the same available width. */
