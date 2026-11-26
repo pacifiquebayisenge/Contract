@@ -26,7 +26,7 @@
 			<button v-if="loadFailed" type="button" class="button-3D shop-button shop-refresh" @click="loadShop">Try again</button>
 		</div>
 		<p v-if="!loading && !loadFailed && !visibleItems.length">{{ emptyMessages[view] }}</p>
-		<article v-for="item in visibleItems" :key="item.id" class="shop-item">
+		<article v-for="item in visibleItems" :key="item.id" class="shop-item" :class="{ 'shop-item-focused': item.id === focusedItemId }">
 			<button
 				type="button"
 				class="shop-item-details"
@@ -75,6 +75,11 @@ type ShopView = 'open' | 'accepted' | 'completed'
 type Action = Database['public']['Functions']['apply_shop_action']['Args']['p_action']
 
 const supabase = useSupabaseClient<Database>()
+const route = useRoute()
+const focusedItemId = computed(() => {
+	const id = route.query.item
+	return typeof id === 'string' && /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(id) ? id : null
+})
 const user = useSupabaseUser()
 const userStore = useUserStore()
 const creditStore = useCreditStore()
@@ -88,7 +93,13 @@ const loading = ref(false)
 const loadFailed = ref(false)
 const busy = ref(false)
 const error = ref('')
-const visibleItems = computed(() => items.value.filter((item) => item.status === view.value || (view.value === 'open' && item.status === 'proposed')))
+const visibleItems = computed(() => {
+	const visible = items.value.filter((item) =>
+		item.status === view.value || (view.value === 'open' && item.status === 'proposed'),
+	)
+	const focused = visible.find((item) => item.id === focusedItemId.value)
+	return focused ? [focused, ...visible.filter((item) => item.id !== focused.id)] : visible
+})
 const emptyMessages: Record<ShopView, string> = {
 	open: 'Nothing in the Shop yet.',
 	accepted: 'Nothing owed yet.',
@@ -142,6 +153,13 @@ async function applyAction(item: Item, action: Action) {
 			p_action: action,
 		})
 		if (failure) throw failure
+		if (action === 'propose') {
+			// A notification failure must not undo or resubmit the saved proposal.
+			void $fetch('/api/send-notification', {
+				method: 'POST',
+				body: { shopProposalId: item.id },
+			}).catch((error) => console.error('Could not send Shop proposal push:', error))
+		}
 		confirming.value = null
 		if (action === 'accept' || action === 'approve') view.value = 'accepted'
 		if (action === 'complete') view.value = 'completed'
@@ -156,7 +174,14 @@ async function applyAction(item: Item, action: Action) {
 	}
 }
 
-watch([userId, shopRevision], loadShop, { immediate: true })
+watch([userId, shopRevision, focusedItemId], async () => {
+	const id = focusedItemId.value
+	await loadShop()
+	if (!id || focusedItemId.value !== id) return
+	const item = items.value.find((entry) => entry.id === id)
+	if (item?.status === 'accepted' || item?.status === 'completed') view.value = item.status
+	else view.value = 'open'
+}, { immediate: true })
 </script>
 
 <style scoped>
@@ -206,6 +231,7 @@ watch([userId, shopRevision], loadShop, { immediate: true })
 }
 
 .shop-tabs .shop-button { width: 100%; min-width: 0; }
+.shop-item-focused { border-color: #a182bf; outline: 1px solid #a182bf; }
 .shop-item-details { display: grid; width: 100%; gap: 0.55rem; text-align: left; }
 .shop-item-title { display: block; font-size: 1.15rem; overflow-wrap: anywhere; }
 

@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
 	const body = await readBody(event)
 	const client = serverSupabaseServiceRole<Database>(event)
 
-	let notification: { title: string; body: string; violationId?: string; rewardId?: string; contractId?: string } = {
+	let notification: { title: string; body: string; violationId?: string; rewardId?: string; contractId?: string; shopProposalId?: string } = {
 		title: body.title || 'Notification',
 		body: body.body || '',
 	}
@@ -120,6 +120,27 @@ export default defineEventHandler(async (event) => {
 			contractId: contract.id,
 		}
 		subscriptions = subscriptions.eq('user_id', contract.target_id)
+	} else if (body.shopProposalId !== undefined) {
+		if (typeof body.shopProposalId !== 'string' || !/^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(body.shopProposalId)) {
+			throw createError({ statusCode: 400, statusMessage: 'Invalid Shop proposal ID' })
+		}
+		const { data: item, error } = await client
+			.from('shop_items')
+			.select('id, creator_id, title')
+			.eq('id', body.shopProposalId)
+			.eq('partner_id', currentUserId)
+			.eq('status', 'proposed')
+			.maybeSingle()
+
+		if (error) throw createError({ statusCode: 500, statusMessage: 'Could not load Shop proposal' })
+		if (!item) throw createError({ statusCode: 404, statusMessage: 'Shop proposal not found' })
+
+		notification = {
+			title: 'New Shop proposal ✨',
+			body: `Your partner offered to do “${item.title}”`,
+			shopProposalId: item.id,
+		}
+		subscriptions = subscriptions.eq('user_id', item.creator_id)
 	} else {
 		subscriptions = subscriptions.neq('user_id', currentUserId)
 	}

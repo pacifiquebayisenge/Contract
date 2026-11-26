@@ -15,6 +15,9 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
 	// No user/session → go to signin
 	if (!session?.user) {
+		if (to.path === '/shop' && typeof to.query.item === 'string') {
+			return navigateTo({ path: '/signin', query: { shopItem: to.query.item } })
+		}
 		const { violation, reward, contract } = to.query
 		return navigateTo({
 			path: '/signin',

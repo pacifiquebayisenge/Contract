@@ -66,7 +66,14 @@ async function publish() {
 		shopRevision.value++
 	} catch (cause) {
 		console.error('Could not publish item:', cause)
-		error.value = 'Could not publish this item.'
+		const code = typeof cause === 'object' && cause !== null && 'code' in cause ? cause.code : null
+		const message = typeof cause === 'object' && cause !== null && 'message' in cause ? cause.message : null
+		if (code === 'PGRST205' || code === '42P01' ||
+			(code === '23502' && typeof message === 'string' && message.includes('"kind"'))) {
+			error.value = 'The Shop database needs the latest migrations.'
+		} else {
+			error.value = 'Could not publish this item.'
+		}
 	} finally {
 		busy.value = false
 	}
