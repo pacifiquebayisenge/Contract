@@ -186,6 +186,7 @@ export type Database = {
           created_at: string | null
           event_type: string
           id: string
+          rule_title: string | null
           target_id: string
         }
         Insert: {
@@ -195,6 +196,7 @@ export type Database = {
           created_at?: string | null
           event_type: string
           id?: string
+          rule_title?: string | null
           target_id: string
         }
         Update: {
@@ -204,6 +206,7 @@ export type Database = {
           created_at?: string | null
           event_type?: string
           id?: string
+          rule_title?: string | null
           target_id?: string
         }
         Relationships: [
@@ -237,6 +240,7 @@ export type Database = {
           credit: number
           violation: number
           rule_title: string
+          violation_id: string
         }[]
       }
       give_credits: {

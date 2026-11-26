@@ -1,28 +1,15 @@
-create table public.contract_violations (
-  id uuid primary key default gen_random_uuid(),
-  actor_id uuid not null references public.profiles (id),
-  partner_id uuid not null references public.profiles (id),
-  rule_id uuid references public.contract_rules (id) on delete set null,
-  rule_title text not null,
-  credit_cost integer not null check (credit_cost > 0),
-  created_at timestamptz not null default now()
-);
+alter table public.user_events add column if not exists rule_title text;
 
-alter table public.contract_violations enable row level security;
+create policy "Participants can read recorded violations"
+on public.user_events for select to authenticated
+using (event_type = 'violation' and (select auth.uid()) in (actor_id, target_id));
 
-revoke all on public.contract_violations from public, anon, authenticated;
-grant select, insert on public.contract_violations to authenticated;
-
-create policy "Participants can read their violations"
-on public.contract_violations for select to authenticated
-using ((select auth.uid()) in (actor_id, partner_id));
-
-create policy "Users can log violations they report"
-on public.contract_violations for insert to authenticated
-with check ((select auth.uid()) = actor_id and actor_id <> partner_id);
+create policy "Reporters can insert their violation events"
+on public.user_events for insert to authenticated
+with check (event_type = 'violation' and (select auth.uid()) = actor_id and actor_id <> target_id);
 
 create function public.record_contract_violation(p_rule_id uuid, p_partner_id uuid)
-returns table (credit integer, violation integer, rule_title text)
+returns table (credit integer, violation integer, rule_title text, violation_id uuid)
 language plpgsql
 security invoker
 set search_path = ''
@@ -47,8 +34,9 @@ begin
   returning partner.credit, partner.violation into strict credit, violation;
 
   -- Keep the title in history even if the rule is renamed or deleted.
-  insert into public.contract_violations (actor_id, partner_id, rule_id, rule_title, credit_cost)
-  values (reporter_id, p_partner_id, p_rule_id, rule_title, violation_cost);
+  insert into public.user_events (actor_id, target_id, event_type, amount, balance, rule_title)
+  values (reporter_id, p_partner_id, 'violation', -violation_cost, credit, rule_title)
+  returning id into violation_id;
 
   return next;
 end;
