@@ -18,7 +18,7 @@
 					<div class="activity-heading">
 						<strong>{{ violation.rule_title || 'Contract violation' }}</strong>
 						<span class="activity-cost">
-							{{ violationCreditAmount(violation.amount) }} credits
+							{{ violationCreditAmount(violation.amount) }}
 						</span>
 					</div>
 					<p>Reported by {{ userStore.getFullNameById(violation.actor_id) }}</p>
@@ -134,7 +134,7 @@ watch([() => props.focusedId, () => user.value?.sub], loadActivity, { immediate:
 }
 
 .activity-cost {
-	color: #ffb3b3;
+	color: #d03050;
 	font-weight: 600;
 }
 </style>
