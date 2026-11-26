@@ -112,7 +112,10 @@ async function publish() {
 	outline: 2px solid #c9b4df;
 }
 
-.shop-form .shop-button { width: 100%; }
+.shop-form .shop-button {
+	width: 100%;
+	margin-top: 0.75rem;
+}
 
 @media (max-width: 600px) {
 	.shop-modal { width: 70vw; }
