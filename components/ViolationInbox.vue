@@ -17,10 +17,9 @@
 				>
 					<div class="activity-heading">
 						<strong>{{ violation.rule_title || 'Contract violation' }}</strong>
-						<span v-if="violation.amount !== null && violation.amount < 0" class="activity-cost">
-							{{ violation.amount }} credits
+						<span class="activity-cost">
+							{{ violationCreditAmount(violation.amount) }} credits
 						</span>
-						<span v-else class="activity-cost">{{ formatViolationCount(violation.amount) }}</span>
 					</div>
 					<p>Reported by {{ userStore.getFullNameById(violation.actor_id) }}</p>
 					<time v-if="violation.created_at" :datetime="violation.created_at">
@@ -48,10 +47,11 @@ const errorMessage = ref('')
 const focusedViolation = computed(() => violations.value.find(({ id }) => id === props.focusedId))
 let latestRequest = 0
 
-function formatViolationCount(amount: number | null) {
-	// Older violation events stored a count; newer ones store a negative credit amount.
-	const count = amount && amount > 0 ? amount : 1
-	return count === 1 ? '1 violation' : `${count} violations`
+function violationCreditAmount(amount: number | null) {
+	if (amount !== null && amount < 0) return amount
+
+	// Older events stored the count. Apply the standard 100-credit penalty per violation.
+	return -100 * (amount !== null && amount > 0 ? amount : 1)
 }
 
 function violationQuery(userId: string) {
@@ -134,7 +134,7 @@ watch([() => props.focusedId, () => user.value?.sub], loadActivity, { immediate:
 }
 
 .activity-cost {
-	color: #d03050;
+	color: #ffb3b3;
 	font-weight: 600;
 }
 </style>
