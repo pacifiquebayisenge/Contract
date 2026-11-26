@@ -66,6 +66,7 @@ definePageMeta({
 })
 
 const { login, loading, errorMessage } = useAuth()
+const route = useRoute()
 
 const themeStore = useThemeStore()
 
@@ -80,7 +81,8 @@ async function handleLogin() {
 	const success = await login(email.value, password.value)
 
 	if (success) {
-		await navigateTo('/')
+		const { violation, reward, contract } = route.query
+		await navigateTo({ path: '/', query: typeof contract === 'string' ? { contract } : typeof reward === 'string' ? { reward } : typeof violation === 'string' ? { violation } : {} })
 	}
 }
 </script>

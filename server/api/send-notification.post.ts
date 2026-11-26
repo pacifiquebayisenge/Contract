@@ -7,7 +7,10 @@
  * Expected body:
  * {
  *   title?: string,  // defaults to 'Notification'
- *   body?: string    // defaults to ''
+ *   body?: string,   // defaults to ''
+ *   violationId?: string, // sends a saved violation to its recipient only
+ *   rewardId?: string, // sends a saved reward to its recipient only
+ *   contractId?: string // sends a saved Contract use to its recipient only
  * }
  *
  * Behaviour:
@@ -40,29 +43,94 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const body = await readBody(event)
+	const client = serverSupabaseServiceRole<Database>(event)
 
-	// This payload is what the service worker (sw-push.js) receives in its
-	// 'push' event and turns into a visible notification.
-	const payload = JSON.stringify({
+	let notification: { title: string; body: string; violationId?: string; rewardId?: string; contractId?: string } = {
 		title: body.title || 'Notification',
 		body: body.body || '',
-	})
+	}
+	let subscriptions = client.from('push_subscriptions').select('*')
+
+	if (body.violationId !== undefined) {
+		if (typeof body.violationId !== 'string' || !/^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(body.violationId)) {
+			throw createError({ statusCode: 400, statusMessage: 'Invalid violation ID' })
+		}
+
+		// Resolve the recipient and message from the saved record, never from the request.
+		const { data: violation, error } = await client
+			.from('user_events')
+			.select('id, target_id, rule_title')
+			.eq('id', body.violationId)
+			.eq('actor_id', currentUserId)
+			.eq('event_type', 'violation')
+			.maybeSingle()
+
+		if (error) throw createError({ statusCode: 500, statusMessage: 'Could not load violation' })
+		if (!violation) throw createError({ statusCode: 404, statusMessage: 'Violation not found' })
+
+		notification = {
+			title: 'Shameful !! 😡',
+			body: violation.rule_title ? `You violated: ${violation.rule_title}` : 'You violated a contract rule.',
+			violationId: violation.id,
+		}
+		subscriptions = subscriptions.eq('user_id', violation.target_id)
+	} else if (body.rewardId !== undefined) {
+		if (typeof body.rewardId !== 'string' || !/^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(body.rewardId)) {
+			throw createError({ statusCode: 400, statusMessage: 'Invalid reward ID' })
+		}
+
+		const { data: reward, error } = await client
+			.from('credit_increases')
+			.select('id, receiver_id, description')
+			.eq('id', body.rewardId)
+			.eq('giver_id', currentUserId)
+			.maybeSingle()
+
+		if (error) throw createError({ statusCode: 500, statusMessage: 'Could not load reward' })
+		if (!reward) throw createError({ statusCode: 404, statusMessage: 'Reward not found' })
+
+		notification = {
+			title: "you've earned a reward 🥳",
+			body: reward.description || 'You received a reward.',
+			rewardId: reward.id,
+		}
+		subscriptions = subscriptions.eq('user_id', reward.receiver_id)
+	} else if (body.contractId !== undefined) {
+		if (typeof body.contractId !== 'string' || !/^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(body.contractId)) {
+			throw createError({ statusCode: 400, statusMessage: 'Invalid Contract ID' })
+		}
+
+		const { data: contract, error } = await client
+			.from('user_events')
+			.select('id, target_id, contract_use_number, contract_credit_cost')
+			.eq('id', body.contractId)
+			.eq('actor_id', currentUserId)
+			.eq('event_type', 'streak_use')
+			.maybeSingle()
+
+		if (error) throw createError({ statusCode: 500, statusMessage: 'Could not load Contract use' })
+		if (!contract || contract.contract_use_number === null) {
+			throw createError({ statusCode: 404, statusMessage: 'Contract use not found' })
+		}
+
+		const cost = contract.contract_credit_cost
+		notification = {
+			title: 'Unbelievable !!',
+			body: `Contract #${contract.contract_use_number} today${cost ? ` · -${cost} credits` : ''}`,
+			contractId: contract.id,
+		}
+		subscriptions = subscriptions.eq('user_id', contract.target_id)
+	} else {
+		subscriptions = subscriptions.neq('user_id', currentUserId)
+	}
+
+	const payload = JSON.stringify(notification)
 
 	// VAPID identifies our server to the push services (Apple, FCM, Mozilla).
 	// Keys come from runtimeConfig (NUXT_PRIVATE_VAPID / NUXT_PUBLIC_VAPID).
 	webpush.setVapidDetails('mailto:you@example.com', config.public.publicVapid, config.privateVapid)
 
-	// Service role client: we need to read OTHER users' subscriptions,
-	// which RLS would block for a user-scoped client.
-	const client = serverSupabaseServiceRole<Database>(event)
-
-	// All devices except the sender's. user_id is NOT NULL, so a plain
-	// .neq() is safe here (NULL rows, which .neq() would silently skip
-	// due to SQL null semantics, cannot exist).
-	const { data: subs, error } = await client
-		.from('push_subscriptions')
-		.select('*')
-		.neq('user_id', currentUserId)
+	const { data: subs, error } = await subscriptions
 
 	if (error) {
 		console.error('[send-notification] failed to load subscriptions:', error)

@@ -37,8 +37,7 @@ export const useViolationStore = defineStore('violation', () => {
 		void $fetch('/api/send-notification', {
 			method: 'POST',
 			body: {
-				title: 'Shamefull !! 😡',
-				body: `You violated: ${data.rule_title}`,
+				violationId: data.violation_id,
 			},
 		}).catch((error) => console.error('Failed to send violation notification:', error))
 	}

@@ -13,66 +13,22 @@ export const useStreakStore = defineStore('streak', () => {
 	}
 
 	async function updatePartnerStreak() {
+		const partner = useUserStore().partnerProfile
+		if (!partner) throw new Error('Partner profile is not loaded.')
+
 		const supabase = useSupabaseClient<Database>()
-		const userStore = useUserStore()
+		const { data, error } = await supabase
+			.rpc('record_contract_use', { p_partner_id: partner.id })
+			.single()
 
-		const partner = userStore.partnerProfile
+		if (error) throw error
+		partner.streak = data.streak
+		partner.credit = data.credit
 
-		if (!partner) {
-			console.error('Partner profile is not loaded, cannot update streak.')
-			return
-		}
-
-		for (let attempt = 0; attempt < 3; attempt++) {
-			const { data: current, error: readError } = await supabase
-				.from('profiles')
-				.select('streak, credit')
-				.eq('id', partner.id)
-				.single()
-
-			if (readError || !current) {
-				console.error('Failed to load partner streak and credit:', readError)
-				return
-			}
-
-			const nextStreak = current.streak + 1
-			// Starting with the fourth use, save the count and the charge together.
-			const changes =
-				nextStreak > 3
-					? { streak: nextStreak, credit: current.credit - 100 }
-					: { streak: nextStreak }
-
-			// If another action changed either value, read the latest values and retry.
-			const { data: saved, error } = await supabase
-				.from('profiles')
-				.update(changes)
-				.eq('id', partner.id)
-				.eq('streak', current.streak)
-				.eq('credit', current.credit)
-				.select('streak, credit')
-				.maybeSingle()
-
-			if (error) {
-				console.error('Failed to update streak:', error)
-				return
-			}
-
-			if (!saved) continue
-
-			partner.streak = saved.streak
-			partner.credit = saved.credit
-
-			await $fetch('/api/send-notification', {
-				method: 'POST',
-				body: {
-					title: 'Unbelievable !!',
-					body: ` You used Contract again 😒`,
-				},
-			})
-			return
-		}
-
-		console.error('Could not register Contract because the partner profile kept changing.')
+		void $fetch('/api/send-notification', {
+			method: 'POST',
+			body: { contractId: data.event_id },
+		}).catch((error) => console.error('Failed to send Contract notification:', error))
 	}
 
 	async function resetPartnerStreak() {

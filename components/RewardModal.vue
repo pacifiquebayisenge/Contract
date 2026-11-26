@@ -2,6 +2,8 @@
 	<n-modal
 		:show="props.show"
 		:auto-focus="false"
+		:mask-closable="!saving"
+		:close-on-esc="!saving"
 		transform-origin="center"
 		@update:show="emit('update:show', $event)"
 	>
@@ -62,8 +64,14 @@
 					</div>
 				</div>
 
-				<button class="button-3D button-3D-colorful-success" @click="partnerReward()">
-					Amazing !
+				<p v-if="errorMessage" role="alert">{{ errorMessage }}</p>
+				<button
+					type="button"
+					class="button-3D button-3D-colorful-success"
+					:disabled="saving"
+					@click="partnerReward"
+				>
+					{{ saving ? 'Saving…' : 'Amazing !' }}
 				</button>
 			</n-card>
 		</div>
@@ -102,6 +110,8 @@ const { trigger } = useWebHaptics()
 const emit = defineEmits(['update:show'])
 
 const description = ref('')
+const saving = ref(false)
+const errorMessage = ref('')
 const reward = ref()
 
 const currentThemeColor = computed(() => themeStore.themeColor)
@@ -113,6 +123,7 @@ watch(
 	() => props.show,
 	(isOpen) => {
 		if (isOpen) {
+			errorMessage.value = ''
 			reward.value = ''
 			description.value = ''
 		}
@@ -120,18 +131,27 @@ watch(
 )
 
 const partnerReward = async () => {
-	if (!description.value || !reward.value) return
+	if (saving.value || !partner.value) return
 
-	if (!partner.value) {
-		console.warn('Partner profile not loaded yet')
+	const amount = Number(reward.value)
+	const reason = description.value.trim()
+	if (!Number.isFinite(amount) || amount <= 0 || !reason) {
+		errorMessage.value = 'Enter a reward amount and a reason.'
 		return
 	}
 
-	trigger([{ duration: 400 }], { intensity: 1 })
-
-	emit('update:show', false)
-
-	await creditStore.updatePartnerCredit(nearestHundred(reward.value), description.value)
+	saving.value = true
+	errorMessage.value = ''
+	try {
+		trigger([{ duration: 400 }], { intensity: 1 })
+		await creditStore.givePartnerReward(nearestHundred(amount), reason)
+		emit('update:show', false)
+	} catch (error) {
+		console.error('Failed to save reward:', error)
+		errorMessage.value = 'Could not save the reward. Please try again.'
+	} finally {
+		saving.value = false
+	}
 }
 </script>
 

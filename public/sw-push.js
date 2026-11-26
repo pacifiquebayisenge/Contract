@@ -19,7 +19,7 @@ self.addEventListener('push', function (event) {
 		icon: '/icons/icon-192x192.png',
 		badge: '/icons/icon-96x96.png',
 		vibrate: [200, 100, 200],
-		tag: data.tag || 'ugovor-notification',
+		tag: data.contractId ? `contract-${data.contractId}` : data.rewardId ? `reward-${data.rewardId}` : data.violationId ? `violation-${data.violationId}` : data.tag || 'ugovor-notification',
 		data: data,
 		requireInteraction: false,
 		actions: data.actions || []
@@ -35,17 +35,29 @@ self.addEventListener('notificationclick', function (event) {
 
 	event.notification.close()
 
-	const urlToOpen = event.notification.data?.url || '/'
+	const { rewardId, violationId, contractId } = event.notification.data || {}
+	const activityId = contractId || rewardId || violationId
+	const activityKind = contractId ? 'contract' : rewardId ? 'reward' : 'violation'
+	// Ugovor uses hash routing. This same URL works for an open app or a cold start.
+	const activityUrl = activityId
+		? new URL(`#/?${activityKind}=${encodeURIComponent(activityId)}`, self.registration.scope).href
+		: null
+	const urlToOpen = activityUrl || event.notification.data?.url || '/'
 
 	event.waitUntil(
 		self.clients.matchAll({
 			type: 'window',
 			includeUncontrolled: true
-		}).then(function (clientList) {
+		}).then(async function (clientList) {
 			// Check if there's already a window open
 			for (let i = 0; i < clientList.length; i++) {
 				const client = clientList[i]
-				if (client.url.includes(self.registration.scope) && 'focus' in client) {
+				if (client.url.startsWith(self.registration.scope) && 'focus' in client) {
+					if (activityUrl) {
+						const opened = await client.navigate(activityUrl).catch(() => null)
+						if (opened) return opened.focus()
+						break
+					}
 					return client.focus().then(() => {
 						// Send message to client about notification click
 						client.postMessage({
