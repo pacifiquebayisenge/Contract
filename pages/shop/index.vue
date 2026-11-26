@@ -36,7 +36,7 @@
 			>
 				<span class="item-heading">
 					<span>
-						<small>{{ item.kind === 'offer' ? 'Offer' : 'Request' }} · {{ personName(item.creator_id) }}</small>
+						<small>Added by {{ personName(item.creator_id) }}</small>
 						<strong class="shop-item-title">{{ item.title }}</strong>
 					</span>
 					<strong>{{ item.price }} credits</strong>
@@ -45,9 +45,18 @@
 			</button>
 			<p v-if="item.status === 'accepted'">To be done by {{ personName(performer(item)) }}</p>
 			<div v-if="item.status === 'open' && item.partner_id === userId && confirming === item.id" class="shop-confirmation">
-				<p>{{ item.kind === 'offer' ? 'You' : 'Your partner' }} will spend {{ item.price }} credits.</p>
+				<p v-if="item.kind === 'undecided'">Choose who will do it. The other person pays {{ item.price }} credits.</p>
+				<p v-else>{{ item.kind === 'offer' ? 'You' : 'Your partner' }} will spend {{ item.price }} credits.</p>
 				<button type="button" class="button-3D shop-button shop-refresh" :disabled="busy" @click="confirming = null">Cancel</button>
-				<button type="button" class="button-3D shop-button shop-owed" :disabled="busy" @click="applyAction(item, 'accept')">{{ item.kind === 'offer' ? 'Redeem' : 'Accept request' }}</button>
+				<button type="button" class="button-3D shop-button shop-owed" :disabled="busy" @click="applyAction(item, 'accept')">
+					{{ item.kind === 'undecided' ? 'Ask my partner to do it' : item.kind === 'offer' ? 'Redeem' : 'Accept request' }}
+				</button>
+				<button v-if="item.kind === 'undecided'" type="button" class="button-3D shop-button shop-aqua" :disabled="busy" @click="applyAction(item, 'propose')">I can do it</button>
+			</div>
+			<div v-if="item.status === 'proposed'" class="shop-confirmation">
+				<p>{{ item.creator_id === userId ? `Your partner offered to do it. Accept for ${item.price} credits?` : 'Waiting for your partner to confirm.' }}</p>
+				<button v-if="item.creator_id === userId" type="button" class="button-3D shop-button shop-owed" :disabled="busy" @click="applyAction(item, 'approve')">Accept and pay</button>
+				<button type="button" class="button-3D shop-button shop-refresh" :disabled="busy" @click="applyAction(item, 'decline')">{{ item.creator_id === userId ? 'Decline' : 'Cancel proposal' }}</button>
 			</div>
 			<button type="button" class="button-3D shop-button shop-aqua" v-if="item.status === 'open' && item.creator_id === userId" :disabled="busy" @click="applyAction(item, 'withdraw')">Withdraw</button>
 			<button type="button" class="button-3D shop-button shop-aqua" v-if="item.status === 'accepted' && performer(item) === userId" :disabled="busy" @click="applyAction(item, 'complete')">Mark as done</button>
@@ -63,7 +72,7 @@ import { useUserStore } from '~/stores/user'
 
 type Item = Database['public']['Tables']['shop_items']['Row']
 type ShopView = 'open' | 'accepted' | 'completed'
-type Action = 'accept' | 'complete' | 'withdraw'
+type Action = Database['public']['Functions']['apply_shop_action']['Args']['p_action']
 
 const supabase = useSupabaseClient<Database>()
 const user = useSupabaseUser()
@@ -79,7 +88,7 @@ const loading = ref(false)
 const loadFailed = ref(false)
 const busy = ref(false)
 const error = ref('')
-const visibleItems = computed(() => items.value.filter((item) => item.status === view.value))
+const visibleItems = computed(() => items.value.filter((item) => item.status === view.value || (view.value === 'open' && item.status === 'proposed')))
 const emptyMessages: Record<ShopView, string> = {
 	open: 'Nothing in the Shop yet.',
 	accepted: 'Nothing owed yet.',
@@ -134,7 +143,7 @@ async function applyAction(item: Item, action: Action) {
 		})
 		if (failure) throw failure
 		confirming.value = null
-		if (action === 'accept') view.value = 'accepted'
+		if (action === 'accept' || action === 'approve') view.value = 'accepted'
 		if (action === 'complete') view.value = 'completed'
 		await loadShop()
 	} catch (cause) {

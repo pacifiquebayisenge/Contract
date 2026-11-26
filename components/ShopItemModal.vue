@@ -16,12 +16,6 @@
 					<div class="shop-avatar">
 						<AvatarIcon mood="idea" :fullname="userStore.getFullname" />
 					</div>
-					<fieldset class="shop-performer">
-						<legend>Who will do it?</legend>
-						<label><input v-model="draft.kind" type="radio" value="offer" /> I will</label>
-						<label><input v-model="draft.kind" type="radio" value="request" /> My partner will</label>
-					</fieldset>
-					<p>{{ draft.kind === 'offer' ? 'Your partner spends the credits when they redeem your offer.' : 'You spend the credits when your partner accepts your request.' }}</p>
 					<label>Title <input v-model.trim="draft.title" required maxlength="80" /></label>
 					<label>Description <textarea v-model.trim="draft.description" required maxlength="500" rows="3" /></label>
 					<label>Price in credits <input v-model.number="draft.price" type="number" required min="1" max="100000" /></label>
@@ -49,7 +43,6 @@ const userId = computed(() => user.value?.sub)
 const busy = ref(false)
 const error = ref('')
 const draft = reactive({
-	kind: 'offer' as Database['public']['Tables']['shop_items']['Row']['kind'],
 	title: '',
 	description: '',
 	price: 100,
@@ -69,7 +62,7 @@ async function publish() {
 		})
 		if (failure) throw failure
 		emit('update:show', false)
-		Object.assign(draft, { kind: 'offer', title: '', description: '', price: 100 })
+		Object.assign(draft, { title: '', description: '', price: 100 })
 		shopRevision.value++
 	} catch (cause) {
 		console.error('Could not publish item:', cause)
@@ -105,7 +98,7 @@ async function publish() {
 .shop-form { gap: 1rem; color: #504758; }
 .shop-form label { font-weight: 600; }
 
-.shop-form input, .shop-form select, .shop-form textarea {
+.shop-form input, .shop-form textarea {
 	width: 100%;
 	border: 1px solid transparent;
 	border-radius: 1rem;
@@ -114,37 +107,12 @@ async function publish() {
 	color: #423747;
 }
 
-.shop-form :is(input, select, textarea):focus-visible {
+.shop-form :is(input, textarea):focus-visible {
 	border-color: #a182bf;
 	outline: 2px solid #c9b4df;
 }
 
 .shop-form .shop-button { width: 100%; }
-
-.shop-performer {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem;
-}
-
-.shop-performer legend {
-	margin-bottom: 0.4rem;
-	font-weight: 600;
-}
-
-.shop-performer label {
-	display: flex;
-	align-items: center;
-	flex: 1 1 auto;
-	padding: 0.5rem;
-	border-radius: 0.75rem;
-	background: #0000000a;
-}
-
-.shop-performer input {
-	width: auto;
-	accent-color: #63366e;
-}
 
 @media (max-width: 600px) {
 	.shop-modal { width: 70vw; }

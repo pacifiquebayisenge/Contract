@@ -19,18 +19,18 @@ export type Database = {
           id: string
           creator_id: string
           partner_id: string
-          kind: "offer" | "request"
+          kind: "offer" | "request" | "undecided"
           title: string
           description: string
           price: number
-          status: "open" | "accepted" | "completed" | "withdrawn"
+          status: "open" | "proposed" | "accepted" | "completed" | "withdrawn"
           created_at: string
           accepted_at: string | null
         }
         Insert: {
           creator_id: string
           partner_id: string
-          kind: "offer" | "request"
+          kind?: "offer" | "request" | "undecided"
           title: string
           description: string
           price: number
@@ -262,7 +262,7 @@ export type Database = {
     }
     Functions: {
       apply_shop_action: {
-        Args: { p_item_id: string; p_action: "accept" | "complete" | "withdraw" }
+        Args: { p_item_id: string; p_action: "accept" | "complete" | "withdraw" | "propose" | "approve" | "decline" }
         Returns: undefined
       }
       record_contract_use: {
