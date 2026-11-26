@@ -192,10 +192,10 @@ watch([() => props.focusedId, () => props.focusedKind, () => user.value?.sub], l
 }
 
 .activity-cost {
-	color: #d03050;
+	color: #ee0b38;
 	font-weight: 600;
 }
 .activity-reward {
-	color: #2c7a4d;
+	color: #55af7a;
 }
 </style>
