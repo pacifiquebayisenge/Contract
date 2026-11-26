@@ -29,7 +29,7 @@
 						</span>
 					</div>
 					<p v-if="item.targetId">Used by {{ userStore.getFullNameById(item.targetId) }}</p>
-					<p>{{ item.kind === 'reward' ? 'Given by' : item.kind === 'shop' ? 'Accepted by' : 'Reported by' }}
+					<p>{{ item.kind === 'reward' ? 'Given by' : item.kind === 'shop-publication' ? 'Published by' : item.kind === 'shop' ? 'Purchased by' : 'Reported by' }}
 						{{ userStore.getFullNameById(item.actorId) }}</p>
 					<time v-if="item.createdAt" :datetime="item.createdAt">
 						{{ formatDateTime(item.createdAt) }}
@@ -49,7 +49,7 @@ type Reward = Database['public']['Tables']['credit_increases']['Row']
 type ShopItem = Database['public']['Tables']['shop_items']['Row']
 type Activity = {
 	id: string
-	kind: 'violation' | 'reward' | 'contract' | 'shop'
+	kind: 'violation' | 'reward' | 'contract' | 'shop' | 'shop-publication'
 	title: string
 	amount: number | null
 	actorId: string
@@ -57,7 +57,7 @@ type Activity = {
 	createdAt: string | null
 }
 
-const props = defineProps<{ focusedId: string | null; focusedKind: Exclude<Activity['kind'], 'shop'> }>()
+const props = defineProps<{ focusedId: string | null; focusedKind: Exclude<Activity['kind'], 'shop' | 'shop-publication'> }>()
 const supabase = useSupabaseClient<Database>()
 const userStore = useUserStore()
 const user = useSupabaseUser()
@@ -133,10 +133,21 @@ function shopActivity(item: ShopItem, userId: string): Activity {
 	return {
 		id: item.id,
 		kind: 'shop',
-		title: item.title,
+		title: `Shop purchase · ${item.title}`,
 		amount: payerId === userId ? -item.price : null,
-		actorId: item.partner_id,
+		actorId: payerId,
 		createdAt: item.accepted_at,
+	}
+}
+
+function shopPublication(item: ShopItem): Activity {
+	return {
+		id: item.id,
+		kind: 'shop-publication',
+		title: `New Shop item · ${item.title}`,
+		amount: null,
+		actorId: item.creator_id,
+		createdAt: item.created_at,
 	}
 }
 
@@ -154,23 +165,26 @@ async function loadActivity() {
 	errorMessage.value = ''
 
 	try {
-		const [violations, rewards, contracts, purchases] = await Promise.all([
+		const [violations, rewards, contracts, purchases, publications] = await Promise.all([
 			eventQuery(userId, 'violation').order('created_at', { ascending: false, nullsFirst: false }).limit(25),
 			rewardQuery(userId).order('created_at', { ascending: false }).limit(25),
 			eventQuery(userId, 'streak_use').order('created_at', { ascending: false, nullsFirst: false }).limit(25),
 			supabase.from('shop_items').select('*').not('accepted_at', 'is', null)
 				.order('accepted_at', { ascending: false }).limit(25),
+			supabase.from('shop_items').select('*').order('created_at', { ascending: false }).limit(25),
 		])
 		if (violations.error) throw violations.error
 		if (rewards.error) throw rewards.error
 		if (contracts.error) throw contracts.error
 		if (purchases.error) throw purchases.error
+		if (publications.error) throw publications.error
 
 		const recent = [
 			...(violations.data ?? []).map(violationActivity),
 			...(rewards.data ?? []).map(rewardActivity),
 			...(contracts.data ?? []).map(contractActivity),
 			...(purchases.data ?? []).map((item) => shopActivity(item, userId)),
+			...(publications.data ?? []).map(shopPublication),
 		].sort((a, b) => {
 			const timestamp = (value: string | null) => value ? Date.parse(value) : 0
 			return timestamp(b.createdAt) - timestamp(a.createdAt)

@@ -60,6 +60,15 @@
 							Remove this item from the Shop?
 						</NPopconfirm>
 					</div>
+					<button
+						v-if="item.status === 'open' && item.creator_id === userId"
+						type="button"
+						class="button-3D shop-button shop-buy"
+						:disabled="busy"
+						@click="applyAction(item, 'buy_own')"
+					>
+						Buy for {{ item.price }} credits · partner does it
+					</button>
 					<p v-if="item.status === 'accepted'">To be done by {{ personName(performer(item)) }}</p>
 					<div v-if="item.status === 'open' && item.partner_id === userId && confirming === item.id" class="shop-confirmation">
 						<p v-if="item.kind === 'undecided'">Choose who will do it. The other person pays {{ item.price }} credits.</p>
@@ -183,15 +192,17 @@ async function applyAction(item: Item, action: Action) {
 			p_expected_price: item.price,
 		})
 		if (failure) throw failure
-		if (action === 'propose') {
+		if (['propose', 'accept', 'approve', 'buy_own'].includes(action)) {
 			// A notification failure must not undo or resubmit the saved proposal.
 			void $fetch('/api/send-notification', {
 				method: 'POST',
-				body: { shopProposalId: item.id },
-			}).catch((error) => console.error('Could not send Shop proposal push:', error))
+				body: action === 'propose'
+					? { shopProposalId: item.id }
+					: { shopItemId: item.id, shopAction: 'purchased' },
+			}).catch((error) => console.error('Could not send Shop push:', error))
 		}
 		confirming.value = null
-		if (action === 'accept' || action === 'approve') view.value = 'accepted'
+		if (action === 'accept' || action === 'approve' || action === 'buy_own') view.value = 'accepted'
 		if (action === 'complete') view.value = 'completed'
 		await loadShop()
 	} catch (cause) {
@@ -287,7 +298,7 @@ watch([userId, shopRevision, focusedItemId], async () => {
 .shop-tabs .shop-button { width: 100%; min-width: 0; }
 .shop-item-focused { border-color: #a182bf; outline: 1px solid #a182bf; }
 .shop-item-details { display: grid; width: 100%; gap: 0.55rem; text-align: left; }
-.shop-item-title { display: block; font-size: 1.15rem; overflow-wrap: anywhere; }
+.shop-item-title { display: block; font-size: 1.4rem; overflow-wrap: anywhere; }
 
 @media (max-width: 34rem) {
 	.shop-tabs .shop-button { flex-direction: column; gap: 0.25rem; padding-inline: 0.2rem; }

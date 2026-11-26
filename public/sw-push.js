@@ -19,7 +19,7 @@ self.addEventListener('push', function (event) {
 		icon: '/icons/icon-192x192.png',
 		badge: '/icons/icon-96x96.png',
 		vibrate: [200, 100, 200],
-		tag: data.shopProposalId ? `shop-${data.shopProposalId}` : data.contractId ? `contract-${data.contractId}` : data.rewardId ? `reward-${data.rewardId}` : data.violationId ? `violation-${data.violationId}` : data.tag || 'ugovor-notification',
+		tag: data.shopItemId ? `shop-${data.shopAction}-${data.shopItemId}` : data.shopProposalId ? `shop-${data.shopProposalId}` : data.contractId ? `contract-${data.contractId}` : data.rewardId ? `reward-${data.rewardId}` : data.violationId ? `violation-${data.violationId}` : data.tag || 'ugovor-notification',
 		data: data,
 		requireInteraction: false,
 		actions: data.actions || []
@@ -35,14 +35,15 @@ self.addEventListener('notificationclick', function (event) {
 
 	event.notification.close()
 
-	const { rewardId, violationId, contractId, shopProposalId } = event.notification.data || {}
-	const activityId = shopProposalId || contractId || rewardId || violationId
+	const { rewardId, violationId, contractId, shopProposalId, shopItemId } = event.notification.data || {}
+	const shopId = shopItemId || shopProposalId
+	const activityId = shopId || contractId || rewardId || violationId
 	const activityKind = contractId ? 'contract' : rewardId ? 'reward' : 'violation'
 	// Ugovor uses hash routing. This same URL works for an open app or a cold start.
 	const activityUrl = activityId
 		? new URL(
-			shopProposalId
-				? `#/shop?item=${encodeURIComponent(shopProposalId)}`
+			shopId
+				? `#/shop?item=${encodeURIComponent(shopId)}`
 				: `#/?${activityKind}=${encodeURIComponent(activityId)}`,
 			self.registration.scope,
 		).href

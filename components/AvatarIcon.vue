@@ -2,7 +2,7 @@
 	<div class="avatar-icon-container">
 		<div
 			class="avatar"
-			:style="{ backgroundColor: currentLightThemeColor }"
+			:style="{ backgroundColor: props.backgroundColor || currentLightThemeColor }"
 			:class="insideBadgeRing ? 'inside-ring' : 'outside-ring'"
 		>
 			<div class="avatar-image" :class="optimizedWidth === '60' ? '' : 'pb-[2rem]'">
@@ -22,6 +22,7 @@ import { useThemeStore } from '~/stores/theme'
 import { getAvatarMood } from '~/utils/getAvatarImg'
 
 const props = defineProps({
+	backgroundColor: String,
 	mood: {
 		type: String,
 		default: '',

@@ -14,7 +14,7 @@
 				</template>
 				<form class="shop-form" @submit.prevent="saveItem">
 					<div class="shop-avatar">
-						<AvatarIcon mood="idea" :fullname="userStore.getFullname" />
+						<AvatarIcon background-color="#dcc5ef" mood="idea" :fullname="userStore.getFullname" />
 					</div>
 					<label>Title <input v-model.trim="draft.title" required maxlength="80" /></label>
 					<label>Description <textarea v-model.trim="draft.description" required maxlength="500" rows="3" /></label>
@@ -75,12 +75,16 @@ async function saveItem() {
 		} else {
 			const partner = userStore.partnerProfile
 			if (!partner) return
-			const { error: failure } = await supabase.from('shop_items').insert({
+			const { data, error: failure } = await supabase.from('shop_items').insert({
 				...draft,
 				creator_id: userId.value,
 				partner_id: partner.id,
-			})
+			}).select('id').single()
 			if (failure) throw failure
+			void $fetch('/api/send-notification', {
+				method: 'POST',
+				body: { shopItemId: data.id, shopAction: 'published' },
+			}).catch((error) => console.error('Could not send Shop publication push:', error))
 		}
 		emit('update:show', false)
 		Object.assign(draft, { title: '', description: '', price: 100 })

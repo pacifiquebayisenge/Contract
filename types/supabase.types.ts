@@ -26,6 +26,7 @@ export type Database = {
           status: "open" | "proposed" | "accepted" | "completed" | "withdrawn"
           created_at: string
           accepted_at: string | null
+          accepted_by: string | null
         }
         Insert: {
           creator_id: string
@@ -266,7 +267,7 @@ export type Database = {
         Returns: undefined
       }
       apply_shop_action: {
-        Args: { p_item_id: string; p_action: "accept" | "complete" | "withdraw" | "propose" | "approve" | "decline" }
+        Args: { p_item_id: string; p_action: "accept" | "complete" | "withdraw" | "propose" | "approve" | "decline" | "buy_own" }
         Returns: undefined
       }
       record_contract_use: {
