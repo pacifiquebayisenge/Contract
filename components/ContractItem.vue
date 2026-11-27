@@ -18,30 +18,16 @@
 					</p>
 
 					<n-collapse-transition :show="showActions">
-						<div class="contract-item-content-actions mt-5">
-							<div class="content">
-								<textarea
-									readonly
-									class="contract-description w-[100%] h-[15rem] bg-[#0000000a] py-4 px-6 rounded-[1rem] font-color"
-									:name="'contract-rule-description-' + props.index"
-									:value="props.item.description"
-								/>
+						<div class="contract-item-content-actions" @click.stop>
+							<p class="contract-description">{{ props.item.description }}</p>
 
-								<div class="action-buttons py-8">
-									<button
-										class="button-3D button-3D-colorful"
-										@click="showEditDialog = !showEditDialog"
-									>
-										<NIcon class="text-base opacity-55" :size="20" :component="PencilSquareIcon" />
-									</button>
-
-									<button
-										class="button-3D button-3D-colorful-error"
-										@click="showDeleteDialog = !showDeleteDialog"
-									>
-										<NIcon class="text-base opacity-55" :size="20" :component="TrashIcon" />
-									</button>
-								</div>
+							<div class="action-buttons">
+								<button type="button" class="button-3D shop-button shop-refresh" aria-label="Edit contract" @click="showEditDialog = true">
+									<PencilSquareIcon aria-hidden="true" />
+								</button>
+								<button type="button" class="button-3D shop-button shop-delete" aria-label="Delete contract" @click="showDeleteDialog = true">
+									<TrashIcon aria-hidden="true" />
+								</button>
 							</div>
 						</div>
 					</n-collapse-transition>
@@ -190,44 +176,31 @@ const insideBadgeRing = computed(() => themeStore.isInsideBadgeRing)
 }
 
 .contract-item-content-actions {
-	display: flex;
-	align-content: center;
-	gap: 2rem;
-	width: 100%;
-	justify-content: center;
-
-	span {
-		padding-top: 0.25rem;
-		font-weight: 500;
-	}
-
-	.content {
-		margin-top: 1rem;
-
-		.contract-description {
-			resize: none;
-
-			&:focus {
-				outline: 2px solid v-bind(currentLightThemeColor);
-				border-color: v-bind(currentLightThemeColor);
-			}
-		}
-
-		width: 100%;
-		max-width: 50rem;
-
-		.action-buttons {
-			display: flex;
-			align-items: center;
-			gap: 5rem;
-			width: 100%;
-
-			button {
-				width: 70%;
-			}
-		}
-	}
+	margin: 2rem 0;
 }
+
+.contract-description {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	padding: 1rem 1.5rem;
+	border-radius: 1rem;
+	background: #0000000a;
+	margin-bottom: 2rem;
+	font-size: 1.3rem;
+	font-weight: 600;
+	color: #555555;
+}
+
+.action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+
+.contract-item-content-actions .button-3D.shop-button {
+	width: 100%;
+	min-height: 2.75rem;
+	padding: 0.75rem 1rem;
+	font-size: 1.15rem !important;
+}
+
+.shop-delete { --shop-top: #fde5eb; --shop-edge: #e9a8bc; --shop-ink: #87344d; }
 
 .footer div {
 	span {
@@ -285,3 +258,5 @@ const insideBadgeRing = computed(() => themeStore.isInsideBadgeRing)
 	color: #9ca3af;
 }
 </style>
+
+<style scoped src="~/assets/css/shop-buttons.css"></style>
