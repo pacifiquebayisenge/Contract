@@ -38,7 +38,8 @@
 				@click="confirming = confirming === item.id ? null : item.id"
 			>
 				<span class="shop-title-row">
-					<span class="shop-card-index" aria-hidden="true">{{ index + 1 }}</span>
+					<span class="shop-card-index" :class="{ 'inside-ring': themeStore.isInsideBadgeRing }"
+						:style="{ color: themeStore.themeColor, backgroundColor: themeStore.extraLightThemeColor }" aria-hidden="true">{{ index + 1 }}</span>
 					<strong class="shop-item-title">{{ item.title }}</strong>
 					<strong class="shop-price" :aria-label="`${formatAmount(item.price)} credits`">
 						<BanknotesIcon aria-hidden="true" /> {{ formatAmount(item.price) }}
@@ -278,7 +279,9 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	max-width: 42rem;
 	margin: 0 auto;
 	padding: 1rem 1rem 8rem;
-	color: #292929;
+	color: #e5e7eb;
+	background: #30313a;
+	border-radius: 1.5rem;
 }
 
 .shop-header, .shop-tabs, .item-heading, .shop-confirmation {
@@ -295,8 +298,9 @@ watch([userId, shopRevision, focusedItemId], async () => {
 .shop-item {
 	border-radius: 1.5rem;
 	box-shadow: 0 4px 12px #31223d0a;
-	border-color: #e4d9eb;
-	background: #fff;
+	border-color: #50515f;
+	background: #393a46;
+	color: inherit;
 }
 
 .shop-expanded {
@@ -304,10 +308,10 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	gap: 0.85rem;
 	margin-top: 0.85rem;
 	padding-top: 0.85rem;
-	border-top: 1px solid #eee5f1;
+	border-top: 1px solid #585a69;
 }
 
-.shop-meta { display: flex; flex-wrap: wrap; gap: 0.3rem 0.55rem; color: #655d69; }
+.shop-meta { display: flex; flex-wrap: wrap; gap: 0.3rem 0.55rem; color: inherit; opacity: 0.85; }
 .shop-owner-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
 .shop-expanded .shop-confirmation {
 	display: grid;
@@ -348,13 +352,17 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	display: grid;
 	place-items: center;
 	align-self: center;
-	width: 2rem;
-	height: 2rem;
-	border-radius: 0.75rem;
-	background: #f2ebf8;
-	color: #684780;
+	width: 3.5rem;
+	height: 3.5rem;
+	border-radius: 1rem;
+	font-size: 1.75rem;
+	line-height: 1;
 	font-weight: 700;
+	outline: 0.2rem solid #00000014;
+	outline-offset: 0.3rem;
 }
+
+.shop-card-index.inside-ring { outline-offset: -0.5rem; }
 
 .shop-delete-modal { width: min(80vw, 30rem); }
 .shop-delete-card {
@@ -372,7 +380,7 @@ watch([userId, shopRevision, focusedItemId], async () => {
 .shop-description { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; }
 /* The grid and divider share the same available width. */
 .shop-header {
-	border-bottom: 1px solid #dedee3;
+	border-bottom: 1px solid #606273;
 	padding-bottom: 1rem;
 }
 
