@@ -50,6 +50,7 @@ export function useStats() {
 	const purchases = ref<Pick<Database['public']['Tables']['shop_items']['Row'],
 		'id' | 'source_item_id' | 'title' | 'kind' | 'creator_id' | 'partner_id' | 'status' | 'price' | 'accepted_at'>[]>([])
 	const rewardsReceived = ref<number | null>(null)
+	const lastContractUse = ref<string | null>(null)
 	const shopReady = ref(false)
 	const loading = ref(true)
 	const error = ref('')
@@ -89,18 +90,23 @@ export function useStats() {
 				if (data.length < PAGE_SIZE) break
 			}
 			const month = fromZonedTime(monthStart(today.value, 0) + 'T00:00:00', TIME_ZONE).toISOString()
-			const [shop, rewards] = await Promise.all([
+			const [shop, rewards, lastContract] = await Promise.all([
 				supabase.from('shop_items')
 					.select('id, source_item_id, title, kind, creator_id, partner_id, status, price, accepted_at')
 					.or(`status.eq.accepted,accepted_at.gte.${month}`)
 					.order('accepted_at', { ascending: false }),
 				supabase.from('credit_increases').select('amount')
 					.eq('receiver_id', participants[0]).gte('created_at', month),
+				supabase.from('user_events').select('created_at')
+					.eq('target_id', participants[0]).eq('event_type', 'streak_use')
+					.lte('created_at', now.toISOString())
+					.order('created_at', { ascending: false }).limit(1).maybeSingle(),
 			])
 			if (request !== latestRequest) return
 
 			events.value = rows
 			purchases.value = shop.data ?? []
+			lastContractUse.value = lastContract.data?.created_at ?? null
 			shopReady.value = !shop.error
 			rewardsReceived.value = rewards.data?.reduce((total, reward) => total + reward.amount, 0) ?? null
 		} catch (cause) {
@@ -158,12 +164,9 @@ export function useStats() {
 
 	const monthPrefix = computed(() => today.value.slice(0, 7))
 	const contractFreeDays = computed(() => {
-		const userId = user.value?.sub
-		if (!userId) return null
-
-		const elapsedDays = days.value.filter((day) => day.startsWith(monthPrefix.value) && day < today.value)
-		const count = elapsedDays.filter((day) => !streakCounts.value.has(`${userId}:${day}`)).length
-		return { count, total: elapsedDays.length }
+		if (!lastContractUse.value) return null
+		const lastDay = dayKey(lastContractUse.value)
+		return (Date.parse(today.value) - Date.parse(lastDay)) / 86_400_000
 	})
 
 	const monthlyCredits = computed(() => {

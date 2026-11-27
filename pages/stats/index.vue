@@ -6,8 +6,7 @@
 			<StatCard title="Total Violations" :value="totalViolations" />
 			<StatCard
 				title="Contract-free days"
-				:value="activityReady ? contractFreeDays?.count ?? null : null"
-				:total="contractFreeDays?.total"
+				:value="activityReady ? contractFreeDays : null"
 			/>
 		</div>
 
