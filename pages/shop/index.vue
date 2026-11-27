@@ -68,24 +68,24 @@
 									v-if="item.status === 'open' && item.creator_id === userId"
 									type="button"
 									class="button-3D shop-button shop-buy"
-									:disabled="busy"
+									:disabled="busy || !!purchaseTimer(item.id, item.creator_id)"
 									@click="applyAction(item, 'buy_own')"
 								>
-									Buy
+									<template v-if="purchaseTimer(item.id, item.creator_id)"><ClockIcon aria-hidden="true" /> {{ purchaseTimer(item.id, item.creator_id) }}</template><template v-else>Buy</template>
 								</button>
 								<p v-if="item.status === 'accepted'">To be done by {{ personName(performer(item)) }}</p>
 								<div v-if="item.status === 'open' && item.partner_id === userId && confirming === item.id" class="shop-confirmation">
 									<p v-if="item.kind === 'undecided'">Choose who will do it. The other person pays {{ item.price }} credits.</p>
 									<p v-else>{{ item.kind === 'offer' ? 'You' : 'Your partner' }} will spend {{ item.price }} credits.</p>
 									<button type="button" class="button-3D shop-button shop-refresh" :disabled="busy" @click="confirming = null">Cancel</button>
-									<button type="button" class="button-3D shop-button shop-buy" :disabled="busy" @click="applyAction(item, 'accept')">
-										{{ item.kind === 'request' ? 'Accept request' : 'Buy' }}
+									<button type="button" class="button-3D shop-button shop-buy" :disabled="busy || !!purchaseTimer(item.id, item.kind === 'request' ? item.creator_id : item.partner_id)" @click="applyAction(item, 'accept')">
+										<template v-if="purchaseTimer(item.id, item.kind === 'request' ? item.creator_id : item.partner_id)"><ClockIcon aria-hidden="true" /> {{ purchaseTimer(item.id, item.kind === 'request' ? item.creator_id : item.partner_id) }}</template><template v-else>{{ item.kind === 'request' ? 'Accept request' : 'Buy' }}</template>
 									</button>
 									<button v-if="item.kind === 'undecided'" type="button" class="button-3D shop-button shop-aqua" :disabled="busy" @click="applyAction(item, 'propose')">I can do it</button>
 								</div>
 								<div v-if="item.status === 'proposed'" class="shop-confirmation">
 									<p>{{ item.creator_id === userId ? `Your partner offered to do it. Accept for ${item.price} credits?` : 'Waiting for your partner to confirm.' }}</p>
-									<button v-if="item.creator_id === userId" type="button" class="button-3D shop-button shop-owed" :disabled="busy" @click="applyAction(item, 'approve')">Accept and pay</button>
+									<button v-if="item.creator_id === userId" type="button" class="button-3D shop-button shop-owed" :disabled="busy || !!purchaseTimer(item.id, item.creator_id)" @click="applyAction(item, 'approve')"><template v-if="purchaseTimer(item.id, item.creator_id)"><ClockIcon aria-hidden="true" /> {{ purchaseTimer(item.id, item.creator_id) }}</template><template v-else>Accept and pay</template></button>
 									<button type="button" class="button-3D shop-button shop-refresh" :disabled="busy" @click="applyAction(item, 'decline')">{{ item.creator_id === userId ? 'Decline' : 'Cancel proposal' }}</button>
 								</div>
 								<button type="button" class="button-3D shop-button shop-aqua" v-if="item.status === 'accepted' && performer(item) === userId" :disabled="busy" @click="applyAction(item, 'complete')">{{ count > 1 ? 'Mark one as done' : 'Mark as done' }}</button>
@@ -193,6 +193,35 @@ const shopRevision = useState('shop-revision', () => 0)
 const loading = ref(false)
 const loadFailed = ref(false)
 const busy = ref(false)
+const now = ref(Date.now())
+let clock: ReturnType<typeof setInterval> | undefined
+
+onMounted(() => {
+	now.value = Date.now()
+	clock = setInterval(() => { now.value = Date.now() }, 1000)
+})
+onUnmounted(() => clearInterval(clock))
+
+const purchaseDeadlines = computed(() => {
+	const deadlines = new Map<string, number>()
+	for (const purchase of items.value) {
+		if (!purchase.source_item_id || !purchase.accepted_at) continue
+		const payer = purchase.kind === 'offer' ? purchase.partner_id : purchase.creator_id
+		const key = `${purchase.source_item_id}:${payer}`
+		const deadline = Date.parse(purchase.accepted_at) + 24 * 60 * 60 * 1000
+		deadlines.set(key, Math.max(deadlines.get(key) ?? 0, deadline))
+	}
+	return deadlines
+})
+
+function purchaseTimer(itemId: string, payer: string) {
+	const deadline = purchaseDeadlines.value.get(`${itemId}:${payer}`) ?? 0
+	const seconds = Math.ceil((deadline - now.value) / 1000)
+	if (seconds <= 0) return ''
+
+	return [Math.floor(seconds / 3600), Math.floor(seconds / 60) % 60, seconds % 60]
+		.map((part) => String(part).padStart(2, '0')).join(':')
+}
 const error = ref('')
 const tasksForYou = computed(() =>
 	items.value.filter((item) => item.status === 'accepted' && performer(item) === userId.value).length,
@@ -312,6 +341,12 @@ async function applyAction(item: Item, action: Action) {
 		if (buying) view.value = 'accepted'
 		await loadShop()
 	} catch (cause) {
+		if (typeof cause === 'object' && cause !== null && 'message' in cause &&
+			cause.message === 'This item can only be purchased once every 24 hours') {
+			// A purchase from another device may have started the cooldown.
+			await loadShop()
+			return
+		}
 		console.error('Could not update Shop item:', cause)
 		error.value = shopActionError(cause)
 	} finally {
