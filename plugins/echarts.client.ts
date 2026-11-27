@@ -3,6 +3,7 @@ import { BarChart, HeatmapChart, LineChart, ScatterChart } from 'echarts/charts'
 import {
 	GridComponent,
 	LegendComponent,
+	MarkLineComponent,
 	TooltipComponent,
 	VisualMapComponent,
 } from 'echarts/components'
@@ -19,6 +20,7 @@ use([
 	GridComponent,
 	TooltipComponent,
 	LegendComponent,
+	MarkLineComponent,
 	VisualMapComponent,
 ])
 

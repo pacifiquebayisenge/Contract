@@ -1,8 +1,9 @@
 <template>
-	<div class="card app-surface-card m-[5px]">
+	<div class="card app-surface-card animate-item">
 		<div class="title font-color">{{ title }}</div>
 		<div class="value font-color">
-			<Vue3Countup :number="value" :more-options="countupOptions" />
+			<Vue3Countup v-if="value !== null" :number="value" :more-options="countupOptions" />
+			<span v-else>—</span>
 		</div>
 	</div>
 </template>
@@ -10,13 +11,10 @@
 <script setup lang="ts">
 import { Vue3Countup } from 'vue3-countup'
 
-const props = defineProps<{
+defineProps<{
 	title: string
-	value: number
-	currency?: boolean
+	value: number | null
 }>()
-
-const isCurrency = computed(() => (props.currency ? '€ ' : ''))
 
 const countupOptions = {
 	useEasing: true,
@@ -24,8 +22,6 @@ const countupOptions = {
 	duration: 2,
 	separator: ' ',
 	decimal: '.',
-	prefix: isCurrency.value,
-	suffix: '',
 }
 </script>
 
@@ -37,8 +33,9 @@ const countupOptions = {
 }
 .title {
 	font-size: 12px;
-	font-weight: 500;
-	opacity: 0.6;
+	font-weight: 600;
+	color: #64748b;
+	text-align: center;
 	display: flex;
 	justify-content: center;
 }
