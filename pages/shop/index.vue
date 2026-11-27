@@ -105,7 +105,7 @@
 			@update:show="closeDelete"
 		>
 			<div class="shop-delete-modal">
-				<n-card class="shop-delete-card" :style="{ '--shop-delete-accent': themeStore.themeColor }" :bordered="false" role="dialog" aria-labelledby="shop-delete-title">
+				<n-card class="shop-delete-card" :bordered="false" role="dialog" aria-labelledby="shop-delete-title">
 					<template #header>
 						<h2 id="shop-delete-title">Delete item</h2>
 					</template>
@@ -113,8 +113,8 @@
 						<AvatarIcon mood="shook" :fullname="userStore.getFullname" />
 						<div class="shop-delete-copy">
 							<p>
-								Are you <strong class="shop-delete-accent">sure</strong> you want to delete
-								shop item <strong class="shop-delete-accent">{{ deletingItemNumber }}</strong> ???
+								Are you sure you want to delete
+								shop item {{ deletingItemNumber }} ???
 							</p>
 							<p>{{ deletingItem?.title }}</p>
 						</div>
@@ -134,7 +134,6 @@ import { ArrowPathIcon, BanknotesIcon, CheckCircleIcon, ClockIcon, PencilSquareI
 import { Vue3Countup } from 'vue3-countup'
 import type { Database } from '~/types/supabase.types'
 import { useCreditStore } from '~/stores/credit'
-import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 import { formatTimeAgo } from '~/utils/formatDate'
 
@@ -151,7 +150,6 @@ const focusedItemId = computed(() => {
 const user = useSupabaseUser()
 const userStore = useUserStore()
 const creditStore = useCreditStore()
-const themeStore = useThemeStore()
 const countupOptions = { useEasing: true, useGrouping: true, duration: 2, separator: ' ', decimal: '.' }
 const amountFormatter = new Intl.NumberFormat('en-US')
 const formatAmount = (amount: number) => amountFormatter.format(amount).replace(/,/g, ' ')
@@ -396,7 +394,7 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	border-radius: 2rem;
 	background: linear-gradient(180deg, #f9f9fb 5%, #f3edf9 60%, #eadcf6);
 }
-#shop-delete-title { color: #45404b; text-align: center; font-weight: 700; }
+#shop-delete-title { color: #656565; text-align: center; font-weight: 700; }
 .shop-delete-body {
 	display: grid;
 	gap: 1.5rem;
@@ -415,7 +413,6 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	line-height: 1.5;
 }
 
-.shop-delete-accent { color: var(--shop-delete-accent); font-weight: 700; }
 .shop-delete-body .button-3D { margin-top: 0.5rem; }
 
 .shop-description {

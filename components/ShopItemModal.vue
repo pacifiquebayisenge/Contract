@@ -120,7 +120,7 @@ async function saveItem() {
 }
 
 #shop-modal-title {
-	color: #45404b;
+	color: #656565;
 	text-align: center;
 	font-weight: 700;
 }
