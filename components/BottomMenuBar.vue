@@ -28,7 +28,7 @@
 		<!-- account drawer -->
 		<n-drawer
 			v-model:show="showAccount"
-			:height="650"
+			height="min(650px, 90dvh)"
 			placement="bottom"
 			:auto-focus="false"
 			:block-scroll="true"
@@ -36,6 +36,7 @@
 			style="border-top-left-radius: 2rem; border-top-right-radius: 2rem"
 		>
 			<n-drawer-content
+				:native-scrollbar="false"
 				class="drawer-gradient-background"
 				:style="{
 					'--theme-color': currentLightThemeColor,
@@ -49,91 +50,72 @@
 					</div>
 				</template>
 
-				<div class="drawer-body invisible-scroll h-[100%]">
-					<div class="account-items px-5 h-[100%] flex flex-col justify-between overflow-y-auto">
-						<n-collapse arrow-placement="right" class="mb-16">
-							<n-collapse-item title="names" name="1">
-								<div class="px-3">
-									<n-input
-										v-model:value="inputValue.firstname"
-										class="bg-[#0000000a] rounded-[1rem] my-5"
-										type="text"
-										placeholder="Firstname"
-									/>
+				<div class="account-settings">
+					<n-collapse arrow-placement="right" :default-expanded-names="['profile']">
+						<n-collapse-item name="profile">
+							<template #header>
+								<span class="settings-heading"><UserIcon aria-hidden="true" /> Profile</span>
+							</template>
+							<form class="settings-panel profile-fields" @submit.prevent="saveChanges">
+								<label>First name <n-input v-model:value="inputValue.firstname" /></label>
+								<label>Last name <n-input v-model:value="inputValue.lastname" /></label>
+								<label class="profile-nickname">Partner nickname <n-input v-model:value="inputValue.partnerPseudo" /></label>
+								<button type="submit" class="button-3D button-3D-colorful profile-save">Save</button>
+							</form>
+						</n-collapse-item>
 
-									<n-input
-										v-model:value="inputValue.lastname"
-										class="bg-[#0000000a] rounded-[1rem] my-5"
-										type="text"
-										placeholder="Lastname"
-									/>
-
-									<n-input
-										v-model:value="inputValue.partnerPseudo"
-										class="bg-[#0000000a] rounded-[1rem] my-5"
-										type="text"
-										placeholder="Partner Pseudo"
-									/>
-
-									<button class="button-3D button-3D-colorful my-6 font-color" @click="saveChanges">
-										Save
-									</button>
-									<n-divider />
-								</div>
-							</n-collapse-item>
-
-							<n-collapse-item title="Theme" name="2">
-								<div class="px-3">
-									<span>Primary</span>
+						<n-collapse-item name="theme">
+							<template #header>
+								<span class="settings-heading"><SwatchIcon aria-hidden="true" /> Theme</span>
+							</template>
+							<div class="settings-panel settings-theme">
+								<div>
+									<h3>Color palette</h3>
 									<ThemeSwitcher />
-
-									<n-divider />
-
-									<span>Badge</span>
+								</div>
+								<div>
+									<h3>Badge</h3>
 									<BadgeSwitcher />
-
-									<n-divider />
-
-									<fieldset class="card-style-options">
-										<legend>Card style</legend>
-										<label>
-											<input type="radio" name="card-style" :checked="themeStore.cardStyle === 'elevated'" @change="themeStore.setCardStyle('elevated')" />
-											Elevated
-										</label>
-										<label>
-											<input type="radio" name="card-style" :checked="themeStore.cardStyle === 'flat'" @change="themeStore.setCardStyle('flat')" />
-											Flat
-										</label>
-									</fieldset>
 								</div>
-							</n-collapse-item>
+								<fieldset>
+									<legend>Card style</legend>
+									<div class="card-style-options">
+										<label v-for="style in cardStyles" :key="style">
+											<input type="radio" name="card-style" :checked="themeStore.cardStyle === style" @change="themeStore.setCardStyle(style)" />
+											<span class="card-style-preview" :class="'preview-' + style" aria-hidden="true">
+												<i></i><i></i>
+											</span>
+											<span>{{ style }}</span>
+										</label>
+									</div>
+								</fieldset>
+							</div>
+						</n-collapse-item>
 
-							<n-collapse-item title="Notifications" name="3">
-								<div class="px-3">
-									<n-space vertical>
-										<span>Push Notifications</span>
-
-										<n-switch
-											v-model:value="notificationsEnabled"
-											:loading="loading"
-											@update:value="toggleNotifications"
-										>
-											<template #checked>Enabled</template>
-											<template #unchecked>Disabled</template>
-										</n-switch>
-
-										<n-text depth="3" style="font-size: 12px">
-											{{ statusText }}
-										</n-text>
-									</n-space>
+						<n-collapse-item name="notifications">
+							<template #header>
+								<span class="settings-heading"><BellIcon aria-hidden="true" /> Notifications</span>
+							</template>
+							<div class="settings-panel">
+								<div class="settings-notifications">
+									<span>Push notifications</span>
+									<n-switch
+										v-model:value="notificationsEnabled"
+										:loading="loading"
+										aria-label="Push notifications"
+										@update:value="toggleNotifications"
+									>
+										<template #checked>Enabled</template>
+										<template #unchecked>Disabled</template>
+									</n-switch>
 								</div>
-							</n-collapse-item>
-						</n-collapse>
-
-						<button class="button-3D button-3D-colorful-error my-6 mb-20" @click="logout">
-							Logout
-						</button>
-					</div>
+								<p class="settings-status">{{ statusText }}</p>
+							</div>
+						</n-collapse-item>
+					</n-collapse>
+					<button type="button" class="button-3D button-3D-colorful-error settings-logout" @click="logout">
+						Logout
+					</button>
 				</div>
 			</n-drawer-content>
 		</n-drawer>
@@ -173,7 +155,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
-import { InboxIcon, Squares2X2Icon, UserIcon, WalletIcon } from '@heroicons/vue/24/outline'
+import { BellIcon, InboxIcon, Squares2X2Icon, SwatchIcon, UserIcon, WalletIcon } from '@heroicons/vue/24/outline'
 import { usePseudoStore } from '~/stores/pseudo'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
@@ -197,6 +179,7 @@ const {
 const { logout } = useAuth()
 
 const showAccount = ref(false)
+const cardStyles = ['elevated', 'flat'] as const
 const showInbox = ref(false)
 const route = useRoute()
 const router = useRouter()
@@ -459,20 +442,45 @@ input {
 	position: relative;
 	z-index: 1;
 }
-.card-style-options {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.6rem;
+.account-settings { display: grid; gap: 1.5rem; padding: 0.5rem 0.25rem 2rem; color: #475569; }
+.settings-heading { display: inline-flex; align-items: center; gap: 0.65rem; font-weight: 700; }
+.settings-heading svg { width: 2.5rem; height: 2.5rem; padding: 0.45rem; border-radius: 0.75rem; background: var(--theme-color); color: #344054; }
+.settings-panel {
+	padding: 1rem;
+	border: 1px solid color-mix(in srgb, var(--primary-color) 17%, transparent);
+	border-radius: 1.1rem;
+	background: #ffffffb8;
 }
-
-.card-style-options legend { margin-bottom: 0.5rem; font-weight: 600; }
+.profile-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.profile-fields label { display: grid; gap: 0.35rem; min-width: 0; font-weight: 600; }
+.profile-nickname, .profile-save { grid-column: 1 / -1; }
+.profile-save { margin-top: 0.5rem; }
+.settings-theme { display: grid; gap: 1.1rem; }
+.settings-theme h3, .settings-theme legend { margin-bottom: 0.5rem; font-weight: 700; }
+.settings-theme fieldset { min-width: 0; }
+.settings-notifications { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between; font-weight: 600; }
+.settings-status { margin-top: 0.55rem; font-size: 1.15rem; color: #64748b; }
+.settings-logout { justify-self: center; width: min(100%, 14rem); }
+.card-style-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; }
 .card-style-options label {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.35rem;
-	padding: 0.4rem 0.65rem;
-	border: 1px solid #dedee3;
-	border-radius: 0.65rem;
+	position: relative;
+	display: grid;
+	gap: 0.6rem;
+	justify-items: center;
+	padding: 0.75rem 0.4rem;
+	border: 1px solid #e5e7eb;
+	border-radius: 0.85rem;
+	background: #f9fafb;
 	cursor: pointer;
+	text-transform: capitalize;
+	font-weight: 600;
 }
+.card-style-options label:has(input:checked) { border-color: var(--primary-color); background: color-mix(in srgb, var(--theme-color) 48%, white); }
+.card-style-options label:focus-within { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+.card-style-options input { position: absolute; top: 0.5rem; right: 0.5rem; accent-color: var(--primary-color); }
+.card-style-preview { display: grid; align-content: center; gap: 0.25rem; width: 3.8rem; height: 2.3rem; padding: 0.45rem; border-radius: 0.5rem; background: white; }
+.card-style-preview i { display: block; height: 2px; width: 75%; border-radius: 1px; background: var(--theme-color); }
+.card-style-preview i + i { width: 50%; }
+.preview-elevated { box-shadow: 0 3px 6px #0003; }
+.preview-flat { border: 1px solid color-mix(in srgb, var(--primary-color) 35%, white); }
 </style>
