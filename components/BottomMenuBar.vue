@@ -108,8 +108,8 @@
 										aria-label="Push notifications"
 										@update:value="toggleNotifications"
 									>
-										<template #checked>Enabled</template>
-										<template #unchecked>Disabled</template>
+										<template #checked><span class="push-label-enabled">Enabled</span></template>
+										<template #unchecked><span class="push-label-disabled">Disabled</span></template>
 									</n-switch>
 								</div>
 								<p class="settings-status">{{ statusText }}</p>
@@ -453,7 +453,13 @@ input {
 	position: relative;
 	z-index: 1;
 }
-.account-settings { display: grid; gap: 1.5rem; padding: 0.5rem 0.25rem 2rem; color: #475569; }
+.account-settings {
+	display: grid;
+	gap: 10.5rem;
+	padding: 0.5rem 0.25rem 2rem;
+	color: #475569;
+	margin-bottom: 5rem;
+}
 .settings-heading { display: inline-flex; align-items: center; gap: 0.65rem; font-weight: 700; }
 .settings-heading svg { width: 2.5rem; height: 2.5rem; padding: 0.45rem; border-radius: 0.75rem; background: var(--theme-color); color: #344054; }
 .settings-panel {
@@ -471,6 +477,8 @@ input {
 .settings-theme h3, .settings-theme legend { margin-bottom: 0.5rem; font-weight: 700; }
 .settings-theme fieldset { min-width: 0; }
 .settings-notifications { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between; font-weight: 600; }
+.push-label-enabled { color: #24543c; }
+.push-label-disabled { color: #424b5b; }
 .settings-push-switch :deep(.n-switch__button) { box-shadow: 0 2px 4px #0002; }
 .settings-push-switch:focus-within { outline: 2px solid var(--primary-color); outline-offset: 3px; border-radius: 999px; }
 .settings-status { margin-top: 0.55rem; font-size: 1.15rem; color: #64748b; }
