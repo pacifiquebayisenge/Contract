@@ -170,8 +170,8 @@ export function useActivityInbox(
 
 			if (request === latestRequest) {
 				errorMessage.value = ''
-				if (focused && open.value) markRead(focused)
 				activities.value = focused ? [focused, ...recent.filter((item) => !isFocused(item))] : recent
+				if (open.value) markActivitiesRead(activities.value)
 			}
 		} catch (error) {
 			console.error('Failed to load inbox activity:', error)
@@ -204,8 +204,13 @@ export function useActivityInbox(
 	}
 
 	function markRead(item: Activity) {
-		if (!isUnread(item)) return
-		readKeys.value.add(activityKey(item))
+		markActivitiesRead([item])
+	}
+
+	function markActivitiesRead(items: Activity[]) {
+		const unread = items.filter(isUnread)
+		if (!unread.length) return
+		for (const item of unread) readKeys.value.add(activityKey(item))
 		try {
 			localStorage.setItem(storageKey.value, JSON.stringify([...readKeys.value]))
 		} catch {
