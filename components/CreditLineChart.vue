@@ -5,6 +5,7 @@
 </template>
 
 <script setup lang="ts">
+import { getMonthParts } from '~/utils/statsMonthParts'
 import type { StatsSeries } from '~/composables/useStats'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
@@ -14,33 +15,8 @@ const props = defineProps<{ days: string[]; data: StatsSeries[] }>()
 const themeStore = useThemeStore()
 const userStore = useUserStore()
 const amounts = new Intl.NumberFormat('en-US')
-const dates = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })
-const formatDay = (day: string) => dates.format(new Date(day))
 
-function weekStart(day: string) {
-	const date = new Date(day)
-	date.setUTCDate(date.getUTCDate() - ((date.getUTCDay() + 6) % 7))
-	return date.toISOString().slice(0, 10)
-}
-
-function weeklyPeaks(values: StatsSeries['values'], weekKeys: string[], weekStarts: string[]) {
-	const peaks = new Map<string, number>()
-	weekKeys.forEach((week, index) => {
-		const balance = values[index]
-		if (balance != null) peaks.set(week, Math.max(balance, peaks.get(week) ?? balance))
-	})
-	return weekStarts.map((week) => peaks.get(week) ?? null)
-}
-
-const weekByDay = computed(() => {
-	const firstDay = props.days[0]
-	return props.days.map((day) => {
-		const monday = weekStart(day)
-		// The first week can start before the visible two-month period.
-		return monday < firstDay ? firstDay : monday
-	})
-})
-const weeks = computed(() => [...new Set(weekByDay.value)])
+const parts = computed(() => getMonthParts(props.days))
 
 const option = computed(() => ({
 	animation: false,
@@ -62,10 +38,10 @@ const option = computed(() => ({
 	},
 	xAxis: {
 		type: 'category',
-		data: weeks.value,
+		data: parts.value.map(({ label }) => label),
 		axisLabel: {
-			formatter: formatDay,
-			interval: Math.max(0, Math.ceil(weeks.value.length / 5) - 1),
+			formatter: (label: string) => label.replace(' - ', '\n'),
+			fontSize: 10,
 			hideOverlap: true,
 			margin: 10,
 			color: '#667085',
@@ -86,7 +62,12 @@ const option = computed(() => ({
 		return {
 			name: userStore.getProfileById(userId)?.firstname || (mine ? 'You' : 'Partner'),
 			type: 'line',
-			data: weeklyPeaks(values, weekByDay.value, weeks.value),
+			data: parts.value.map(({ lastIndex }, index) => {
+				if (index === parts.value.length - 1) {
+					return userStore.getProfileById(userId)?.credit ?? values[lastIndex] ?? null
+				}
+				return values[lastIndex] ?? null
+			}),
 			connectNulls: false,
 			showSymbol: true,
 			symbol: 'circle',

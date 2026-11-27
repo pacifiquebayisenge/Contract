@@ -5,6 +5,7 @@
 </template>
 
 <script setup lang="ts">
+import { getMonthParts } from '~/utils/statsMonthParts'
 import type { StatsSeries } from '~/composables/useStats'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
@@ -12,8 +13,8 @@ import { useUserStore } from '~/stores/user'
 const props = defineProps<{ days: string[]; data: StatsSeries[] }>()
 const themeStore = useThemeStore()
 const userStore = useUserStore()
-const dates = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })
-const formatDay = (day: string) => dates.format(new Date(day))
+
+const parts = computed(() => getMonthParts(props.days))
 
 const option = computed(() => ({
 	animation: false,
@@ -29,10 +30,10 @@ const option = computed(() => ({
 	tooltip: { trigger: 'axis', renderMode: 'richText', confine: true },
 	xAxis: {
 		type: 'category',
-		data: props.days,
+		data: parts.value.map(({ label }) => label),
 		axisLabel: {
-			formatter: formatDay,
-			interval: Math.max(0, Math.ceil(props.days.length / 5) - 1),
+			formatter: (label: string) => label.replace(' - ', '\n'),
+			fontSize: 10,
 			hideOverlap: true,
 			margin: 10,
 			color: '#667085',
@@ -55,7 +56,11 @@ const option = computed(() => ({
 		return {
 			name: userStore.getProfileById(userId)?.firstname || (mine ? 'You' : 'Partner'),
 			type: 'line',
-			data: values,
+			data: parts.value.map(({ firstIndex, lastIndex }, index) => {
+				if (index === parts.value.length - 1) return values[lastIndex] ?? 0
+				// Closed segments show the most recent day with recorded use.
+				return values.slice(firstIndex, lastIndex + 1).findLast((value) => value != null && value > 0) ?? 0
+			}),
 			symbol: 'circle',
 			symbolSize: 5,
 			showAllSymbol: true,
@@ -65,7 +70,7 @@ const option = computed(() => ({
 				markLine: {
 					silent: true,
 					symbol: 'none',
-					label: { formatter: 'Free limit', position: 'insideEndTop', color: '#8c687b', fontSize: 10 },
+					label: { formatter: 'Daily free limit', position: 'insideEndTop', color: '#8c687b', fontSize: 10 },
 					lineStyle: { color: '#d9a9bd', type: 'dashed' },
 					data: [{ yAxis: 3 }],
 				},
