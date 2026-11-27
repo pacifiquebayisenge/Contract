@@ -241,6 +241,23 @@ async function loadShop() {
 	}
 }
 
+function shopActionError(cause: unknown) {
+	const failure = typeof cause === 'object' && cause !== null ? cause : {}
+	const code = 'code' in failure ? failure.code : null
+	const message = 'message' in failure ? failure.message : null
+
+	if (code === 'PGRST202' || code === '42883') {
+		return 'The Shop action is missing from Supabase. Apply the Shop edit migration.'
+	}
+	if (code === '42703' || code === 'PGRST204' || message === 'This shop action is unavailable') {
+		return 'This action is unavailable. Refresh the Shop. If Buy still fails on your own item, verify the Shop purchases migration.'
+	}
+	if (message === 'Not enough credits') return 'Not enough credits to buy this item.'
+	if (message === 'The Shop item changed. Refresh before trying again.') return message
+	if (code === '42501') return 'The database denied this Shop action. Check your session and Shop permissions.'
+	return 'Could not update this item. See the browser console for the database error.'
+}
+
 async function applyAction(item: Item, action: Action) {
 	if (busy.value) return
 
@@ -269,9 +286,7 @@ async function applyAction(item: Item, action: Action) {
 		await loadShop()
 	} catch (cause) {
 		console.error('Could not update Shop item:', cause)
-		error.value = typeof cause === 'object' && cause !== null && 'message' in cause && cause.message === 'Not enough credits'
-			? 'Not enough credits to accept this item.'
-			: 'Could not update this item. It may have changed already.'
+		error.value = shopActionError(cause)
 	} finally {
 		busy.value = false
 	}
