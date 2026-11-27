@@ -4,7 +4,10 @@
 			<h1>{{ userStore.profile?.firstname || 'Shop' }}</h1>
 			<span v-if="balance !== null" class="shop-balance" :aria-label="`${formatAmount(balance)} credits`">
 				<BanknotesIcon aria-hidden="true" />
-				<Vue3Countup :number="balance" :more-options="countupOptions" aria-hidden="true" />
+				<span class="shop-balance-number" aria-hidden="true">
+					<span class="shop-balance-width">{{ formatAmount(balance) }}</span>
+					<Vue3Countup :number="balance" :more-options="countupOptions" />
+				</span>
 			</span>
 		</header>
 
@@ -30,65 +33,68 @@
 		</div>
 		<p v-if="!loading && !loadFailed && !visibleItems.length">{{ emptyMessages[view] }}</p>
 		<n-card v-for="(item, index) in visibleItems" :key="item.id" class="shop-item" :bordered="true" :class="{ 'shop-item-focused': item.id === focusedItemId }">
-			<button
-				type="button"
-				class="shop-item-details"
-				:disabled="busy"
-				:aria-expanded="confirming === item.id"
-				@click="confirming = confirming === item.id ? null : item.id"
-			>
-				<span class="shop-title-row">
-					<span class="shop-card-index" :class="{ 'inside-ring': themeStore.isInsideBadgeRing }"
-						:style="{ color: themeStore.themeColor, backgroundColor: themeStore.extraLightThemeColor }" aria-hidden="true">{{ index + 1 }}</span>
-					<strong class="shop-item-title">{{ item.title }}</strong>
-					<strong class="shop-price" :aria-label="`${formatAmount(item.price)} credits`">
-						<BanknotesIcon aria-hidden="true" /> {{ formatAmount(item.price) }}
-					</strong>
-				</span>
-				<span class="shop-meta">
-					<time :datetime="item.created_at">{{ formatTimeAgo(item.created_at) }}</time>
-					<span>·</span>
-					<span>{{ personName(item.creator_id) }}</span>
-				</span>
-			</button>
-			<n-collapse-transition :show="confirming === item.id">
-				<div class="shop-expanded">
-					<p class="shop-description">{{ item.description }}</p>
-					<div v-if="item.status === 'open' && item.creator_id === userId" class="shop-owner-actions">
-						<button type="button" class="button-3D shop-button shop-refresh" aria-label="Edit item" :disabled="busy" @click="openEdit(item)">
-							<PencilSquareIcon aria-hidden="true" />
-						</button>
-						<button type="button" class="button-3D shop-button shop-delete" aria-label="Delete item" :disabled="busy" @click="openDelete(item)">
-							<TrashIcon aria-hidden="true" />
-						</button>
-					</div>
+			<div class="shop-card-layout">
+				<span class="shop-card-index" aria-hidden="true">{{ index + 1 }}</span>
+				<div class="shop-card-content">
 					<button
-						v-if="item.status === 'open' && item.creator_id === userId"
 						type="button"
-						class="button-3D shop-button shop-buy"
+						class="shop-item-details"
 						:disabled="busy"
-						@click="applyAction(item, 'buy_own')"
+						:aria-expanded="confirming === item.id"
+						@click="confirming = confirming === item.id ? null : item.id"
 					>
-						Buy
+						<span class="shop-title-row">
+							<strong class="shop-item-title">{{ item.title }}</strong>
+							<strong class="shop-price" :aria-label="`${formatAmount(item.price)} credits`">
+								{{ formatAmount(item.price) }}
+							</strong>
+						</span>
+						<span class="shop-meta">
+							<time :datetime="item.created_at">{{ formatTimeAgo(item.created_at) }}</time>
+							<span>·</span>
+							<span>{{ personName(item.creator_id) }}</span>
+						</span>
 					</button>
-					<p v-if="item.status === 'accepted'">To be done by {{ personName(performer(item)) }}</p>
-					<div v-if="item.status === 'open' && item.partner_id === userId && confirming === item.id" class="shop-confirmation">
-						<p v-if="item.kind === 'undecided'">Choose who will do it. The other person pays {{ item.price }} credits.</p>
-						<p v-else>{{ item.kind === 'offer' ? 'You' : 'Your partner' }} will spend {{ item.price }} credits.</p>
-						<button type="button" class="button-3D shop-button shop-refresh" :disabled="busy" @click="confirming = null">Cancel</button>
-						<button type="button" class="button-3D shop-button shop-buy" :disabled="busy" @click="applyAction(item, 'accept')">
-							{{ item.kind === 'request' ? 'Accept request' : 'Buy' }}
-						</button>
-						<button v-if="item.kind === 'undecided'" type="button" class="button-3D shop-button shop-aqua" :disabled="busy" @click="applyAction(item, 'propose')">I can do it</button>
-					</div>
-					<div v-if="item.status === 'proposed'" class="shop-confirmation">
-						<p>{{ item.creator_id === userId ? `Your partner offered to do it. Accept for ${item.price} credits?` : 'Waiting for your partner to confirm.' }}</p>
-						<button v-if="item.creator_id === userId" type="button" class="button-3D shop-button shop-owed" :disabled="busy" @click="applyAction(item, 'approve')">Accept and pay</button>
-						<button type="button" class="button-3D shop-button shop-refresh" :disabled="busy" @click="applyAction(item, 'decline')">{{ item.creator_id === userId ? 'Decline' : 'Cancel proposal' }}</button>
-					</div>
-					<button type="button" class="button-3D shop-button shop-aqua" v-if="item.status === 'accepted' && performer(item) === userId" :disabled="busy" @click="applyAction(item, 'complete')">Mark as done</button>
+					<n-collapse-transition :show="confirming === item.id">
+						<div class="shop-expanded">
+							<p class="shop-description">{{ item.description }}</p>
+							<div v-if="item.status === 'open' && item.creator_id === userId" class="shop-owner-actions">
+								<button type="button" class="button-3D shop-button shop-refresh" aria-label="Edit item" :disabled="busy" @click="openEdit(item)">
+									<PencilSquareIcon aria-hidden="true" />
+								</button>
+								<button type="button" class="button-3D shop-button shop-delete" aria-label="Delete item" :disabled="busy" @click="openDelete(item)">
+									<TrashIcon aria-hidden="true" />
+								</button>
+							</div>
+							<button
+								v-if="item.status === 'open' && item.creator_id === userId"
+								type="button"
+								class="button-3D shop-button shop-buy"
+								:disabled="busy"
+								@click="applyAction(item, 'buy_own')"
+							>
+								Buy
+							</button>
+							<p v-if="item.status === 'accepted'">To be done by {{ personName(performer(item)) }}</p>
+							<div v-if="item.status === 'open' && item.partner_id === userId && confirming === item.id" class="shop-confirmation">
+								<p v-if="item.kind === 'undecided'">Choose who will do it. The other person pays {{ item.price }} credits.</p>
+								<p v-else>{{ item.kind === 'offer' ? 'You' : 'Your partner' }} will spend {{ item.price }} credits.</p>
+								<button type="button" class="button-3D shop-button shop-refresh" :disabled="busy" @click="confirming = null">Cancel</button>
+								<button type="button" class="button-3D shop-button shop-buy" :disabled="busy" @click="applyAction(item, 'accept')">
+									{{ item.kind === 'request' ? 'Accept request' : 'Buy' }}
+								</button>
+								<button v-if="item.kind === 'undecided'" type="button" class="button-3D shop-button shop-aqua" :disabled="busy" @click="applyAction(item, 'propose')">I can do it</button>
+							</div>
+							<div v-if="item.status === 'proposed'" class="shop-confirmation">
+								<p>{{ item.creator_id === userId ? `Your partner offered to do it. Accept for ${item.price} credits?` : 'Waiting for your partner to confirm.' }}</p>
+								<button v-if="item.creator_id === userId" type="button" class="button-3D shop-button shop-owed" :disabled="busy" @click="applyAction(item, 'approve')">Accept and pay</button>
+								<button type="button" class="button-3D shop-button shop-refresh" :disabled="busy" @click="applyAction(item, 'decline')">{{ item.creator_id === userId ? 'Decline' : 'Cancel proposal' }}</button>
+							</div>
+							<button type="button" class="button-3D shop-button shop-aqua" v-if="item.status === 'accepted' && performer(item) === userId" :disabled="busy" @click="applyAction(item, 'complete')">Mark as done</button>
+						</div>
+					</n-collapse-transition>
 				</div>
-			</n-collapse-transition>
+			</div>
 		</n-card>
 		<ShopItemModal v-model:show="showEdit" :item="editingItem" />
 		<n-modal
@@ -99,17 +105,20 @@
 			@update:show="closeDelete"
 		>
 			<div class="shop-delete-modal">
-				<n-card class="shop-delete-card" :style="{ '--delete-theme': themeStore.lightThemeColor }" :bordered="false" size="huge" role="dialog" aria-labelledby="shop-delete-title">
+				<n-card class="shop-delete-card" :bordered="false" role="dialog" aria-labelledby="shop-delete-title">
 					<template #header>
 						<h2 id="shop-delete-title">Delete item</h2>
 					</template>
 					<AvatarIcon mood="shook" :fullname="userStore.getFullname" />
-					<p>Are you sure you want to remove this item?</p>
-					<strong>{{ deletingItem?.title }}</strong>
+					<div class="shop-delete-copy">
+						<p>Remove this item from the Shop?</p>
+						<strong>{{ deletingItem?.title }}</strong>
+					</div>
 					<p v-if="error" role="alert">{{ error }}</p>
 					<button type="button" class="button-3D button-3D-colorful-error" :disabled="busy" @click="confirmDelete">
 						{{ busy ? 'Deleting…' : 'Delete' }}
 					</button>
+					<button type="button" class="shop-delete-cancel" :disabled="busy" @click="closeDelete(false)">Cancel</button>
 				</n-card>
 			</div>
 		</n-modal>
@@ -121,7 +130,6 @@ import { ArrowPathIcon, BanknotesIcon, CheckCircleIcon, ClockIcon, PencilSquareI
 import { Vue3Countup } from 'vue3-countup'
 import type { Database } from '~/types/supabase.types'
 import { useCreditStore } from '~/stores/credit'
-import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 import { formatTimeAgo } from '~/utils/formatDate'
 
@@ -138,7 +146,6 @@ const focusedItemId = computed(() => {
 const user = useSupabaseUser()
 const userStore = useUserStore()
 const creditStore = useCreditStore()
-const themeStore = useThemeStore()
 const countupOptions = { useEasing: true, useGrouping: true, duration: 2, separator: ' ', decimal: '.' }
 const amountFormatter = new Intl.NumberFormat('en-US')
 const formatAmount = (amount: number) => amountFormatter.format(amount).replace(/,/g, ' ')
@@ -303,9 +310,9 @@ watch([userId, shopRevision, focusedItemId], async () => {
 
 .shop-expanded {
 	display: grid;
-	gap: 0.85rem;
-	margin-top: 0.85rem;
-	padding-top: 0.85rem;
+	gap: 1.1rem;
+	margin-top: 1rem;
+	padding-top: 1rem;
 	border-top: 1px solid #eee5f1;
 }
 
@@ -313,6 +320,7 @@ watch([userId, shopRevision, focusedItemId], async () => {
 .shop-owner-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
 .shop-expanded .shop-confirmation {
 	display: grid;
+	gap: 1rem;
 	grid-template-columns: minmax(0, 1fr);
 	width: 100%;
 }
@@ -342,16 +350,30 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	color: #594474;
 }
 
-.shop-balance { font-size: 24px; font-weight: 600; }
-.shop-price svg, .shop-balance svg { width: 1em; height: 1em; flex: none; }
+.shop-balance { gap: 1rem; font-size: 24px; font-weight: 600; }
+.shop-balance-number { display: inline-grid; text-align: end; font-variant-numeric: tabular-nums; }
+.shop-balance-number > * { grid-area: 1 / 1; justify-self: end; }
+.shop-balance-width { visibility: hidden; }
+.shop-balance svg { width: 1em; height: 1em; flex: none; }
+
+.shop-card-layout {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: start;
+	gap: clamp(0.85rem, 4vw, 1.5rem);
+}
+
+.shop-card-content { min-width: 0; }
 
 .shop-card-index {
 	flex: none;
 	display: grid;
 	place-items: center;
-	align-self: center;
-	width: 3.5rem;
-	height: 3.5rem;
+	align-self: start;
+	width: clamp(2.25rem, 8vw, 3.5rem);
+	height: clamp(2.25rem, 8vw, 3.5rem);
+	background: #ece7f8;
+	color: #63366e;
 	border-radius: 1rem;
 	font-size: 1.75rem;
 	line-height: 1;
@@ -360,22 +382,31 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	outline-offset: 0.3rem;
 }
 
-.shop-card-index.inside-ring { outline-offset: -0.5rem; }
-
-.shop-delete-modal { width: min(80vw, 30rem); }
+.shop-delete-modal { width: min(30rem, 92vw); max-height: 90dvh; overflow-y: auto; border-radius: 2rem; }
 .shop-delete-card {
 	border-radius: 2rem;
-	background: linear-gradient(180deg, #f9f9fb 5%, color-mix(in srgb, var(--delete-theme) 30%, #f9f9fb));
+	background: linear-gradient(180deg, #f9f9fb 5%, #f3edf9 60%, #eadcf6);
 }
-#shop-delete-title { text-align: center; font-weight: 700; }
+#shop-delete-title { color: #45404b; text-align: center; font-weight: 700; }
 .shop-delete-card :deep(.n-card__content) {
 	display: grid;
-	gap: 1.5rem;
+	gap: 1.25rem;
+	color: #504758;
 	text-align: center;
 	overflow-wrap: anywhere;
 }
 
-.shop-description { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; }
+.shop-delete-copy { display: grid; gap: 0.5rem; }
+.shop-delete-cancel { justify-self: center; padding: 0.35rem 0.75rem; font-weight: 600; }
+
+.shop-description {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	padding: 0.75rem 0.9rem;
+	border-radius: 1rem;
+	background: #0000000a;
+	color: #423747;
+}
 /* The grid and divider share the same available width. */
 .shop-header {
 	border-bottom: 1px solid #dedee3;
@@ -386,13 +417,17 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: 0.5rem;
-	margin: 1.4rem 0 1.2rem;
+	margin: 1.4rem 0 2rem;
 }
 
 .shop-tabs .shop-button { width: 100%; min-width: 0; }
 .shop-item-focused { border-color: #a182bf; outline: 1px solid #a182bf; }
 .shop-item-details { display: grid; width: 100%; gap: 0.55rem; text-align: left; }
 .shop-item-title { display: block; min-width: 0; font-size: 1.4rem; overflow-wrap: anywhere; }
+
+@media (max-width: 600px) {
+	.shop-delete-modal { width: 70vw; }
+}
 
 @media (max-width: 34rem) {
 	.shop-tabs .shop-button { flex-direction: column; gap: 0.25rem; padding-inline: 0.2rem; }
