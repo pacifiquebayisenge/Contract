@@ -4,6 +4,7 @@
 		<div class="value font-color">
 			<Vue3Countup v-if="value !== null" :number="value" :more-options="countupOptions" />
 			<span v-else>—</span>
+			<span v-if="value !== null && total !== undefined" class="value-total">/ {{ total }}</span>
 		</div>
 	</div>
 </template>
@@ -14,6 +15,7 @@ import { Vue3Countup } from 'vue3-countup'
 defineProps<{
 	title: string
 	value: number | null
+	total?: number
 }>()
 
 const countupOptions = {
@@ -44,5 +46,11 @@ const countupOptions = {
 	font-weight: 600;
 	display: flex;
 	justify-content: center;
+}
+.value-total {
+	align-self: baseline;
+	margin-inline-start: 0.3rem;
+	font-size: 0.65em;
+	color: #64748b;
 }
 </style>

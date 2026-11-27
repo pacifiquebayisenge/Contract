@@ -4,6 +4,11 @@
 			<StatCard title="Credit Balance" :value="currentCredit" />
 			<StatCard title="Contracts Today" :value="activityReady ? todayStreaks : null" />
 			<StatCard title="Total Violations" :value="totalViolations" />
+			<StatCard
+				title="Contract-free days"
+				:value="activityReady ? contractFreeDays?.count ?? null : null"
+				:total="contractFreeDays?.total"
+			/>
 		</div>
 
 		<p v-if="loading" class="stats-status" role="status">Loading activity…</p>
@@ -49,7 +54,7 @@ import { usePageAnimation } from '~/composables/usePageAnimation'
 import { useStats } from '~/composables/useStats'
 import { useUserStore } from '~/stores/user'
 
-const { days, loading, error, load, todayStreaks, streakSeries, creditSeries, appOpensPerDay, monthlyCredits, shopSummary, shopReady } = useStats()
+const { days, loading, error, load, contractFreeDays, todayStreaks, streakSeries, creditSeries, appOpensPerDay, monthlyCredits, shopSummary, shopReady } = useStats()
 const userStore = useUserStore()
 const creditFormatter = new Intl.NumberFormat('en-US')
 const formatCredits = (amount: number) => creditFormatter.format(amount).replace(/,/g, ' ')

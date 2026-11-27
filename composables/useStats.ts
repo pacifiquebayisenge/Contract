@@ -157,6 +157,15 @@ export function useStats() {
 	const appOpensToday = computed(() => appOpenCounts.value.get(`${user.value?.sub}:${today.value}`) ?? 0)
 
 	const monthPrefix = computed(() => today.value.slice(0, 7))
+	const contractFreeDays = computed(() => {
+		const userId = user.value?.sub
+		if (!userId) return null
+
+		const elapsedDays = days.value.filter((day) => day.startsWith(monthPrefix.value) && day < today.value)
+		const count = elapsedDays.filter((day) => !streakCounts.value.has(`${userId}:${day}`)).length
+		return { count, total: elapsedDays.length }
+	})
+
 	const monthlyCredits = computed(() => {
 		let gained = 0
 		let spent = 0
@@ -195,5 +204,5 @@ export function useStats() {
 
 	watch(userIds, load, { immediate: true })
 
-	return { days, loading, error, load, monthlyCredits, shopSummary, shopReady, rewardsReceived, todayStreaks, streakSeries, creditSeries, appOpensPerDay, appOpensToday }
+	return { days, loading, error, load, contractFreeDays, monthlyCredits, shopSummary, shopReady, rewardsReceived, todayStreaks, streakSeries, creditSeries, appOpensPerDay, appOpensToday }
 }
