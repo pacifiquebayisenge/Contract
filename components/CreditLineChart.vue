@@ -17,6 +17,24 @@ const amounts = new Intl.NumberFormat('en-US')
 const dates = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })
 const formatDay = (day: string) => dates.format(new Date(day))
 
+function weekStart(day: string) {
+	const date = new Date(day)
+	date.setUTCDate(date.getUTCDate() - ((date.getUTCDay() + 6) % 7))
+	return date.toISOString().slice(0, 10)
+}
+
+function weeklyPeaks(values: StatsSeries['values'], weekKeys: string[], weekStarts: string[]) {
+	const peaks = new Map<string, number>()
+	weekKeys.forEach((week, index) => {
+		const balance = values[index]
+		if (balance != null) peaks.set(week, Math.max(balance, peaks.get(week) ?? balance))
+	})
+	return weekStarts.map((week) => peaks.get(week) ?? null)
+}
+
+const weekByDay = computed(() => props.days.map(weekStart))
+const weeks = computed(() => [...new Set(weekByDay.value)])
+
 const option = computed(() => ({
 	animation: false,
 	grid: { left: 48, right: 12, top: 18, bottom: 64 },
@@ -37,10 +55,10 @@ const option = computed(() => ({
 	},
 	xAxis: {
 		type: 'category',
-		data: props.days,
+		data: weeks.value,
 		axisLabel: {
 			formatter: formatDay,
-			interval: Math.max(0, Math.ceil(props.days.length / 5) - 1),
+			interval: Math.max(0, Math.ceil(weeks.value.length / 5) - 1),
 			hideOverlap: true,
 			margin: 10,
 			color: '#667085',
@@ -61,10 +79,11 @@ const option = computed(() => ({
 		return {
 			name: userStore.getProfileById(userId)?.firstname || (mine ? 'You' : 'Partner'),
 			type: 'line',
-			data: values,
-			step: 'end',
+			data: weeklyPeaks(values, weekByDay.value, weeks.value),
 			connectNulls: false,
-			showSymbol: false,
+			showSymbol: true,
+			symbol: 'circle',
+			symbolSize: 6,
 			lineStyle: { width: 3, color },
 			areaStyle: { color, opacity: 0.12 },
 			itemStyle: { color },

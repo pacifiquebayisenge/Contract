@@ -26,7 +26,7 @@ const option = computed(() => ({
 		itemHeight: 7,
 		textStyle: { color: '#667085' },
 	},
-	tooltip: { trigger: 'axis', renderMode: 'richText', confine: true, axisPointer: { type: 'shadow' } },
+	tooltip: { trigger: 'axis', renderMode: 'richText', confine: true },
 	xAxis: {
 		type: 'category',
 		data: props.days,
@@ -51,13 +51,16 @@ const option = computed(() => ({
 	},
 	series: props.data.map(({ userId, values }, index) => {
 		const mine = userId === userStore.userId
+		const color = mine ? themeStore.themeColor : '#f5a96e'
 		return {
 			name: userStore.getProfileById(userId)?.firstname || (mine ? 'You' : 'Partner'),
-			type: 'bar',
+			type: 'line',
 			data: values,
-			barMaxWidth: 12,
-			barGap: '30%',
-			itemStyle: { color: mine ? themeStore.lightThemeColor : '#e5adc9', borderRadius: [5, 5, 0, 0] },
+			symbol: 'circle',
+			symbolSize: 5,
+			showAllSymbol: true,
+			lineStyle: { color, width: 2.5 },
+			itemStyle: { color },
 			...(index === 0 && {
 				markLine: {
 					silent: true,

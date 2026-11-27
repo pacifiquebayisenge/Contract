@@ -13,7 +13,7 @@
 			<n-button text @click="load">Try again</n-button>
 		</div>
 		<div v-else class="stats-charts">
-			<ChartCard title="Credit Balance Over Time" subtitle="Daily balance · This month and last month">
+			<ChartCard title="Credit Balance Over Time" subtitle="Highest daily balance each week · This month and last month">
 				<CreditLineChart v-if="creditSeries.length" :days="days" :data="creditSeries" />
 				<p v-else class="stats-status">No credit history in this period.</p>
 			</ChartCard>
