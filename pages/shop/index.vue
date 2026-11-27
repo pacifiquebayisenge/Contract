@@ -17,6 +17,7 @@
 			</button>
 			<button type="button" class="button-3D shop-button shop-owed" :aria-pressed="view === 'accepted'" @click="view = 'accepted'">
 				<ClockIcon aria-hidden="true" /> Owed
+				<span v-if="tasksForYou" class="shop-owed-count" :aria-label="`${tasksForYou} tasks for you`">{{ tasksForYou }}</span>
 			</button>
 			<button type="button" class="button-3D shop-button shop-blue" :aria-pressed="view === 'completed'" @click="view = 'completed'">
 				<CheckCircleIcon aria-hidden="true" /> Completed
@@ -33,7 +34,8 @@
 				<button v-if="loadFailed" type="button" class="button-3D shop-button shop-refresh" @click="loadShop">Try again</button>
 			</div>
 			<p v-if="!loading && !loadFailed && !visibleItems.length">{{ emptyMessages[view] }}</p>
-			<n-card v-for="(item, index) in visibleItems" :key="item.id" class="shop-item" :bordered="true" :class="{ 'shop-item-focused': item.id === focusedItemId }">
+			<n-card v-for="({ item, count }, index) in visibleItems" :key="item.id" class="shop-item" :bordered="true" :class="{ 'shop-item-focused': item.id === focusedItemId }">
+				<span v-if="count > 1" class="shop-item-count" :aria-label="`${count} purchases`">{{ count }}</span>
 				<div class="shop-card-layout">
 					<span class="shop-card-index" aria-hidden="true">{{ index + 1 }}</span>
 					<div class="shop-card-content">
@@ -86,7 +88,7 @@
 									<button v-if="item.creator_id === userId" type="button" class="button-3D shop-button shop-owed" :disabled="busy" @click="applyAction(item, 'approve')">Accept and pay</button>
 									<button type="button" class="button-3D shop-button shop-refresh" :disabled="busy" @click="applyAction(item, 'decline')">{{ item.creator_id === userId ? 'Decline' : 'Cancel proposal' }}</button>
 								</div>
-								<button type="button" class="button-3D shop-button shop-aqua" v-if="item.status === 'accepted' && performer(item) === userId" :disabled="busy" @click="applyAction(item, 'complete')">Mark as done</button>
+								<button type="button" class="button-3D shop-button shop-aqua" v-if="item.status === 'accepted' && performer(item) === userId" :disabled="busy" @click="applyAction(item, 'complete')">{{ count > 1 ? 'Mark one as done' : 'Mark as done' }}</button>
 							</div>
 						</n-collapse-transition>
 						<div class="shop-meta">
@@ -192,12 +194,34 @@ const loading = ref(false)
 const loadFailed = ref(false)
 const busy = ref(false)
 const error = ref('')
+const tasksForYou = computed(() =>
+	items.value.filter((item) => item.status === 'accepted' && performer(item) === userId.value).length,
+)
+
 const visibleItems = computed(() => {
 	const visible = items.value.filter((item) =>
 		item.status === view.value || (view.value === 'open' && item.status === 'proposed'),
 	)
-	const focused = visible.find((item) => item.id === focusedItemId.value)
-	return focused ? [focused, ...visible.filter((item) => item.id !== focused.id)] : visible
+	const groups = new Map<string, { item: Item; count: number }>()
+	for (const item of visible) {
+		const key = view.value === 'open' ? item.id : item.source_item_id ?? item.id
+		const group = groups.get(key)
+		if (!group) {
+			groups.set(key, { item, count: 1 })
+			continue
+		}
+
+		group.count++
+		// Open the purchase referenced by a notification, or show one of your own tasks first.
+		if (item.id === focusedItemId.value ||
+			(group.item.id !== focusedItemId.value && performer(item) === userId.value && performer(group.item) !== userId.value)) {
+			group.item = item
+		}
+	}
+
+	const cards = [...groups.values()]
+	const focused = cards.find(({ item }) => item.id === focusedItemId.value)
+	return focused ? [focused, ...cards.filter((card) => card !== focused)] : cards
 })
 const emptyMessages: Record<ShopView, string> = {
 	open: 'Nothing in the Shop yet.',
@@ -252,6 +276,9 @@ function shopActionError(cause: unknown) {
 	if (code === '42703' || code === 'PGRST204' || message === 'This shop action is unavailable') {
 		return 'This action is unavailable. Refresh the Shop. If Buy still fails on your own item, verify the Shop purchases migration.'
 	}
+	if (message === 'This item can only be purchased once every 24 hours') {
+		return 'You can buy this item again 24 hours after the previous purchase.'
+	}
 	if (message === 'Not enough credits') return 'Not enough credits to buy this item.'
 	if (message === 'The Shop item changed. Refresh before trying again.') return message
 	if (code === '42501') return 'The database denied this Shop action. Check your session and Shop permissions.'
@@ -283,7 +310,6 @@ async function applyAction(item: Item, action: Action) {
 		}
 		confirming.value = null
 		if (buying) view.value = 'accepted'
-		if (action === 'complete') view.value = 'completed'
 		await loadShop()
 	} catch (cause) {
 		console.error('Could not update Shop item:', cause)
@@ -331,6 +357,7 @@ watch([userId, shopRevision, focusedItemId], async () => {
 .shop-item { margin: 0 0 1rem; }
 
 .shop-item {
+	position: relative;
 	border-radius: 1.5rem;
 	box-shadow: 0 4px 12px #31223d0a;
 	border-color: #e4d9eb;
@@ -476,6 +503,27 @@ watch([userId, shopRevision, focusedItemId], async () => {
 }
 
 .shop-tabs .shop-button { width: 100%; min-width: 0; }
+.shop-item-count, .shop-owed-count {
+	position: absolute;
+	top: 0.2rem;
+	right: 0.35rem;
+	padding: 0.1rem 0.35rem;
+	border-radius: 0.45rem;
+	font-size: 0.75rem;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.shop-item-count {
+	background: #ece7f8;
+	color: #63366e;
+}
+
+.shop-owed-count {
+	background: #704b14;
+	color: #fff;
+}
+
 .shop-item-focused { border-color: #a182bf; outline: 1px solid #a182bf; }
 .shop-item-details { display: grid; width: 100%; gap: 0.55rem; text-align: left; }
 .shop-item-title { display: block; min-width: 0; font-size: 1.4rem; overflow-wrap: anywhere; }
