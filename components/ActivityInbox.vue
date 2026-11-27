@@ -171,7 +171,7 @@ async function loadActivity() {
 			eventQuery(userId, 'streak_use').order('created_at', { ascending: false, nullsFirst: false }).limit(25),
 			supabase.from('shop_items').select('*').not('accepted_at', 'is', null)
 				.order('accepted_at', { ascending: false }).limit(25),
-			supabase.from('shop_items').select('*').order('created_at', { ascending: false }).limit(25),
+			supabase.from('shop_items').select('*').is('source_item_id', null).order('created_at', { ascending: false }).limit(25),
 		])
 		if (violations.error) throw violations.error
 		if (rewards.error) throw rewards.error

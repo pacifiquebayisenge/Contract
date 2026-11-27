@@ -247,7 +247,7 @@ function shopActionError(cause: unknown) {
 	const message = 'message' in failure ? failure.message : null
 
 	if (code === 'PGRST202' || code === '42883') {
-		return 'The Shop action is missing from Supabase. Apply the Shop edit migration.'
+		return 'The Shop action is missing from Supabase. Apply the latest Shop migrations.'
 	}
 	if (code === '42703' || code === 'PGRST204' || message === 'This shop action is unavailable') {
 		return 'This action is unavailable. Refresh the Shop. If Buy still fails on your own item, verify the Shop purchases migration.'
@@ -264,24 +264,25 @@ async function applyAction(item: Item, action: Action) {
 	busy.value = true
 	error.value = ''
 	try {
-		const { error: failure } = await supabase.rpc('apply_shop_action_at_price', {
-			p_item_id: item.id,
-			p_action: action,
-			p_expected_price: item.price,
-		})
-		if (failure) throw failure
+		const buying = action === 'accept' || action === 'approve' || action === 'buy_own'
+		const args = { p_item_id: item.id, p_action: action, p_expected_price: item.price }
+		const result = buying
+			? await supabase.rpc('purchase_shop_item_at_price', args)
+			: await supabase.rpc('apply_shop_action_at_price', args)
+		if (result.error) throw result.error
+
 		if (action === 'withdraw') deletingItem.value = null
-		if (['propose', 'accept', 'approve', 'buy_own'].includes(action)) {
+		if (action === 'propose' || buying) {
 			// A notification failure must not undo or resubmit the saved proposal.
 			void $fetch('/api/send-notification', {
 				method: 'POST',
 				body: action === 'propose'
 					? { shopProposalId: item.id }
-					: { shopItemId: item.id, shopAction: 'purchased' },
+					: { shopItemId: result.data, shopAction: 'purchased' },
 			}).catch((error) => console.error('Could not send Shop push:', error))
 		}
 		confirming.value = null
-		if (action === 'accept' || action === 'approve' || action === 'buy_own') view.value = 'accepted'
+		if (buying) view.value = 'accepted'
 		if (action === 'complete') view.value = 'completed'
 		await loadShop()
 	} catch (cause) {

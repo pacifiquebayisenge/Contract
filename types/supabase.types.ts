@@ -27,6 +27,7 @@ export type Database = {
           created_at: string
           accepted_at: string | null
           accepted_by: string | null
+          source_item_id: string | null
         }
         Insert: {
           creator_id: string
@@ -262,6 +263,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      purchase_shop_item_at_price: {
+        Args: { p_item_id: string; p_action: string; p_expected_price: number }
+        Returns: string
+      }
       apply_shop_action_at_price: {
         Args: { p_item_id: string; p_action: string; p_expected_price: number }
         Returns: undefined
