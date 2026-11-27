@@ -100,7 +100,10 @@
 								<div class="settings-notifications">
 									<span>Push notifications</span>
 									<n-switch
+										class="settings-push-switch"
 										v-model:value="notificationsEnabled"
+										size="large"
+										:rail-style="notificationRailStyle"
 										:loading="loading"
 										aria-label="Push notifications"
 										@update:value="toggleNotifications"
@@ -175,6 +178,14 @@ const {
 	requestPermission,
 	disableNotifications,
 } = usePushNotifications()
+
+function notificationRailStyle({ checked }: { checked: boolean }) {
+	return {
+		background: checked ? '#cceada' : '#eceef2',
+		color: checked ? '#24543c' : '#424b5b',
+		boxShadow: checked ? '0 3px 0 #96bfa7' : '0 3px 0 #b9bfcb',
+	}
+}
 
 const { logout } = useAuth()
 
@@ -449,7 +460,8 @@ input {
 	padding: 1rem;
 	border: 1px solid color-mix(in srgb, var(--primary-color) 17%, transparent);
 	border-radius: 1.1rem;
-	background: #ffffffb8;
+	background: #ffffffeb;
+	box-shadow: 0 3px 0 color-mix(in srgb, var(--primary-color) 12%, transparent), 0 5px 12px #0000000a;
 }
 .profile-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 .profile-fields label { display: grid; gap: 0.35rem; min-width: 0; font-weight: 600; }
@@ -459,6 +471,8 @@ input {
 .settings-theme h3, .settings-theme legend { margin-bottom: 0.5rem; font-weight: 700; }
 .settings-theme fieldset { min-width: 0; }
 .settings-notifications { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between; font-weight: 600; }
+.settings-push-switch :deep(.n-switch__button) { box-shadow: 0 2px 4px #0002; }
+.settings-push-switch:focus-within { outline: 2px solid var(--primary-color); outline-offset: 3px; border-radius: 999px; }
 .settings-status { margin-top: 0.55rem; font-size: 1.15rem; color: #64748b; }
 .settings-logout { justify-self: center; width: min(100%, 14rem); }
 .card-style-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; }
