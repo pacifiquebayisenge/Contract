@@ -91,13 +91,20 @@ onMounted(() => {
 	/* Match the subtitle's former line box and vertical margins. */
 	margin-bottom: calc(1.1rem * 1.5 + 0.95rem);
 }
-.monthly-credits, .shop-metrics { display: grid; gap: 0.65rem; padding-bottom: calc(1lh + 0.8rem); }
+.monthly-credits, .shop-metrics {
+	display: grid;
+	gap: 0.65rem;
+}
 .monthly-credits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .shop-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .monthly-credits > div, .shop-metrics > div { border-radius: 0.85rem; padding: 0.65rem; background: #f3eff9; }
-.monthly-credits dt, .shop-metrics dt { font-size: 1.05rem; }
+.monthly-credits dt, .shop-metrics dt {
+	font-size: 1.05rem;
+	font-weight: 700;
+	text-align: center;
+	margin-bottom: 1rem;
+}
 .monthly-credits dd, .shop-metrics dd { font-size: 1.45rem; font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
-.monthly-credits dt { font-weight: 700; text-align: center; }
 .monthly-credits .credit-in { background: #e7f5ec; color: #326447; box-shadow: inset 0 0 0 1px #cce7d6; }
 .monthly-credits .credit-out { background: #fbeaf0; color: #8c4561; box-shadow: inset 0 0 0 1px #f1d5e0; }
 </style>
