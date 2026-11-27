@@ -49,11 +49,6 @@
 								{{ formatAmount(item.price) }}
 							</strong>
 						</span>
-						<span class="shop-meta">
-							<time :datetime="item.created_at">{{ formatTimeAgo(item.created_at) }}</time>
-							<span>·</span>
-							<span>{{ personName(item.creator_id) }}</span>
-						</span>
 					</button>
 					<n-collapse-transition :show="confirming === item.id">
 						<div class="shop-expanded">
@@ -93,6 +88,11 @@
 							<button type="button" class="button-3D shop-button shop-aqua" v-if="item.status === 'accepted' && performer(item) === userId" :disabled="busy" @click="applyAction(item, 'complete')">Mark as done</button>
 						</div>
 					</n-collapse-transition>
+					<div class="shop-meta">
+							<time :datetime="item.created_at">{{ formatTimeAgo(item.created_at) }}</time>
+							<span>·</span>
+							<span>{{ personName(item.creator_id) }}</span>
+					</div>
 				</div>
 			</div>
 		</n-card>
@@ -319,11 +319,19 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	display: grid;
 	gap: 1.1rem;
 	margin-top: 1rem;
-	padding-top: 1rem;
-	border-top: 1px solid #eee5f1;
+	padding-bottom: 1rem;
 }
 
-.shop-meta { display: flex; flex-wrap: wrap; gap: 0.3rem 0.55rem; color: inherit; opacity: 0.85; }
+.shop-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3rem 0.55rem;
+	margin-top: 0.65rem;
+	padding-top: 0.4rem;
+	border-top: 1px solid #e5e7eb;
+	color: #64748b;
+	font-weight: 600;
+}
 .shop-owner-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
 .shop-expanded .shop-confirmation {
 	display: grid;
