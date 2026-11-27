@@ -32,7 +32,14 @@ function weeklyPeaks(values: StatsSeries['values'], weekKeys: string[], weekStar
 	return weekStarts.map((week) => peaks.get(week) ?? null)
 }
 
-const weekByDay = computed(() => props.days.map(weekStart))
+const weekByDay = computed(() => {
+	const firstDay = props.days[0]
+	return props.days.map((day) => {
+		const monday = weekStart(day)
+		// The first week can start before the visible two-month period.
+		return monday < firstDay ? firstDay : monday
+	})
+})
 const weeks = computed(() => [...new Set(weekByDay.value)])
 
 const option = computed(() => ({
