@@ -1,5 +1,5 @@
 <template>
-	<div class="card font-color m-[5px]">
+	<div class="card app-surface-card font-color m-[5px]">
 		<h3>{{ props.title }}</h3>
 		<slot />
 	</div>
@@ -19,7 +19,6 @@ const props = defineProps({
 	background: white;
 	padding: 16px;
 	border-radius: 16px;
-	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
 }
 h3 {
 	margin-bottom: 12px;

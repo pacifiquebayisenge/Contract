@@ -3,7 +3,7 @@
 		:id="props.item.id"
 		ref="card"
 		:style="{ borderRadius: '2rem !important', cursor: 'pointer' }"
-		class="shadow-md my-8 mx-[5px]"
+		class="app-surface-card my-8 mx-[5px]"
 		@click="showActions = !showActions"
 	>
 		<n-card :style="{ borderRadius: '2rem !important' }">

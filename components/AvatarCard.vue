@@ -1,6 +1,6 @@
 <template>
 	<div ref="card" class="card m-[5px]">
-		<n-card class="shadow-md" :style="{ borderRadius: '2rem !important' }">
+		<n-card class="app-surface-card" :style="{ borderRadius: '2rem !important' }">
 			<div class="avatar-card-content" @click="showActions = !showActions">
 				<div ref="avatar" class="avatar">
 					<div

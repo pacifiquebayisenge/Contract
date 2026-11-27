@@ -1,5 +1,5 @@
 <template>
-	<div class="card m-[5px]">
+	<div class="card app-surface-card m-[5px]">
 		<div class="title font-color">{{ title }}</div>
 		<div class="value font-color">
 			<Vue3Countup :number="value" :more-options="countupOptions" />
@@ -34,7 +34,6 @@ const countupOptions = {
 	padding: 16px;
 	border-radius: 12px;
 	background: white;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 .title {
 	font-size: 12px;

@@ -34,7 +34,7 @@
 				<button v-if="loadFailed" type="button" class="button-3D shop-button shop-refresh" @click="loadShop">Try again</button>
 			</div>
 			<p v-if="!loading && !loadFailed && !visibleItems.length">{{ emptyMessages[view] }}</p>
-			<n-card v-for="({ item, count, purchases }, index) in visibleItems" :key="item.id" class="shop-item animate-item" :bordered="true" :class="{ 'shop-item-focused': item.id === focusedItemId }">
+			<n-card v-for="({ item, count, purchases }, index) in visibleItems" :key="item.id" class="shop-item app-surface-card animate-item" :bordered="true" :class="{ 'shop-item-focused': item.id === focusedItemId }">
 				<span v-if="count > 1" class="shop-item-count" :aria-label="`${count} purchases`">{{ count }}</span>
 				<div class="shop-card-layout">
 					<span class="shop-card-index" aria-hidden="true">{{ index + 1 }}</span>
@@ -462,7 +462,6 @@ watch([userId, shopRevision, focusedItemId], async () => {
 .shop-item {
 	position: relative;
 	border-radius: 1.5rem;
-	box-shadow: 0 4px 12px #31223d0a;
 	border-color: #e4d9eb;
 	background: #fff;
 	color: inherit;

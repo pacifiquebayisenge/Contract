@@ -93,6 +93,18 @@
 									<BadgeSwitcher />
 
 									<n-divider />
+
+									<fieldset class="card-style-options">
+										<legend>Card style</legend>
+										<label>
+											<input type="radio" name="card-style" :checked="themeStore.cardStyle === 'elevated'" @change="themeStore.setCardStyle('elevated')" />
+											Elevated
+										</label>
+										<label>
+											<input type="radio" name="card-style" :checked="themeStore.cardStyle === 'flat'" @change="themeStore.setCardStyle('flat')" />
+											Flat
+										</label>
+									</fieldset>
 								</div>
 							</n-collapse-item>
 
@@ -446,5 +458,21 @@ input {
 .drawer-gradient-background > * {
 	position: relative;
 	z-index: 1;
+}
+.card-style-options {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.6rem;
+}
+
+.card-style-options legend { margin-bottom: 0.5rem; font-weight: 600; }
+.card-style-options label {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.4rem 0.65rem;
+	border: 1px solid #dedee3;
+	border-radius: 0.65rem;
+	cursor: pointer;
 }
 </style>
