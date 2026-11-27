@@ -12,11 +12,12 @@
 						<NIcon class="text-base opacity-55" :size="30" :component="WalletIcon" />
 					</div>
 				</div>
-				<div class="item" @click="activateInboxDrawer()">
-					<div class="icon">
+				<button type="button" class="item inbox-trigger" :aria-label="hasUnread ? 'Inbox, unread activity' : 'Inbox'" @click="activateInboxDrawer()">
+					<span class="icon">
 						<NIcon class="text-base opacity-55" :size="30" :component="InboxIcon" />
-					</div>
-				</div>
+					</span>
+					<span v-if="hasUnread" class="inbox-badge" aria-hidden="true"></span>
+				</button>
 				<div class="item" @click="showNewItemModal = !showNewItemModal">
 					<div class="icon">
 						<NIcon class="text-base opacity-55" :size="30" :component="Squares2X2Icon" />
@@ -148,7 +149,18 @@
 					</div>
 				</template>
 
-				<ActivityInbox v-if="showInbox" :focused-id="focusedActivityId" :focused-kind="focusedKind" />
+				<ActivityInbox
+					v-if="showInbox"
+					:focused-id="focusedActivityId"
+					:focused-activity="focusedActivity"
+					:activities="activities"
+					:loading="inboxLoading"
+					:error-message="inboxError"
+					:is-focused="isFocused"
+					:is-unread="isUnread"
+					@read="markRead"
+					@retry="loadActivity()"
+				/>
 			</n-drawer-content>
 		</n-drawer>
 	</div>
@@ -202,6 +214,9 @@ const focusedActivityId = computed(() => {
 	const id = route.query[focusedKind.value]
 	return typeof id === 'string' && /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(id) ? id : null
 })
+
+const { activities, loading: inboxLoading, errorMessage: inboxError, focusedActivity, hasUnread, isFocused, isUnread, markRead, loadActivity } =
+	useActivityInbox(focusedActivityId, focusedKind, showInbox)
 
 watch([focusedActivityId, focusedKind], ([id]) => {
 	if (id) showInbox.value = true
@@ -505,4 +520,16 @@ input {
 .card-style-preview i + i { width: 50%; }
 .preview-elevated { box-shadow: 0 3px 6px #0003; }
 .preview-flat { border: 1px solid color-mix(in srgb, var(--primary-color) 35%, white); }
+
+.inbox-trigger { position: relative; }
+.inbox-badge {
+	position: absolute;
+	top: 0.2rem;
+	right: 0.2rem;
+	width: 0.65rem;
+	height: 0.65rem;
+	border-radius: 50%;
+	background: #7956b3;
+	border: 1px solid white;
+}
 </style>
