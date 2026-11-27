@@ -18,11 +18,12 @@ body {
 }
 
 [data-card-style='flat'] {
-	--app-card-shadow: 0 4px 12px #31223d0a, 0 0 0 1px #e4d9eb;
+	--app-card-shadow: 0 4px 12px #31223d0a;
+	--app-card-flat-outline: 0 0 0 1px color-mix(in srgb, var(--primary-color) 22%, transparent);
 }
 
 .app-surface-card {
-	box-shadow: var(--app-card-shadow);
+	box-shadow: var(--app-card-shadow), var(--app-card-flat-outline, 0 0 0 transparent);
 }
 
 /* Theme variations */

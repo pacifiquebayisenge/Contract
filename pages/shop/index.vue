@@ -460,6 +460,8 @@ watch([userId, shopRevision, focusedItemId], async () => {
 .shop-item { margin: 0 0 1rem; }
 
 .shop-item {
+	/* Naive UI already draws the Shop's purple border. */
+	--app-card-flat-outline: 0 0 0 transparent;
 	position: relative;
 	border-radius: 1.5rem;
 	border-color: #e4d9eb;
