@@ -125,7 +125,7 @@ function close() {
 
 .creation-action {
 	display: grid;
-	justify-items: start;
+	justify-items: center;
 	align-content: space-between;
 	gap: 0.65rem;
 	min-height: 6rem;
