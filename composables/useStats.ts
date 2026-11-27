@@ -65,6 +65,8 @@ export function useStats() {
 		if (!userIds.value.length) return
 		const request = ++latestRequest
 		const participants = userIds.value
+		const currentUserId = user.value?.sub
+		const partnerId = userStore.partnerProfile?.id
 		const now = new Date()
 		today.value = dayKey(now)
 		const rangeStart = fromZonedTime(start.value + 'T00:00:00', TIME_ZONE).toISOString()
@@ -97,16 +99,18 @@ export function useStats() {
 					.order('accepted_at', { ascending: false }),
 				supabase.from('credit_increases').select('amount')
 					.eq('receiver_id', participants[0]).gte('created_at', month),
-				supabase.from('user_events').select('created_at')
-					.eq('target_id', participants[0]).eq('event_type', 'streak_use')
-					.lte('created_at', now.toISOString())
-					.order('created_at', { ascending: false }).limit(1).maybeSingle(),
+				currentUserId && partnerId
+					? supabase.from('user_events').select('created_at')
+						.eq('actor_id', partnerId).eq('target_id', currentUserId)
+						.eq('event_type', 'streak_use').lte('created_at', now.toISOString())
+						.order('created_at', { ascending: false }).limit(1).maybeSingle()
+					: null,
 			])
 			if (request !== latestRequest) return
 
 			events.value = rows
 			purchases.value = shop.data ?? []
-			lastContractUse.value = lastContract.data?.created_at ?? null
+			lastContractUse.value = lastContract?.data?.created_at ?? null
 			shopReady.value = !shop.error
 			rewardsReceived.value = rewards.data?.reduce((total, reward) => total + reward.amount, 0) ?? null
 		} catch (cause) {
