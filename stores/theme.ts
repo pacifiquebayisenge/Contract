@@ -1,6 +1,7 @@
 export type ThemeName = 'sage-green' | 'dark-blue' | 'light-pink'
 export type LightThemeOptionName = 'light-color' | 'extra-light-color'
 export type BadgeRingOption = 'inside' | 'outside'
+export type CardStyle = 'elevated' | 'flat'
 
 type ColorMap = Record<ThemeName, string>
 
@@ -33,6 +34,7 @@ export const useThemeStore = defineStore('theme', () => {
 	const currentTheme = ref<ThemeName>('sage-green')
 	const currentLightThemeOption = ref<LightThemeOptionName>('light-color')
 	const currentBadgeRingOption = ref<BadgeRingOption>('outside')
+	const cardStyle = ref<CardStyle>('elevated')
 	const ready = ref(false)
 
 	// Static lists
@@ -116,8 +118,18 @@ export const useThemeStore = defineStore('theme', () => {
 		if (import.meta.client) localStorage.setItem('selected-badge-ring-option', option)
 	}
 
+	function setCardStyle(style: CardStyle): void {
+		cardStyle.value = style
+		if (import.meta.client) {
+			localStorage.setItem('selected-card-style', style)
+			document.documentElement.dataset.cardStyle = style
+		}
+	}
+
 	function init(): void {
 		if (!import.meta.client) return
+
+		setCardStyle(localStorage.getItem('selected-card-style') === 'flat' ? 'flat' : 'elevated')
 
 		const saved = {
 			theme: localStorage.getItem('selected-theme') as ThemeName,
@@ -145,6 +157,7 @@ export const useThemeStore = defineStore('theme', () => {
 		currentTheme,
 		currentLightThemeOption,
 		currentBadgeRingOption,
+		cardStyle,
 		ready,
 		// Static lists
 		themes,
@@ -170,6 +183,7 @@ export const useThemeStore = defineStore('theme', () => {
 		setTheme,
 		setLightThemeOption,
 		setBadgeRingOption,
+		setCardStyle,
 		init,
 	}
 })

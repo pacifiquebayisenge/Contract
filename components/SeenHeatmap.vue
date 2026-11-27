@@ -2,7 +2,7 @@
 	<ClientOnly>
 		<div ref="wrap" class="wrap">
 			<VChart
-				v-if="ready && wrapWidth > 0"
+				v-if="wrapWidth > 0"
 				:option="option"
 				:update-options="{ notMerge: true, lazyUpdate: true }"
 				autoresize
@@ -14,11 +14,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { CustomChart } from 'echarts/charts'
 import { GraphicComponent, GridComponent, TooltipComponent } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
+import { formatInTimeZone } from 'date-fns-tz'
+import { formatStatsTooltip } from '~/utils/statsTooltip'
+import { statsSeriesColor } from '~/utils/statsColors'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 
@@ -29,27 +32,16 @@ const props = defineProps<{ data: HeatmapItem[] }>()
 
 const themeStore = useThemeStore()
 const userStore = useUserStore()
-const ready = ref(false)
 
 const wrap = ref<HTMLElement | null>(null)
 const wrapWidth = ref(0)
-let ro: ResizeObserver | null = null
-
-onMounted(async () => {
-	await nextTick()
-	ready.value = true
-
-	if (process.client && wrap.value) {
-		ro = new ResizeObserver((entries) => {
-			wrapWidth.value = Math.floor(entries[0]?.contentRect?.width ?? 0)
-		})
-		ro.observe(wrap.value)
-	}
-})
-
-onBeforeUnmount(() => {
-	if (ro && wrap.value) ro.unobserve(wrap.value)
-	ro = null
+watch(wrap, (element, _, onCleanup) => {
+	if (!element) return
+	const observer = new ResizeObserver(([entry]) => {
+		wrapWidth.value = Math.floor(entry?.contentRect.width ?? 0)
+	})
+	observer.observe(element)
+	onCleanup(() => observer.disconnect())
 })
 
 function localYYYYMMDD(d: Date) {
@@ -57,11 +49,6 @@ function localYYYYMMDD(d: Date) {
 	const m = String(d.getMonth() + 1).padStart(2, '0')
 	const day = String(d.getDate()).padStart(2, '0')
 	return `${y}-${m}-${day}`
-}
-
-function formatDDMMYYYY(yyyyMmDd: string) {
-	const [y, m, d] = yyyyMmDd.split('-')
-	return `${d}-${m}-${y}`
 }
 
 function hexToRgb(hex: string) {
@@ -84,30 +71,24 @@ function clamp(n: number, min: number, max: number) {
 const chartHeight = ref('220px')
 
 const option = computed(() => {
-	const now = new Date()
-	const year = now.getFullYear()
-	const month = now.getMonth()
-	const monthLabel = now.toLocaleString(undefined, { month: 'long' })
-	const todayStr = localYYYYMMDD(now)
-
-	const start = new Date(year, month, 1)
-	const end = new Date(year, month + 1, 1)
-	const daysInMonth = Math.round((+end - +start) / 86400000)
+	const todayStr = formatInTimeZone(new Date(), 'Europe/Brussels', 'yyyy-MM-dd')
+	const [year, month] = todayStr.split('-').map(Number)
+	const start = new Date(year, month - 1, 1)
+	const daysInMonth = new Date(year, month, 0).getDate()
 
 	// Monday=0..Sunday=6
 	const firstDow = (start.getDay() + 6) % 7
 	const totalCells = firstDow + daysInMonth
 	const weeks = Math.ceil(totalCells / 7)
 
-	// Lookup: date -> count
-	const valueByDate = new Map<string, { count: number; userId: string }>()
-	for (const item of props.data || []) {
-		valueByDate.set(item.date, { count: Number(item.count) || 0, userId: item.userId })
+	const countsByDate = new Map<string, number>()
+	for (const item of props.data) {
+		countsByDate.set(item.date, (countsByDate.get(item.date) ?? 0) + item.count)
 	}
 
 	/* ---------- layout ---------- */
 	const sidePadding = 12
-	const gap = 8 // a bit more spacing between tiles
+	const gap = 6
 
 	const labelArea = 26
 	const legendArea = 34
@@ -118,7 +99,7 @@ const option = computed(() => {
 
 	// Fill width but slightly smaller so it breathes
 	const rawTile = weeks > 0 ? (availableWidth - gap * (weeks - 1)) / weeks : 10
-	const tile = Math.max(9, Math.floor(rawTile * 0.88))
+	const tile = clamp(Math.floor(rawTile * 0.88), 9, 30)
 	const radius = clamp(Math.floor(tile * 0.22), 2, 8)
 
 	const gridWidth = tile * weeks + gap * (weeks - 1)
@@ -132,8 +113,8 @@ const option = computed(() => {
 	chartHeight.value = `${labelArea + extraTopPad + gridHeight + legendArea + extraBottomPad}px`
 
 	/* ---------- colors (your spec) ---------- */
-	const inactiveFill = '#eff2f5'
-	const inactiveBorder = '#e4e7eb'
+	const inactiveFill = '#f3f1f6'
+	const inactiveBorder = '#eeebf3'
 
 	// 4 shades:
 	// 1) current light theme color but a bit lighter
@@ -145,8 +126,8 @@ const option = computed(() => {
 
 	const shade1 = mix(lightBase, '#ffffff', 0.18)
 	const shade2 = lightBase
-	const shade3 = mix(lightBase, '#000000', 0.1)
-	const shade4 = base
+	const shade3 = mix(lightBase, base, 0.22)
+	const shade4 = mix(lightBase, base, 0.48)
 
 	function activeColor(totalCount: number) {
 		if (totalCount <= 1) return shade1
@@ -170,7 +151,7 @@ const option = computed(() => {
 				continue
 			}
 
-			const date = localYYYYMMDD(new Date(year, month, dayOfMonth))
+			const date = localYYYYMMDD(new Date(year, month - 1, dayOfMonth))
 			const isFuture = date > todayStr ? 1 : 0
 
 			if (isFuture) {
@@ -178,12 +159,7 @@ const option = computed(() => {
 				continue
 			}
 
-			const value = valueByDate.get(date)
-			if (value) {
-				cells.push([w, d, value.count, date, 0, value.userId])
-			} else {
-				cells.push([w, d, 0, date, 0, null])
-			}
+			cells.push([w, d, countsByDate.get(date) ?? 0, date, 0])
 		}
 	}
 
@@ -278,68 +254,26 @@ const option = computed(() => {
 			},
 		],
 
-		// Subtle tooltip on click only
 		tooltip: {
 			triggerOn: 'click',
-			backgroundColor: 'transparent',
-			borderWidth: 0,
-			padding: 0,
-			extraCssText: 'box-shadow:none;',
-
-			formatter: (p: any) => {
-				const date = p.data?.[3] as string | undefined
-
-				const v = Number(p.data?.[2] ?? 0)
-				const isFuture = p.data?.[4] === 1
-				const isPadding = p.data?.[2] === -3
-
-				if (!date || isFuture || isPadding) return ''
-
-				// Use your current theme color for the border + small accents
-				const borderColor = themeStore.selectedLightThemeColor
-				const dateStr = formatDDMMYYYY(date)
-
-				// Get the user name and total count
-				const myName = userStore.getProfileById(userStore.userId!)?.firstname
-				const partnerName = userStore.getProfileById(
-					props.data.find((e) => e.userId !== userStore.userId)?.userId!
-				)?.firstname
-
-				const myCount =
-					props.data.filter((e) => e.date === date && e.userId === userStore.userId)[0]?.count || 0
-
-				const partnerCount =
-					props.data.filter((e) => e.date === date && e.userId !== userStore.userId)[0]?.count || 0
-
-				const totalCount = myCount + partnerCount
-
-				return `
-      <div style="
-        text-align:center;
-        background:rgba(255,255,255,0.94);
-        border:1px solid ${borderColor};
-        border-radius:12px;
-        padding:10px 14px;
-        box-shadow:0 8px 20px rgba(0,0,0,0.08);
-        min-width:140px;
-      ">
-			<div style="font-weight:600; margin-bottom:6px;">
-          ${totalCount} app openings
-        </div>
-
-        <div style="font-size:11px; opacity:0.75; margin-bottom:6px;">
-          ${dateStr}
-        </div>
-
-        <div style="font-size:11px; opacity:0.72; margin-top:4px;">
-         ${myName} : ${myCount || 0}
-        </div>
-        <div style="font-size:11px; opacity:0.72; margin-top:4px;">
-
-       ${partnerName ? `${partnerName} : ${partnerCount || 0}` : ''}
-        </div>
-      </div>
-    `
+			renderMode: 'html',
+			confine: true,
+			formatter: (point: { data?: unknown }) => {
+				if (!Array.isArray(point.data)) return ''
+				const [, , count, date, future] = point.data
+				if (!date || future) return ''
+				const label = new Intl.DateTimeFormat('en-GB', {
+					day: 'numeric', month: 'short', timeZone: 'UTC',
+				}).format(new Date(date))
+				const rows = props.data.filter((item) => item.date === date).map((item) => {
+					const mine = item.userId === userStore.userId
+					return {
+						name: userStore.getProfileById(item.userId)?.firstname || (mine ? 'You' : 'Partner'),
+						value: item.count,
+						color: statsSeriesColor(themeStore.currentTheme, mine),
+					}
+				})
+				return formatStatsTooltip(`${label} · ${count} app opens`, rows)
 			},
 		},
 
@@ -358,15 +292,6 @@ const option = computed(() => {
 					const v = api.value(2)
 					const date = api.value(3)
 					const isFuture = api.value(4) === 1
-					const myCount =
-						props.data.filter((e) => e.date === date && e.userId === userStore.userId)[0]?.count ||
-						0
-
-					const partnerCount =
-						props.data.filter((e) => e.date === date && e.userId !== userStore.userId)[0]?.count ||
-						0
-
-					const totalCount = myCount + partnerCount
 
 					// Outside month: draw nothing
 					if (v === -3) return null
@@ -376,7 +301,7 @@ const option = computed(() => {
 					const y = cs.y + d * (tile + gap)
 
 					const fill =
-						!date || isFuture || totalCount === 0 ? inactiveFill : activeColor(totalCount)
+						!date || isFuture || v === 0 ? inactiveFill : activeColor(v)
 
 					return {
 						type: 'rect',

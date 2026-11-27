@@ -1,0 +1,37 @@
+.shop-owed { --shop-top: #fff0cc; --shop-edge: #e6c47f; --shop-ink: #704b14; }
+.shop-new { --shop-top: #f4e1f7; --shop-edge: #cfa8dc; --shop-ink: #63366e; }
+.shop-aqua { --shop-top: #d6f2ef; --shop-edge: #8ccbc5; --shop-ink: #205e59; }
+.shop-blue { --shop-top: #dbe9fd; --shop-edge: #a4bce7; --shop-ink: #315181; }
+.shop-refresh { --shop-top: #eceef2; --shop-edge: #b9bfcb; --shop-ink: #424b5b; }
+
+/* Keep the same raised and pressed motion as the existing action buttons. */
+.button-3D.shop-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4em;
+	width: auto;
+	padding: 0.5rem 0.85rem;
+	background: var(--shop-top);
+	border-color: var(--shop-edge);
+	color: var(--shop-ink);
+	box-shadow: 0 0.4rem 0 var(--shop-edge);
+	font-size: clamp(0.85rem, 2.5vw, 1.05rem) !important;
+}
+
+.shop-button svg { width: 1.15em; height: 1.15em; flex: none; }
+.button-3D.shop-button:hover:not(:disabled) {
+	background: color-mix(in srgb, var(--shop-top) 75%, var(--shop-edge));
+	box-shadow: 0 0.5rem 0 var(--shop-edge);
+}
+.button-3D.shop-button:is(:active, [aria-pressed='true']) {
+	transform: translateY(0);
+	box-shadow: none;
+	background: color-mix(in srgb, var(--shop-top) 75%, var(--shop-edge));
+}
+.shop-button:focus-visible { outline: 2px solid var(--shop-ink); outline-offset: 3px; }
+.shop-button:disabled { opacity: 0.6; cursor: default; }
+
+@media (prefers-reduced-motion: reduce) {
+	.shop-button { transition: none; }
+}

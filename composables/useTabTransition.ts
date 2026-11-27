@@ -2,8 +2,8 @@
 const tabs = [
 	{ name: 'Home', path: '/' },
 	{ name: 'Contracts', path: '/contract' },
+	{ name: 'Shop', path: '/shop' },
 	{ name: 'Stats', path: '/stats' },
-	// { name: 'Shop', path: '/shop' },
 	// { name: 'Memories', path: '/memories' },
 	// { name: 'Wishes', path: '/wishes' },
 	// { name: 'Restos', path: '/restos' },

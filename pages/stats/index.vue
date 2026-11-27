@@ -1,105 +1,114 @@
 <template>
-	<div class="stats-page-container animate-item invisible-scroll pb-[20rem]">
-		<!-- SUMMARY CARDS -->
-		<div class="stats-cards m-[5px]">
-			<StatCard title="Today's Contract Uses" :value="todayStreaks" />
-			<StatCard title="Credit Balance" :value="currentCredit" :currency="true" />
-
+	<section ref="statsPage" class="stats-page">
+		<div class="stats-cards">
+			<StatCard title="Credit Balance" :value="currentCredit" />
+			<StatCard title="Contracts Today" :value="activityReady ? todayStreaks : null" />
 			<StatCard title="Total Violations" :value="totalViolations" />
-			<StatCard title="App Opens Today" :value="appOpensToday" />
+			<StatCard
+				title="Contract-free days"
+				:value="activityReady ? contractFreeDays : null"
+			/>
 		</div>
 
-		<!-- CHARTS -->
-		<div class="charts mb-20">
-			<ChartCard title="Contract Usage per Day">
-				<StreakLineChart :data="streakPerDaySeries" />
+		<p v-if="loading" class="stats-status" role="status">Loading activity…</p>
+		<div v-else-if="error" class="stats-status" role="alert">
+			<p>{{ error }}</p>
+			<n-button text @click="load">Try again</n-button>
+		</div>
+		<div v-else class="stats-charts">
+			<ChartCard class="stats-summary" title="Credits This Month">
+				<dl class="monthly-credits">
+					<div class="credit-in"><dt>Gained</dt><dd>+{{ formatCredits(monthlyCredits.gained) }}</dd></div>
+					<div class="credit-out"><dt>Spent</dt><dd>−{{ formatCredits(monthlyCredits.spent) }}</dd></div>
+				</dl>
 			</ChartCard>
-
-			<ChartCard title="Credit Over Time">
-				<CreditLineChart :data="creditDailySeries" />
+			<ChartCard class="stats-summary" title="Shop Activity">
+				<template v-if="shopReady">
+					<dl class="shop-metrics">
+						<div><dt>Bought</dt><dd>{{ shopSummary.bought }}</dd></div>
+						<div><dt>Completed</dt><dd>{{ shopSummary.completed }}</dd></div>
+						<div><dt>Owed</dt><dd>{{ shopSummary.owed }}</dd></div>
+					</dl>
+				</template>
+				<p v-else class="stats-status">Shop activity is unavailable.</p>
 			</ChartCard>
-
-			<ChartCard title="App Opens for this Month">
-				<SeenHeatmap :data="appOpensPerDay" />
+			<ChartCard title="Credit Balance Over Time" subtitle="Last known balance per segment · This month and last month">
+				<CreditLineChart v-if="creditSeries.length" :days="days" :data="creditSeries" />
+				<p v-else class="stats-status">No credit history in this period.</p>
+			</ChartCard>
+			<ChartCard title="Contract Uses" subtitle="Last recorded day per segment · Today for the current segment">
+				<StreakLineChart v-if="streakSeries.length" :days="days" :data="streakSeries" />
+				<p v-else class="stats-status">No Contract uses in this period.</p>
+			</ChartCard>
+			<ChartCard title="App Opens" subtitle="This month · Both partners combined">
+				<SeenHeatmap v-if="appOpensPerDay.length" :data="appOpensPerDay" />
+				<p v-else class="stats-status">No app opens recorded this month.</p>
 			</ChartCard>
 		</div>
-	</div>
+	</section>
 </template>
 
-<script lang="ts" setup>
-import { computed, onMounted } from 'vue'
-import ChartCard from '~/components/ChartCard.vue'
-import CreditLineChart from '~/components/CreditLineChart.vue'
-import SeenHeatmap from '~/components/SeenHeatmap.vue'
-import StatCard from '~/components/StatCard.vue'
-import StreakLineChart from '~/components/StreakLineChart.vue'
+<script setup lang="ts">
 import { usePageAnimation } from '~/composables/usePageAnimation'
 import { useStats } from '~/composables/useStats'
-// import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 
-const {
-	load,
-	loadStreakEvents,
-	loadCreditEvents,
-	loadAppOpenEvents,
-
-	streakPerDaySeries,
-	creditDailySeries,
-	appOpensPerDay,
-	eventTypeCounts,
-	appOpensToday,
-} = useStats()
-
+const { days, loading, error, load, contractFreeDays, todayStreaks, streakSeries, creditSeries, appOpensPerDay, monthlyCredits, shopSummary, shopReady } = useStats()
 const userStore = useUserStore()
+const creditFormatter = new Intl.NumberFormat('en-US')
+const formatCredits = (amount: number) => creditFormatter.format(amount).replace(/,/g, ' ')
+const currentCredit = computed(() => userStore.profile?.credit ?? null)
+const totalViolations = computed(() => userStore.profile?.violation ?? null)
+const activityReady = computed(() => !loading.value && !error.value)
 
-// for the current user
-const todayStreaks = computed(() => userStore.profile?.streak ?? 0)
-const currentCredit = computed(() => userStore.profile?.credit ?? 0)
-
-const totalViolations = computed(() => userStore.profile?.violation ?? 0)
-
+const statsPage = ref<HTMLElement | null>(null)
 const { animatePageEnter } = usePageAnimation()
 
-onMounted(async () => {
-	animatePageEnter()
-
-	await load()
-	await loadStreakEvents()
-	await loadCreditEvents()
-	await loadAppOpenEvents()
-
-	// console.log('📈 appOpensPerDay:', appOpensPerDay.value)
-	// console.log('📊 eventTypeCounts:', eventTypeCounts.value)
-	// console.log('📈 streakPerDay points:', streakPerDaySeries.value.length)
-	// console.log('💰 creditTimeline points:', creditDailySeries.value.length)
-	// console.log('📱 appOpensPerDay points:', appOpensPerDay.value.length)
+onMounted(() => {
+	if (statsPage.value && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+		animatePageEnter(statsPage.value)
+	}
 })
 </script>
 
-<style lang="scss" scoped>
-.stats-page-container {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: flex-start;
-
-	width: 100%;
-	padding-bottom: 25rem;
-
-	.stats-cards {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-		gap: 1rem;
-		width: 100%;
-	}
-
-	.charts {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		gap: 1.5rem;
-		width: 100%;
-	}
+<style scoped>
+.stats-page {
+	display: grid;
+	align-content: start;
+	gap: 1.25rem;
+	height: 100%;
+	max-width: 52rem;
+	margin: 0 auto;
+	overflow-y: auto;
+	padding: 0.4rem 0.4rem 10rem;
 }
+
+.stats-cards {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.75rem;
+}
+
+.stats-charts { display: grid; gap: 1rem; min-width: 0; }
+.stats-status { padding: 0.75rem 0; text-align: center; color: #64748b; }
+.stats-summary :deep(h2) {
+	/* Match the subtitle's former line box and vertical margins. */
+	margin-bottom: calc(1.1rem * 1.5 + 0.95rem);
+}
+.monthly-credits, .shop-metrics {
+	display: grid;
+	gap: 0.65rem;
+}
+.monthly-credits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.shop-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.monthly-credits > div, .shop-metrics > div { border-radius: 0.85rem; padding: 0.65rem; background: #f3eff9; }
+.monthly-credits dt, .shop-metrics dt {
+	font-size: 1.05rem;
+	font-weight: 700;
+	text-align: center;
+	margin-bottom: 1rem;
+}
+.monthly-credits dd, .shop-metrics dd { font-size: 1.45rem; font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
+.monthly-credits .credit-in { background: #e7f5ec; color: #326447; box-shadow: inset 0 0 0 1px #cce7d6; }
+.monthly-credits .credit-out { background: #fbeaf0; color: #8c4561; box-shadow: inset 0 0 0 1px #f1d5e0; }
 </style>

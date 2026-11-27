@@ -36,12 +36,26 @@
 </template>
 
 <script setup>
+import { useWebHaptics } from 'web-haptics/vue'
 import { NModalProvider } from 'naive-ui'
 import BottomMenuBar from '~/components/BottomMenuBar.vue'
 import PWAInstallPrompt from '~/components/PWAInstallPrompt.vue'
 import PWAUpdateDialog from '~/components/PWAUpdateDialog.vue'
 import TopNavBar from '~/components/TopNavBar.vue'
 import { useThemeStore } from '~/stores/theme'
+
+const { trigger } = useWebHaptics()
+
+function tapFeedback(event) {
+	const target = event.target
+	if (!event.isTrusted || !(target instanceof Element)) return
+	const control = target.closest('button, a[href], summary, [role="button"], [role="tab"], [role="switch"], .bottom-menu-bar .item:first-child, .bottom-menu-bar .item:last-child')
+	if (!control || control.closest(':disabled, [aria-disabled="true"]')) return
+	void Promise.resolve(trigger([{ duration: 20 }], { intensity: 0.4 })).catch(() => {})
+}
+
+onMounted(() => document.addEventListener('click', tapFeedback, true))
+onBeforeUnmount(() => document.removeEventListener('click', tapFeedback, true))
 
 const nuxtApp = useNuxtApp()
 const themeStore = useThemeStore()

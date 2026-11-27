@@ -1,17 +1,19 @@
 <!-- components/ThemeSwitcher.vue -->
 <template>
-	<div class="theme-switcher justify-center py-5">
+	<div class="theme-switcher" role="group" aria-label="Color palette">
 		<button
 			v-for="themeOption in themeStore.themes"
 			:key="themeOption"
-			:class="{ active: themeStore.currentTheme === themeOption }"
+			type="button"
+			:aria-pressed="themeStore.currentTheme === themeOption"
 			:style="{
 				'--theme-color': themeStore.colorFor(themeOption),
-				'--theme-color-dark': adjustColor(themeStore.colorFor(themeOption), -30),
+				'--swatch-background': themeStore.extraLightColorFor(themeOption),
 			}"
 			@click="changeTheme(themeOption)"
 		>
-			<span class="button-content">
+			<span class="palette-dot" aria-hidden="true"></span>
+			<span>
 				{{ themeOption.replace('-', ' ') }}
 			</span>
 		</button>
@@ -19,8 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { useThemeStore } from '~/stores/theme'
-import { adjustColor } from '~/utils/color'
+import { useThemeStore, type ThemeName } from '~/stores/theme'
 
 const themeStore = useThemeStore()
 
@@ -34,69 +35,21 @@ const changeTheme = (theme: ThemeName) => {
 </script>
 
 <style scoped>
-.theme-switcher {
-	display: flex;
-	gap: 16px;
-	flex-wrap: wrap;
-}
-
+.theme-switcher { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
 button {
-	position: relative;
-	padding: 14px 28px;
-	border: none;
-	border-radius: 12px;
-	cursor: pointer;
-	color: white;
-	text-transform: capitalize;
+	display: grid;
+	justify-items: center;
+	gap: 0.4rem;
+	min-height: 4rem;
+	padding: 0.55rem 0.2rem;
+	border: 1px solid color-mix(in srgb, var(--theme-color) 35%, white);
+	border-radius: 0.8rem;
+	background: var(--swatch-background);
+	color: #344054;
 	font-weight: 600;
-	font-size: 1.3rem;
-	background-color: var(--theme-color);
-	box-shadow:
-		2px 5px 0 0 var(--theme-color-dark),
-		0 10px 16px rgba(0, 0, 0, 0.3),
-		inset -2px -2px 0 rgba(0, 0, 0, 0.2),
-		inset 2px 2px 0 rgba(255, 255, 255, 0.2);
-	transform: translateY(0);
-	transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+	text-transform: capitalize;
 }
-
-.button-content {
-	display: block;
-	position: relative;
-	z-index: 1;
-}
-
-/* Hover effect - slight lift */
-/* button:hover:not(.active) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 0 var(--theme-color-dark), 0 14px 20px rgba(0, 0, 0, 0.35),
-    inset -2px -2px 0 rgba(0, 0, 0, 0.2), inset 2px 2px 0 rgba(255, 255, 255, 0.2);
-} */
-
-/* Active/pressed effect - push down */
-button:active:not(.active) {
-	transform: translateY(6px);
-	box-shadow:
-		0 2px 0 var(--theme-color-dark),
-		0 4px 8px rgba(0, 0, 0, 0.2),
-		inset -1px -1px 0 rgba(0, 0, 0, 0.2),
-		inset 1px 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-/* Selected state */
-button.active {
-	transform: translateY(6px);
-	box-shadow:
-		0 2px 0 var(--theme-color-dark),
-		0 4px 8px rgba(0, 0, 0, 0.2),
-		inset -1px -1px 0 rgba(0, 0, 0, 0.2),
-		inset 1px 1px 0 rgba(255, 255, 255, 0.1);
-	animation: bounce 0.4s ease;
-}
-
-/* Focus styles for accessibility */
-button:focus-visible {
-	outline: 3px solid rgba(255, 255, 255, 0.5);
-	outline-offset: 2px;
-}
+button[aria-pressed='true'] { box-shadow: inset 0 0 0 1px var(--theme-color); }
+button:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 3px; }
+.palette-dot { width: 1rem; height: 1rem; border-radius: 50%; background: var(--theme-color); }
 </style>

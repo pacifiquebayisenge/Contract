@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      shop_items: {
+        Row: {
+          id: string
+          creator_id: string
+          partner_id: string
+          kind: "offer" | "request" | "undecided"
+          title: string
+          description: string
+          price: number
+          status: "open" | "proposed" | "accepted" | "completed" | "withdrawn"
+          created_at: string
+          accepted_at: string | null
+          accepted_by: string | null
+          source_item_id: string | null
+          scheduled_on: string | null
+        }
+        Insert: {
+          creator_id: string
+          partner_id: string
+          kind?: "offer" | "request" | "undecided"
+          title: string
+          description: string
+          price: number
+        }
+        Update: { title?: string; description?: string; price?: number }
+        Relationships: []
+      }
       contract_rules: {
         Row: {
           author: string
@@ -237,6 +264,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      schedule_shop_purchase: {
+        Args: { p_item_id: string; p_scheduled_on: string | null }
+        Returns: undefined
+      }
+      purchase_shop_item_at_price: {
+        Args: { p_item_id: string; p_action: string; p_expected_price: number }
+        Returns: string
+      }
+      apply_shop_action_at_price: {
+        Args: { p_item_id: string; p_action: string; p_expected_price: number }
+        Returns: undefined
+      }
+      apply_shop_action: {
+        Args: { p_item_id: string; p_action: "accept" | "complete" | "withdraw" | "propose" | "approve" | "decline" | "buy_own" }
+        Returns: undefined
+      }
       record_contract_use: {
         Args: { p_partner_id: string }
         Returns: { streak: number; credit: number; event_id: string }[]

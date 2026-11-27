@@ -12,6 +12,20 @@ body {
 	--primary-color: #8a9a86; /* Default: Sage Green */
 }
 
+/* Shared surface treatment for the cards on the main pages. */
+:root {
+	--app-card-shadow: 0 4px 6px -1px #00000024, 0 2px 4px -2px #00000018;
+}
+
+[data-card-style='flat'] {
+	--app-card-shadow: 0 4px 12px #31223d0a;
+	--app-card-flat-outline: 0 0 0 1px color-mix(in srgb, var(--primary-color) 22%, transparent);
+}
+
+.app-surface-card {
+	box-shadow: var(--app-card-shadow), var(--app-card-flat-outline, 0 0 0 transparent);
+}
+
 /* Theme variations */
 [data-theme='sage-green'] {
 	--primary-color: #8a9a86;
