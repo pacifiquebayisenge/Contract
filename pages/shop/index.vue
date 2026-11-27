@@ -2,7 +2,10 @@
 	<section class="shop">
 		<header class="shop-header">
 			<h1>{{ userStore.profile?.firstname || 'Shop' }}</h1>
-			<span v-if="balance !== null">{{ balance.toLocaleString() }} credits</span>
+			<span v-if="balance !== null" class="shop-balance" :aria-label="`${formatAmount(balance)} credits`">
+				<BanknotesIcon aria-hidden="true" />
+				<Vue3Countup :number="balance" :more-options="countupOptions" aria-hidden="true" />
+			</span>
 		</header>
 
 		<div class="shop-tabs" role="group" aria-label="Shop views">
@@ -21,12 +24,12 @@
 		</div>
 
 		<p v-if="loading" role="status">Loading Shop…</p>
-		<div v-if="error" role="alert">
+		<div v-if="error && !deletingItem" role="alert">
 			{{ error }}
 			<button v-if="loadFailed" type="button" class="button-3D shop-button shop-refresh" @click="loadShop">Try again</button>
 		</div>
 		<p v-if="!loading && !loadFailed && !visibleItems.length">{{ emptyMessages[view] }}</p>
-		<n-card v-for="item in visibleItems" :key="item.id" class="shop-item" :bordered="true" :class="{ 'shop-item-focused': item.id === focusedItemId }">
+		<n-card v-for="(item, index) in visibleItems" :key="item.id" class="shop-item" :bordered="true" :class="{ 'shop-item-focused': item.id === focusedItemId }">
 			<button
 				type="button"
 				class="shop-item-details"
@@ -35,8 +38,11 @@
 				@click="confirming = confirming === item.id ? null : item.id"
 			>
 				<span class="shop-title-row">
+					<span class="shop-card-index" aria-hidden="true">{{ index + 1 }}</span>
 					<strong class="shop-item-title">{{ item.title }}</strong>
-					<strong class="shop-price">{{ item.price }} credits</strong>
+					<strong class="shop-price" :aria-label="`${formatAmount(item.price)} credits`">
+						<BanknotesIcon aria-hidden="true" /> {{ formatAmount(item.price) }}
+					</strong>
 				</span>
 				<span class="shop-meta">
 					<time :datetime="item.created_at">{{ formatTimeAgo(item.created_at) }}</time>
@@ -51,14 +57,9 @@
 						<button type="button" class="button-3D shop-button shop-refresh" aria-label="Edit item" :disabled="busy" @click="openEdit(item)">
 							<PencilSquareIcon aria-hidden="true" />
 						</button>
-						<NPopconfirm @positive-click="applyAction(item, 'withdraw')">
-							<template #trigger>
-								<button type="button" class="button-3D shop-button shop-delete" aria-label="Delete item" :disabled="busy">
-									<TrashIcon aria-hidden="true" />
-								</button>
-							</template>
-							Remove this item from the Shop?
-						</NPopconfirm>
+						<button type="button" class="button-3D shop-button shop-delete" aria-label="Delete item" :disabled="busy" @click="openDelete(item)">
+							<TrashIcon aria-hidden="true" />
+						</button>
 					</div>
 					<button
 						v-if="item.status === 'open' && item.creator_id === userId"
@@ -89,14 +90,37 @@
 			</n-collapse-transition>
 		</n-card>
 		<ShopItemModal v-model:show="showEdit" :item="editingItem" />
+		<n-modal
+			:show="!!deletingItem"
+			:mask-closable="!busy"
+			:close-on-esc="!busy"
+			transform-origin="center"
+			@update:show="closeDelete"
+		>
+			<div class="shop-delete-modal">
+				<n-card class="shop-delete-card" :style="{ '--delete-theme': themeStore.lightThemeColor }" :bordered="false" size="huge" role="dialog" aria-labelledby="shop-delete-title">
+					<template #header>
+						<h2 id="shop-delete-title">Delete item</h2>
+					</template>
+					<AvatarIcon mood="shook" :fullname="userStore.getFullname" />
+					<p>Are you sure you want to remove this item?</p>
+					<strong>{{ deletingItem?.title }}</strong>
+					<p v-if="error" role="alert">{{ error }}</p>
+					<button type="button" class="button-3D button-3D-colorful-error" :disabled="busy" @click="confirmDelete">
+						{{ busy ? 'Deleting…' : 'Delete' }}
+					</button>
+				</n-card>
+			</div>
+		</n-modal>
 	</section>
 </template>
 
 <script setup lang="ts">
-import { ArrowPathIcon, CheckCircleIcon, ClockIcon, PencilSquareIcon, ShoppingBagIcon, TrashIcon } from '@heroicons/vue/24/outline'
-import { NPopconfirm } from 'naive-ui'
+import { ArrowPathIcon, BanknotesIcon, CheckCircleIcon, ClockIcon, PencilSquareIcon, ShoppingBagIcon, TrashIcon } from '@heroicons/vue/24/outline'
+import { Vue3Countup } from 'vue3-countup'
 import type { Database } from '~/types/supabase.types'
 import { useCreditStore } from '~/stores/credit'
+import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 import { formatTimeAgo } from '~/utils/formatDate'
 
@@ -113,6 +137,10 @@ const focusedItemId = computed(() => {
 const user = useSupabaseUser()
 const userStore = useUserStore()
 const creditStore = useCreditStore()
+const themeStore = useThemeStore()
+const countupOptions = { useEasing: true, useGrouping: true, duration: 2, separator: ' ', decimal: '.' }
+const amountFormatter = new Intl.NumberFormat('en-US')
+const formatAmount = (amount: number) => amountFormatter.format(amount).replace(/,/g, ' ')
 const userId = computed(() => user.value?.sub)
 const balance = computed(() => userStore.profile?.credit ?? null)
 const items = ref<Item[]>([])
@@ -120,6 +148,22 @@ const view = ref<ShopView>('open')
 const confirming = ref<string | null>(null)
 const showEdit = ref(false)
 const editingItem = ref<Item>()
+const deletingItem = ref<Item | null>(null)
+
+function openDelete(item: Item) {
+	error.value = ''
+	deletingItem.value = item
+}
+
+function closeDelete(show: boolean) {
+	if (show || busy.value) return
+	deletingItem.value = null
+	error.value = ''
+}
+
+async function confirmDelete() {
+	if (deletingItem.value) await applyAction(deletingItem.value, 'withdraw')
+}
 
 function openEdit(item: Item) {
 	editingItem.value = item
@@ -192,6 +236,7 @@ async function applyAction(item: Item, action: Action) {
 			p_expected_price: item.price,
 		})
 		if (failure) throw failure
+		if (action === 'withdraw') deletingItem.value = null
 		if (['propose', 'accept', 'approve', 'buy_own'].includes(action)) {
 			// A notification failure must not undo or resubmit the saved proposal.
 			void $fetch('/api/send-notification', {
@@ -248,7 +293,8 @@ watch([userId, shopRevision, focusedItemId], async () => {
 .shop-tabs, .shop-item { margin: 1rem 0; }
 
 .shop-item {
-	border-radius: 1.15rem;
+	border-radius: 1.5rem;
+	box-shadow: 0 4px 12px #31223d0a;
 	border-color: #e4d9eb;
 	background: #fff;
 }
@@ -279,7 +325,49 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	gap: 0.75rem;
 }
 
-.shop-price { margin-inline-start: auto; white-space: nowrap; color: #63366e; }
+.shop-price, .shop-balance {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	white-space: nowrap;
+}
+
+.shop-price {
+	margin-inline-start: auto;
+	padding: 0.25rem 0.55rem;
+	border-radius: 0.65rem;
+	background: #ece7f8;
+	color: #594474;
+}
+
+.shop-balance { font-size: 24px; font-weight: 600; }
+.shop-price svg, .shop-balance svg { width: 1em; height: 1em; flex: none; }
+
+.shop-card-index {
+	flex: none;
+	display: grid;
+	place-items: center;
+	align-self: center;
+	width: 2rem;
+	height: 2rem;
+	border-radius: 0.75rem;
+	background: #f2ebf8;
+	color: #684780;
+	font-weight: 700;
+}
+
+.shop-delete-modal { width: min(80vw, 30rem); }
+.shop-delete-card {
+	border-radius: 2rem;
+	background: linear-gradient(180deg, #f9f9fb 5%, color-mix(in srgb, var(--delete-theme) 30%, #f9f9fb));
+}
+#shop-delete-title { text-align: center; font-weight: 700; }
+.shop-delete-card :deep(.n-card__content) {
+	display: grid;
+	gap: 1.5rem;
+	text-align: center;
+	overflow-wrap: anywhere;
+}
 
 .shop-description { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; }
 /* The grid and divider share the same available width. */
@@ -298,7 +386,7 @@ watch([userId, shopRevision, focusedItemId], async () => {
 .shop-tabs .shop-button { width: 100%; min-width: 0; }
 .shop-item-focused { border-color: #a182bf; outline: 1px solid #a182bf; }
 .shop-item-details { display: grid; width: 100%; gap: 0.55rem; text-align: left; }
-.shop-item-title { display: block; font-size: 1.4rem; overflow-wrap: anywhere; }
+.shop-item-title { display: block; min-width: 0; font-size: 1.4rem; overflow-wrap: anywhere; }
 
 @media (max-width: 34rem) {
 	.shop-tabs .shop-button { flex-direction: column; gap: 0.25rem; padding-inline: 0.2rem; }
