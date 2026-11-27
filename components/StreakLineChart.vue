@@ -7,6 +7,7 @@
 <script setup lang="ts">
 import { getMonthParts } from '~/utils/statsMonthParts'
 import type { StatsSeries } from '~/composables/useStats'
+import { formatStatsAxisTooltip } from '~/utils/statsTooltip'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 
@@ -27,7 +28,12 @@ const option = computed(() => ({
 		itemHeight: 7,
 		textStyle: { color: '#667085' },
 	},
-	tooltip: { trigger: 'axis', renderMode: 'richText', confine: true },
+	tooltip: {
+		trigger: 'axis',
+		renderMode: 'html',
+		confine: true,
+		formatter: formatStatsAxisTooltip,
+	},
 	xAxis: {
 		type: 'category',
 		data: parts.value.map(({ label }) => label),

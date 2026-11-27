@@ -20,6 +20,7 @@ import { GraphicComponent, GridComponent, TooltipComponent } from 'echarts/compo
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { formatInTimeZone } from 'date-fns-tz'
+import { formatStatsTooltip } from '~/utils/statsTooltip'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 
@@ -254,7 +255,7 @@ const option = computed(() => {
 
 		tooltip: {
 			triggerOn: 'click',
-			renderMode: 'richText',
+			renderMode: 'html',
 			confine: true,
 			formatter: (point: { data?: unknown }) => {
 				if (!Array.isArray(point.data)) return ''
@@ -263,11 +264,15 @@ const option = computed(() => {
 				const label = new Intl.DateTimeFormat('en-GB', {
 					day: 'numeric', month: 'short', timeZone: 'UTC',
 				}).format(new Date(date))
-				const lines = props.data.filter((item) => item.date === date).map((item) => {
-					const name = userStore.getProfileById(item.userId)?.firstname || 'Partner'
-					return `${name}: ${item.count}`
+				const rows = props.data.filter((item) => item.date === date).map((item) => {
+					const mine = item.userId === userStore.userId
+					return {
+						name: userStore.getProfileById(item.userId)?.firstname || (mine ? 'You' : 'Partner'),
+						value: item.count,
+						color: mine ? themeStore.themeColor : '#f5a96e',
+					}
 				})
-				return [label, `${count} app opens`, ...lines].join('\n')
+				return formatStatsTooltip(`${label} · ${count} app opens`, rows)
 			},
 		},
 

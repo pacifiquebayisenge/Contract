@@ -7,6 +7,7 @@
 <script setup lang="ts">
 import { getMonthParts } from '~/utils/statsMonthParts'
 import type { StatsSeries } from '~/composables/useStats'
+import { formatStatsAxisTooltip } from '~/utils/statsTooltip'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 import { formatCountToMs } from '~/utils/numbers'
@@ -14,7 +15,6 @@ import { formatCountToMs } from '~/utils/numbers'
 const props = defineProps<{ days: string[]; data: StatsSeries[] }>()
 const themeStore = useThemeStore()
 const userStore = useUserStore()
-const amounts = new Intl.NumberFormat('en-US')
 
 const parts = computed(() => getMonthParts(props.days))
 
@@ -31,10 +31,9 @@ const option = computed(() => ({
 	},
 	tooltip: {
 		trigger: 'axis',
-		renderMode: 'richText',
+		renderMode: 'html',
 		confine: true,
-		valueFormatter: (value: unknown) =>
-			typeof value === 'number' ? amounts.format(value).replace(/,/g, ' ') : '—',
+		formatter: formatStatsAxisTooltip,
 	},
 	xAxis: {
 		type: 'category',
