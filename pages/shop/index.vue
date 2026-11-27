@@ -181,7 +181,7 @@ const formatAmount = (amount: number) => amountFormatter.format(amount).replace(
 const userId = computed(() => user.value?.sub)
 const balance = computed(() => userStore.profile?.credit ?? null)
 const items = ref<Item[]>([])
-const view = ref<ShopView>('open')
+const view = ref<ShopView>(route.query.view === 'owed' ? 'accepted' : 'open')
 const confirming = ref<string | null>(null)
 const showEdit = ref(false)
 const editingItem = ref<Item>()

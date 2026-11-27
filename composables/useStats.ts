@@ -6,7 +6,7 @@ const PAGE_SIZE = 500
 const EVENT_TYPES = ['streak_use', 'credit_gain', 'credit_spent', 'app_open']
 
 type Event = Pick<Database['public']['Tables']['user_events']['Row'],
-	'actor_id' | 'target_id' | 'event_type' | 'created_at' | 'balance'>
+	'actor_id' | 'target_id' | 'event_type' | 'created_at' | 'balance' | 'amount'>
 export type StatsSeries = {
 	userId: string
 	values: (number | null)[]
@@ -47,6 +47,10 @@ export function useStats() {
 	const userStore = useUserStore()
 	const user = useSupabaseUser()
 	const events = ref<Event[]>([])
+	const purchases = ref<Pick<Database['public']['Tables']['shop_items']['Row'],
+		'id' | 'source_item_id' | 'title' | 'kind' | 'creator_id' | 'partner_id' | 'status' | 'price' | 'accepted_at'>[]>([])
+	const rewardsReceived = ref<number | null>(null)
+	const shopReady = ref(false)
 	const loading = ref(true)
 	const error = ref('')
 	const today = ref(dayKey(new Date()))
@@ -71,7 +75,7 @@ export function useStats() {
 			// Supabase caps query results, so fetch the date range in stable pages.
 			for (let offset = 0; ; offset += PAGE_SIZE) {
 				const { data, error: failure } = await supabase.from('user_events')
-					.select('actor_id, target_id, event_type, created_at, balance')
+					.select('actor_id, target_id, event_type, created_at, balance, amount')
 					.in('event_type', EVENT_TYPES)
 					.in('target_id', participants)
 					.gte('created_at', rangeStart)
@@ -84,7 +88,21 @@ export function useStats() {
 				rows.push(...data)
 				if (data.length < PAGE_SIZE) break
 			}
+			const month = fromZonedTime(monthStart(today.value, 0) + 'T00:00:00', TIME_ZONE).toISOString()
+			const [shop, rewards] = await Promise.all([
+				supabase.from('shop_items')
+					.select('id, source_item_id, title, kind, creator_id, partner_id, status, price, accepted_at')
+					.or(`status.eq.accepted,accepted_at.gte.${month}`)
+					.order('accepted_at', { ascending: false }),
+				supabase.from('credit_increases').select('amount')
+					.eq('receiver_id', participants[0]).gte('created_at', month),
+			])
+			if (request !== latestRequest) return
+
 			events.value = rows
+			purchases.value = shop.data ?? []
+			shopReady.value = !shop.error
+			rewardsReceived.value = rewards.data?.reduce((total, reward) => total + reward.amount, 0) ?? null
 		} catch (cause) {
 			console.error('Could not load Stats:', cause)
 			if (request === latestRequest) {
@@ -138,7 +156,44 @@ export function useStats() {
 	const todayStreaks = computed(() => streakCounts.value.get(`${user.value?.sub}:${today.value}`) ?? 0)
 	const appOpensToday = computed(() => appOpenCounts.value.get(`${user.value?.sub}:${today.value}`) ?? 0)
 
+	const monthPrefix = computed(() => today.value.slice(0, 7))
+	const monthlyCredits = computed(() => {
+		let gained = 0
+		let spent = 0
+		for (const event of events.value) {
+			if (event.target_id !== user.value?.sub || !event.created_at || !dayKey(event.created_at).startsWith(monthPrefix.value)) continue
+			if (event.event_type === 'credit_gain') gained += Math.abs(event.amount ?? 0)
+			if (event.event_type === 'credit_spent') spent += Math.abs(event.amount ?? 0)
+		}
+		return { gained, spent }
+	})
+
+	const shopSummary = computed(() => {
+		const thisMonth = purchases.value.filter((item) =>
+			item.accepted_at && dayKey(item.accepted_at).startsWith(monthPrefix.value))
+		const favorites = new Map<string, { title: string; count: number }>()
+		let spent = 0
+
+		for (const item of thisMonth) {
+			const payer = item.kind === 'offer' ? item.partner_id : item.creator_id
+			if (payer === user.value?.sub) spent += item.price
+
+			const key = item.source_item_id ?? item.id
+			const favorite = favorites.get(key)
+			if (favorite) favorite.count++
+			else favorites.set(key, { title: item.title, count: 1 })
+		}
+
+		return {
+			bought: thisMonth.length,
+			completed: thisMonth.filter(({ status }) => status === 'completed').length,
+			owed: purchases.value.filter(({ status }) => status === 'accepted').length,
+			spent,
+			favorite: [...favorites.values()].sort((a, b) => b.count - a.count)[0] ?? null,
+		}
+	})
+
 	watch(userIds, load, { immediate: true })
 
-	return { days, loading, error, load, todayStreaks, streakSeries, creditSeries, appOpensPerDay, appOpensToday }
+	return { days, loading, error, load, monthlyCredits, shopSummary, shopReady, rewardsReceived, todayStreaks, streakSeries, creditSeries, appOpensPerDay, appOpensToday }
 }
