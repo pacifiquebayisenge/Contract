@@ -21,7 +21,7 @@
 					<label>Price in credits <input v-model.number="draft.price" type="number" required min="1" max="100000" /></label>
 					<p v-if="error" role="alert">{{ error }}</p>
 					<button type="submit" class="button-3D shop-button shop-new" :disabled="busy">
-						<SparklesIcon aria-hidden="true" /> {{ busy ? 'Saving…' : item ? 'Save changes' : 'Publish' }}
+						<SparklesIcon aria-hidden="true" /> {{ busy ? 'Saving…' : item ? 'Edit' : 'Publish' }}
 					</button>
 				</form>
 			</n-card>
@@ -144,9 +144,11 @@ async function saveItem() {
 	outline: 2px solid #c9b4df;
 }
 
-.shop-form .shop-button {
+.shop-form .button-3D.shop-button {
 	width: 100%;
 	margin-top: 0.75rem;
+	padding: 0.75rem 1.5rem;
+	font-size: 1.4rem !important;
 }
 
 @media (max-width: 600px) {
