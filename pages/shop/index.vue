@@ -34,7 +34,7 @@
 				<button v-if="loadFailed" type="button" class="button-3D shop-button shop-refresh" @click="loadShop">Try again</button>
 			</div>
 			<p v-if="!loading && !loadFailed && !visibleItems.length">{{ emptyMessages[view] }}</p>
-			<n-card v-for="({ item, count }, index) in visibleItems" :key="item.id" class="shop-item" :bordered="true" :class="{ 'shop-item-focused': item.id === focusedItemId }">
+			<n-card v-for="({ item, count, purchases }, index) in visibleItems" :key="item.id" class="shop-item" :bordered="true" :class="{ 'shop-item-focused': item.id === focusedItemId }">
 				<span v-if="count > 1" class="shop-item-count" :aria-label="`${count} purchases`">{{ count }}</span>
 				<div class="shop-card-layout">
 					<span class="shop-card-index" aria-hidden="true">{{ index + 1 }}</span>
@@ -73,7 +73,27 @@
 								>
 									<template v-if="purchaseTimer(item.id, item.creator_id)"><ClockIcon aria-hidden="true" /> {{ purchaseTimer(item.id, item.creator_id) }}</template><template v-else>Buy</template>
 								</button>
-								<p v-if="item.status === 'accepted'">To be done by {{ personName(performer(item)) }}</p>
+								<div v-if="item.status === 'accepted'" class="shop-schedule">
+									<div v-for="(purchase, taskIndex) in purchases" :key="purchase.id" class="shop-scheduled-task">
+										<p v-if="count > 1"><strong>Task {{ taskIndex + 1 }}</strong></p>
+										<p>To be done by {{ personName(performer(purchase)) }}</p>
+										<label>
+											<span>Planned date (optional)</span>
+											<input
+												type="date"
+												:value="purchase.scheduled_on ?? ''"
+												:disabled="busy"
+												@change="setPurchaseDate(purchase, $event)"
+											/>
+										</label>
+										<button v-if="purchase.scheduled_on" type="button" class="shop-clear-date" :disabled="busy" @click="savePurchaseDate(purchase, null)">
+											Clear date
+										</button>
+										<button v-if="performer(purchase) === userId" type="button" class="button-3D shop-button shop-aqua" :disabled="busy" @click="applyAction(purchase, 'complete')">
+											Mark as done
+										</button>
+									</div>
+								</div>
 								<div v-if="item.status === 'open' && item.partner_id === userId && confirming === item.id" class="shop-confirmation">
 									<p v-if="item.kind === 'undecided'">Choose who will do it. The other person pays {{ item.price }} credits.</p>
 									<p v-else>{{ item.kind === 'offer' ? 'You' : 'Your partner' }} will spend {{ item.price }} credits.</p>
@@ -88,7 +108,7 @@
 									<button v-if="item.creator_id === userId" type="button" class="button-3D shop-button shop-owed" :disabled="busy || !!purchaseTimer(item.id, item.creator_id)" @click="applyAction(item, 'approve')"><template v-if="purchaseTimer(item.id, item.creator_id)"><ClockIcon aria-hidden="true" /> {{ purchaseTimer(item.id, item.creator_id) }}</template><template v-else>Accept and pay</template></button>
 									<button type="button" class="button-3D shop-button shop-refresh" :disabled="busy" @click="applyAction(item, 'decline')">{{ item.creator_id === userId ? 'Decline' : 'Cancel proposal' }}</button>
 								</div>
-								<button type="button" class="button-3D shop-button shop-aqua" v-if="item.status === 'accepted' && performer(item) === userId" :disabled="busy" @click="applyAction(item, 'complete')">{{ count > 1 ? 'Mark one as done' : 'Mark as done' }}</button>
+
 							</div>
 						</n-collapse-transition>
 						<div class="shop-meta">
@@ -231,16 +251,17 @@ const visibleItems = computed(() => {
 	const visible = items.value.filter((item) =>
 		item.status === view.value || (view.value === 'open' && item.status === 'proposed'),
 	)
-	const groups = new Map<string, { item: Item; count: number }>()
+	const groups = new Map<string, { item: Item; count: number; purchases: Item[] }>()
 	for (const item of visible) {
 		const key = view.value === 'open' ? item.id : item.source_item_id ?? item.id
 		const group = groups.get(key)
 		if (!group) {
-			groups.set(key, { item, count: 1 })
+			groups.set(key, { item, count: 1, purchases: [item] })
 			continue
 		}
 
 		group.count++
+		group.purchases.push(item)
 		// Open the purchase referenced by a notification, or show one of your own tasks first.
 		if (item.id === focusedItemId.value ||
 			(group.item.id !== focusedItemId.value && performer(item) === userId.value && performer(group.item) !== userId.value)) {
@@ -312,6 +333,36 @@ function shopActionError(cause: unknown) {
 	if (message === 'The Shop item changed. Refresh before trying again.') return message
 	if (code === '42501') return 'The database denied this Shop action. Check your session and Shop permissions.'
 	return 'Could not update this item. See the browser console for the database error.'
+}
+
+async function setPurchaseDate(item: Item, event: Event) {
+	const input = event.target as HTMLInputElement
+	if (!(await savePurchaseDate(item, input.value || null))) {
+		input.value = item.scheduled_on ?? ''
+	}
+}
+
+async function savePurchaseDate(item: Item, date: string | null) {
+	if (busy.value) return false
+
+	busy.value = true
+	error.value = ''
+	try {
+		const { error: failure } = await supabase.rpc('schedule_shop_purchase', {
+			p_item_id: item.id,
+			p_scheduled_on: date,
+		})
+		if (failure) throw failure
+
+		item.scheduled_on = date
+		return true
+	} catch (cause) {
+		console.error('Could not set Shop purchase date:', cause)
+		error.value = 'Could not save the planned date. Refresh the Shop and try again.'
+		return false
+	} finally {
+		busy.value = false
+	}
 }
 
 async function applyAction(item: Item, action: Action) {
@@ -558,6 +609,32 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	background: #704b14;
 	color: #fff;
 }
+
+.shop-schedule, .shop-scheduled-task, .shop-scheduled-task label {
+	display: grid;
+	gap: 0.75rem;
+	min-width: 0;
+}
+
+.shop-scheduled-task {
+	padding: 0.9rem;
+	border: 1px solid #e4d9eb;
+	border-radius: 0.85rem;
+	background: #f9f6fc;
+}
+
+.shop-scheduled-task label { gap: 0.3rem; font-weight: 600; }
+.shop-scheduled-task input {
+	display: block;
+	width: 100%;
+	min-width: 0;
+	padding: 0.45rem 0.65rem;
+	border: 1px solid #d8c9e1;
+	border-radius: 0.5rem;
+	background: #fff;
+	color: inherit;
+}
+.shop-clear-date { justify-self: start; text-decoration: underline; }
 
 .shop-item-focused { border-color: #a182bf; outline: 1px solid #a182bf; }
 .shop-item-details { display: grid; width: 100%; gap: 0.55rem; text-align: left; }

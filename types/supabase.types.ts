@@ -28,6 +28,7 @@ export type Database = {
           accepted_at: string | null
           accepted_by: string | null
           source_item_id: string | null
+          scheduled_on: string | null
         }
         Insert: {
           creator_id: string
@@ -263,6 +264,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      schedule_shop_purchase: {
+        Args: { p_item_id: string; p_scheduled_on: string | null }
+        Returns: undefined
+      }
       purchase_shop_item_at_price: {
         Args: { p_item_id: string; p_action: string; p_expected_price: number }
         Returns: string
