@@ -18,12 +18,26 @@ const formatDay = (day: string) => dates.format(new Date(day))
 const option = computed(() => ({
 	animation: false,
 	grid: { left: 36, right: 12, top: 22, bottom: 64 },
-	legend: { bottom: 4, type: 'scroll' },
+	legend: {
+		bottom: 5,
+		type: 'scroll',
+		icon: 'roundRect',
+		itemWidth: 12,
+		itemHeight: 7,
+		textStyle: { color: '#667085' },
+	},
 	tooltip: { trigger: 'axis', renderMode: 'richText', confine: true, axisPointer: { type: 'shadow' } },
 	xAxis: {
 		type: 'category',
 		data: props.days,
-		axisLabel: { formatter: formatDay, hideOverlap: true, margin: 10 },
+		axisLabel: {
+			formatter: formatDay,
+			interval: Math.max(0, Math.ceil(props.days.length / 5) - 1),
+			hideOverlap: true,
+			margin: 10,
+			color: '#667085',
+		},
+		axisLine: { show: false },
 		axisTick: { show: false },
 	},
 	yAxis: {
@@ -31,7 +45,9 @@ const option = computed(() => ({
 		min: 0,
 		max: ({ max }: { max: number }) => Math.max(5, max + 1),
 		minInterval: 1,
-		splitLine: { lineStyle: { color: '#e5e7eb' } },
+		axisLabel: { color: '#667085' },
+		splitNumber: 3,
+		splitLine: { lineStyle: { color: '#f0edf4', type: 'dashed' } },
 	},
 	series: props.data.map(({ userId, values }, index) => {
 		const mine = userId === userStore.userId
@@ -40,13 +56,14 @@ const option = computed(() => ({
 			type: 'bar',
 			data: values,
 			barMaxWidth: 12,
-			itemStyle: { color: mine ? themeStore.themeColor : '#c27645', borderRadius: [2, 2, 0, 0] },
+			barGap: '30%',
+			itemStyle: { color: mine ? themeStore.lightThemeColor : '#e5adc9', borderRadius: [5, 5, 0, 0] },
 			...(index === 0 && {
 				markLine: {
 					silent: true,
 					symbol: 'none',
-					label: { formatter: 'Free limit', position: 'insideEndTop' },
-					lineStyle: { color: '#9f6671', type: 'dashed' },
+					label: { formatter: 'Free limit', position: 'insideEndTop', color: '#8c687b', fontSize: 10 },
+					lineStyle: { color: '#d9a9bd', type: 'dashed' },
 					data: [{ yAxis: 3 }],
 				},
 			}),

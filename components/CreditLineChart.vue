@@ -20,7 +20,14 @@ const formatDay = (day: string) => dates.format(new Date(day))
 const option = computed(() => ({
 	animation: false,
 	grid: { left: 48, right: 12, top: 18, bottom: 64 },
-	legend: { bottom: 4, type: 'scroll' },
+	legend: {
+		bottom: 5,
+		type: 'scroll',
+		icon: 'roundRect',
+		itemWidth: 12,
+		itemHeight: 7,
+		textStyle: { color: '#667085' },
+	},
 	tooltip: {
 		trigger: 'axis',
 		renderMode: 'richText',
@@ -31,18 +38,26 @@ const option = computed(() => ({
 	xAxis: {
 		type: 'category',
 		data: props.days,
-		axisLabel: { formatter: formatDay, hideOverlap: true, margin: 10 },
+		axisLabel: {
+			formatter: formatDay,
+			interval: Math.max(0, Math.ceil(props.days.length / 5) - 1),
+			hideOverlap: true,
+			margin: 10,
+			color: '#667085',
+		},
+		axisLine: { show: false },
 		axisTick: { show: false },
 	},
 	yAxis: {
 		type: 'value',
 		scale: true,
-		axisLabel: { formatter: (value: number) => formatCountToMs(value) },
-		splitLine: { lineStyle: { color: '#e5e7eb' } },
+		axisLabel: { color: '#667085', formatter: (value: number) => formatCountToMs(value) },
+		splitNumber: 3,
+		splitLine: { lineStyle: { color: '#f0edf4', type: 'dashed' } },
 	},
 	series: props.data.map(({ userId, values }) => {
 		const mine = userId === userStore.userId
-		const color = mine ? themeStore.themeColor : '#c27645'
+		const color = mine ? themeStore.lightThemeColor : '#e5adc9'
 		return {
 			name: userStore.getProfileById(userId)?.firstname || (mine ? 'You' : 'Partner'),
 			type: 'line',
@@ -50,7 +65,8 @@ const option = computed(() => ({
 			step: 'end',
 			connectNulls: false,
 			showSymbol: false,
-			lineStyle: { width: 2, color },
+			lineStyle: { width: 3, color },
+			areaStyle: { color, opacity: 0.12 },
 			itemStyle: { color },
 		}
 	}),

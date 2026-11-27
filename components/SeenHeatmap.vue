@@ -86,7 +86,7 @@ const option = computed(() => {
 
 	/* ---------- layout ---------- */
 	const sidePadding = 12
-	const gap = 8 // a bit more spacing between tiles
+	const gap = 6
 
 	const labelArea = 26
 	const legendArea = 34
@@ -111,8 +111,8 @@ const option = computed(() => {
 	chartHeight.value = `${labelArea + extraTopPad + gridHeight + legendArea + extraBottomPad}px`
 
 	/* ---------- colors (your spec) ---------- */
-	const inactiveFill = '#eff2f5'
-	const inactiveBorder = '#e4e7eb'
+	const inactiveFill = '#f3f1f6'
+	const inactiveBorder = '#eeebf3'
 
 	// 4 shades:
 	// 1) current light theme color but a bit lighter
@@ -124,8 +124,8 @@ const option = computed(() => {
 
 	const shade1 = mix(lightBase, '#ffffff', 0.18)
 	const shade2 = lightBase
-	const shade3 = mix(lightBase, '#000000', 0.1)
-	const shade4 = base
+	const shade3 = mix(lightBase, base, 0.22)
+	const shade4 = mix(lightBase, base, 0.48)
 
 	function activeColor(totalCount: number) {
 		if (totalCount <= 1) return shade1
