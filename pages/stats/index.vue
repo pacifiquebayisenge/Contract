@@ -12,29 +12,19 @@
 			<n-button text @click="load">Try again</n-button>
 		</div>
 		<div v-else class="stats-charts">
-			<ChartCard title="Credits This Month" subtitle="Your activity">
+			<ChartCard class="stats-summary" title="Credits This Month">
 				<dl class="monthly-credits">
 					<div class="credit-in"><dt>Gained</dt><dd>+{{ formatCredits(monthlyCredits.gained) }}</dd></div>
 					<div class="credit-out"><dt>Spent</dt><dd>−{{ formatCredits(monthlyCredits.spent) }}</dd></div>
 				</dl>
-				<p v-if="rewardsReceived !== null || shopReady" class="monthly-detail">
-					<span v-if="rewardsReceived !== null">Rewards received: {{ formatCredits(rewardsReceived) }}</span>
-					<span v-if="shopReady">Shop purchases: {{ formatCredits(shopSummary.spent) }}</span>
-				</p>
 			</ChartCard>
-			<ChartCard title="Shop Activity" subtitle="Both partners">
+			<ChartCard class="stats-summary" title="Shop Activity">
 				<template v-if="shopReady">
 					<dl class="shop-metrics">
-						<div><dt>Bought this month</dt><dd>{{ shopSummary.bought }}</dd></div>
-						<div><dt>Completed from this month</dt><dd>{{ shopSummary.completed }}</dd></div>
-						<div><dt>Still owed</dt><dd>{{ shopSummary.owed }}</dd></div>
+						<div><dt>Bought</dt><dd>{{ shopSummary.bought }}</dd></div>
+						<div><dt>Completed</dt><dd>{{ shopSummary.completed }}</dd></div>
+						<div><dt>Owed</dt><dd>{{ shopSummary.owed }}</dd></div>
 					</dl>
-					<div class="shop-stats-footer">
-						<p v-if="shopSummary.favorite">
-							Most bought this month · <strong>{{ shopSummary.favorite.title }}</strong> ×{{ shopSummary.favorite.count }}
-						</p>
-						<NuxtLink :to="{ path: '/shop', query: { view: 'owed' } }">View owed</NuxtLink>
-					</div>
 				</template>
 				<p v-else class="stats-status">Shop activity is unavailable.</p>
 			</ChartCard>
@@ -59,7 +49,7 @@ import { usePageAnimation } from '~/composables/usePageAnimation'
 import { useStats } from '~/composables/useStats'
 import { useUserStore } from '~/stores/user'
 
-const { days, loading, error, load, todayStreaks, streakSeries, creditSeries, appOpensPerDay, monthlyCredits, shopSummary, shopReady, rewardsReceived } = useStats()
+const { days, loading, error, load, todayStreaks, streakSeries, creditSeries, appOpensPerDay, monthlyCredits, shopSummary, shopReady } = useStats()
 const userStore = useUserStore()
 const creditFormatter = new Intl.NumberFormat('en-US')
 const formatCredits = (amount: number) => creditFormatter.format(amount).replace(/,/g, ' ')
@@ -97,15 +87,17 @@ onMounted(() => {
 
 .stats-charts { display: grid; gap: 1rem; min-width: 0; }
 .stats-status { padding: 0.75rem 0; text-align: center; color: #64748b; }
-.monthly-credits, .shop-metrics { display: grid; gap: 0.65rem; }
+.stats-summary :deep(h2) {
+	/* Match the subtitle's former line box and vertical margins. */
+	margin-bottom: calc(1.1rem * 1.5 + 0.95rem);
+}
+.monthly-credits, .shop-metrics { display: grid; gap: 0.65rem; padding-bottom: calc(1lh + 0.8rem); }
 .monthly-credits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .shop-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .monthly-credits > div, .shop-metrics > div { border-radius: 0.85rem; padding: 0.65rem; background: #f3eff9; }
 .monthly-credits dt, .shop-metrics dt { font-size: 1.05rem; }
-.monthly-credits dd, .shop-metrics dd { font-size: 1.45rem; font-weight: 700; }
-.monthly-credits .credit-in { background: #e7f5ec; color: #326447; }
-.monthly-credits .credit-out { background: #fbeaf0; color: #8c4561; }
-.monthly-detail, .shop-stats-footer { display: flex; flex-wrap: wrap; gap: 0.45rem 1rem; margin-top: 0.8rem; }
-.shop-stats-footer p { margin: 0; overflow-wrap: anywhere; }
-.shop-stats-footer a { font-weight: 700; text-decoration: underline; }
+.monthly-credits dd, .shop-metrics dd { font-size: 1.45rem; font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
+.monthly-credits dt { font-weight: 700; text-align: center; }
+.monthly-credits .credit-in { background: #e7f5ec; color: #326447; box-shadow: inset 0 0 0 1px #cce7d6; }
+.monthly-credits .credit-out { background: #fbeaf0; color: #8c4561; box-shadow: inset 0 0 0 1px #f1d5e0; }
 </style>
