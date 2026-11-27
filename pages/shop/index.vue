@@ -279,9 +279,7 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	max-width: 42rem;
 	margin: 0 auto;
 	padding: 1rem 1rem 8rem;
-	color: #e5e7eb;
-	background: #30313a;
-	border-radius: 1.5rem;
+	color: #475569;
 }
 
 .shop-header, .shop-tabs, .item-heading, .shop-confirmation {
@@ -298,8 +296,8 @@ watch([userId, shopRevision, focusedItemId], async () => {
 .shop-item {
 	border-radius: 1.5rem;
 	box-shadow: 0 4px 12px #31223d0a;
-	border-color: #50515f;
-	background: #393a46;
+	border-color: #e4d9eb;
+	background: #fff;
 	color: inherit;
 }
 
@@ -308,7 +306,7 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	gap: 0.85rem;
 	margin-top: 0.85rem;
 	padding-top: 0.85rem;
-	border-top: 1px solid #585a69;
+	border-top: 1px solid #eee5f1;
 }
 
 .shop-meta { display: flex; flex-wrap: wrap; gap: 0.3rem 0.55rem; color: inherit; opacity: 0.85; }
@@ -380,7 +378,7 @@ watch([userId, shopRevision, focusedItemId], async () => {
 .shop-description { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; }
 /* The grid and divider share the same available width. */
 .shop-header {
-	border-bottom: 1px solid #606273;
+	border-bottom: 1px solid #dedee3;
 	padding-bottom: 1rem;
 }
 
