@@ -1,5 +1,5 @@
 alter table public.shop_items
-  add column accepted_by uuid references public.profiles(id);
+  add column if not exists accepted_by uuid references public.profiles(id);
 
 grant select on public.shop_items to service_role;
 
