@@ -52,9 +52,6 @@
 		"vueuc": "0.3.5"
 	},
 	"pnpm": {
-		"overrides": {
-			"@nuxt/vite-builder": "4.4.5"
-		},
 		"onlyBuiltDependencies": [
 			"supabase",
 			"@parcel/watcher",
