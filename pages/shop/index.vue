@@ -109,16 +109,17 @@
 					<template #header>
 						<h2 id="shop-delete-title">Delete item</h2>
 					</template>
-					<AvatarIcon mood="shook" :fullname="userStore.getFullname" />
-					<div class="shop-delete-copy">
-						<p>Remove this item from the Shop?</p>
-						<strong>{{ deletingItem?.title }}</strong>
+					<div class="shop-delete-body">
+						<AvatarIcon mood="shook" :fullname="userStore.getFullname" />
+						<div class="shop-delete-copy">
+							<p>Remove this item from the Shop?</p>
+							<strong>{{ deletingItem?.title }}</strong>
+						</div>
+						<p v-if="error" role="alert">{{ error }}</p>
+						<button type="button" class="button-3D button-3D-colorful-error" :disabled="busy" @click="confirmDelete">
+							{{ busy ? 'Deleting…' : 'Delete' }}
+						</button>
 					</div>
-					<p v-if="error" role="alert">{{ error }}</p>
-					<button type="button" class="button-3D button-3D-colorful-error" :disabled="busy" @click="confirmDelete">
-						{{ busy ? 'Deleting…' : 'Delete' }}
-					</button>
-					<button type="button" class="shop-delete-cancel" :disabled="busy" @click="closeDelete(false)">Cancel</button>
 				</n-card>
 			</div>
 		</n-modal>
@@ -388,16 +389,17 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	background: linear-gradient(180deg, #f9f9fb 5%, #f3edf9 60%, #eadcf6);
 }
 #shop-delete-title { color: #45404b; text-align: center; font-weight: 700; }
-.shop-delete-card :deep(.n-card__content) {
+.shop-delete-body {
 	display: grid;
-	gap: 1.25rem;
+	gap: 1.5rem;
+	justify-items: center;
 	color: #504758;
 	text-align: center;
 	overflow-wrap: anywhere;
 }
 
 .shop-delete-copy { display: grid; gap: 0.5rem; }
-.shop-delete-cancel { justify-self: center; padding: 0.35rem 0.75rem; font-weight: 600; }
+.shop-delete-body .button-3D { margin-top: 0.5rem; }
 
 .shop-description {
 	white-space: pre-wrap;
