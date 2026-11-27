@@ -8,6 +8,7 @@
 import { getMonthParts } from '~/utils/statsMonthParts'
 import type { StatsSeries } from '~/composables/useStats'
 import { formatStatsAxisTooltip } from '~/utils/statsTooltip'
+import { statsSeriesColor } from '~/utils/statsColors'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 import { formatCountToMs } from '~/utils/numbers'
@@ -57,7 +58,7 @@ const option = computed(() => ({
 	},
 	series: props.data.map(({ userId, values }) => {
 		const mine = userId === userStore.userId
-		const color = mine ? themeStore.lightThemeColor : '#e5adc9'
+		const color = statsSeriesColor(themeStore.currentTheme, mine)
 		return {
 			name: userStore.getProfileById(userId)?.firstname || (mine ? 'You' : 'Partner'),
 			type: 'line',

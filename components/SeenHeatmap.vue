@@ -21,6 +21,7 @@ import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { formatInTimeZone } from 'date-fns-tz'
 import { formatStatsTooltip } from '~/utils/statsTooltip'
+import { statsSeriesColor } from '~/utils/statsColors'
 import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 
@@ -269,7 +270,7 @@ const option = computed(() => {
 					return {
 						name: userStore.getProfileById(item.userId)?.firstname || (mine ? 'You' : 'Partner'),
 						value: item.count,
-						color: mine ? themeStore.themeColor : '#f5a96e',
+						color: statsSeriesColor(themeStore.currentTheme, mine),
 					}
 				})
 				return formatStatsTooltip(`${label} · ${count} app opens`, rows)
