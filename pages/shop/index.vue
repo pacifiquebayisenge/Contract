@@ -62,7 +62,7 @@
 								<button type="button" class="button-3D shop-button shop-refresh" aria-label="Edit item" :disabled="busy" @click="openEdit(item)">
 									<PencilSquareIcon aria-hidden="true" />
 								</button>
-								<button type="button" class="button-3D shop-button shop-delete" aria-label="Delete item" :disabled="busy" @click="openDelete(item)">
+								<button type="button" class="button-3D shop-button shop-delete" aria-label="Delete item" :disabled="busy" @click="openDelete(item, index + 1)">
 									<TrashIcon aria-hidden="true" />
 								</button>
 							</div>
@@ -105,15 +105,18 @@
 			@update:show="closeDelete"
 		>
 			<div class="shop-delete-modal">
-				<n-card class="shop-delete-card" :bordered="false" role="dialog" aria-labelledby="shop-delete-title">
+				<n-card class="shop-delete-card" :style="{ '--shop-delete-accent': themeStore.themeColor }" :bordered="false" role="dialog" aria-labelledby="shop-delete-title">
 					<template #header>
 						<h2 id="shop-delete-title">Delete item</h2>
 					</template>
 					<div class="shop-delete-body">
 						<AvatarIcon mood="shook" :fullname="userStore.getFullname" />
 						<div class="shop-delete-copy">
-							<p>Remove this item from the Shop?</p>
-							<strong>{{ deletingItem?.title }}</strong>
+							<p>
+								Are you <strong class="shop-delete-accent">sure</strong> you want to delete
+								shop item <strong class="shop-delete-accent">{{ deletingItemNumber }}</strong> ???
+							</p>
+							<p>{{ deletingItem?.title }}</p>
 						</div>
 						<p v-if="error" role="alert">{{ error }}</p>
 						<button type="button" class="button-3D button-3D-colorful-error" :disabled="busy" @click="confirmDelete">
@@ -131,6 +134,7 @@ import { ArrowPathIcon, BanknotesIcon, CheckCircleIcon, ClockIcon, PencilSquareI
 import { Vue3Countup } from 'vue3-countup'
 import type { Database } from '~/types/supabase.types'
 import { useCreditStore } from '~/stores/credit'
+import { useThemeStore } from '~/stores/theme'
 import { useUserStore } from '~/stores/user'
 import { formatTimeAgo } from '~/utils/formatDate'
 
@@ -147,6 +151,7 @@ const focusedItemId = computed(() => {
 const user = useSupabaseUser()
 const userStore = useUserStore()
 const creditStore = useCreditStore()
+const themeStore = useThemeStore()
 const countupOptions = { useEasing: true, useGrouping: true, duration: 2, separator: ' ', decimal: '.' }
 const amountFormatter = new Intl.NumberFormat('en-US')
 const formatAmount = (amount: number) => amountFormatter.format(amount).replace(/,/g, ' ')
@@ -159,7 +164,10 @@ const showEdit = ref(false)
 const editingItem = ref<Item>()
 const deletingItem = ref<Item | null>(null)
 
-function openDelete(item: Item) {
+const deletingItemNumber = ref(0)
+
+function openDelete(item: Item, number: number) {
+	deletingItemNumber.value = number
 	error.value = ''
 	deletingItem.value = item
 }
@@ -398,7 +406,16 @@ watch([userId, shopRevision, focusedItemId], async () => {
 	overflow-wrap: anywhere;
 }
 
-.shop-delete-copy { display: grid; gap: 0.5rem; }
+.shop-delete-copy {
+	display: grid;
+	gap: 1.5rem;
+	color: #656565;
+	font-size: 1.6rem;
+	font-weight: 600;
+	line-height: 1.5;
+}
+
+.shop-delete-accent { color: var(--shop-delete-accent); font-weight: 700; }
 .shop-delete-body .button-3D { margin-top: 0.5rem; }
 
 .shop-description {
