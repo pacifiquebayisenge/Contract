@@ -10,9 +10,9 @@ export function usePageAnimation() {
 	 * Call this in your page's onMounted()
 	 * It animates all elements with class "animate-item"
 	 */
-	const animatePageEnter = () => {
+	const animatePageEnter = (root: ParentNode = document) => {
 		const dir = getDirection()
-		const items = document.querySelectorAll('.animate-item')
+		const items = root.querySelectorAll('.animate-item')
 
 		if (!items.length) return
 

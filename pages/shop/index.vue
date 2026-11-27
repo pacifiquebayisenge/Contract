@@ -27,14 +27,14 @@
 			</button>
 		</div>
 
-		<div class="shop-list">
+		<div ref="shopList" class="shop-list">
 			<p v-if="loading" role="status">Loading Shop…</p>
 			<div v-if="error && !deletingItem" role="alert">
 				{{ error }}
 				<button v-if="loadFailed" type="button" class="button-3D shop-button shop-refresh" @click="loadShop">Try again</button>
 			</div>
 			<p v-if="!loading && !loadFailed && !visibleItems.length">{{ emptyMessages[view] }}</p>
-			<n-card v-for="({ item, count, purchases }, index) in visibleItems" :key="item.id" class="shop-item" :bordered="true" :class="{ 'shop-item-focused': item.id === focusedItemId }">
+			<n-card v-for="({ item, count, purchases }, index) in visibleItems" :key="item.id" class="shop-item animate-item" :bordered="true" :class="{ 'shop-item-focused': item.id === focusedItemId }">
 				<span v-if="count > 1" class="shop-item-count" :aria-label="`${count} purchases`">{{ count }}</span>
 				<div class="shop-card-layout">
 					<span class="shop-card-index" aria-hidden="true">{{ index + 1 }}</span>
@@ -155,6 +155,7 @@
 
 <script setup lang="ts">
 import { ArrowPathIcon, BanknotesIcon, CheckCircleIcon, ClockIcon, PencilSquareIcon, ShoppingBagIcon, TrashIcon } from '@heroicons/vue/24/outline'
+import { usePageAnimation } from '~/composables/usePageAnimation'
 import { Vue3Countup } from 'vue3-countup'
 import type { Database } from '~/types/supabase.types'
 import { useCreditStore } from '~/stores/credit'
@@ -404,6 +405,22 @@ async function applyAction(item: Item, action: Action) {
 		busy.value = false
 	}
 }
+
+const shopList = ref<HTMLElement | null>(null)
+const { animatePageEnter } = usePageAnimation()
+let animatedShopItems = false
+
+onMounted(() => {
+	watch(visibleItems, (cards) => {
+		if (animatedShopItems || !cards.length || !shopList.value) return
+
+		// The Shop loads its cards asynchronously, so wait until they are rendered.
+		animatedShopItems = true
+		if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			animatePageEnter(shopList.value)
+		}
+	}, { immediate: true, flush: 'post' })
+})
 
 watch([userId, shopRevision, focusedItemId], async () => {
 	const id = focusedItemId.value
